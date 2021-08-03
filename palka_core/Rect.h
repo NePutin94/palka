@@ -11,8 +11,10 @@
 #include <utility>
 
 #ifdef REFLECTION_CORE
+
 #include <rttr/type>
 #include <rttr/registration_friend>
+
 #endif
 
 namespace palka
@@ -36,7 +38,8 @@ namespace palka
     class Rect
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
 #endif
     public:
@@ -47,6 +50,8 @@ namespace palka
         Rect(T x, T y, T w, T h) : left(x), top(y), w(w), h(h)
         {}
 
+        Rect(const Rect&) = default;
+
         template<class T2>
         bool contains(Vec2<T2>);
 
@@ -55,6 +60,11 @@ namespace palka
         SDL_Rect getRect() const
         {
             return {(int) left, (int) top, (int) w, (int) h};
+        }
+
+        SDL_FRect getRectF() const
+        {
+            return {left, top, w, h};
         }
 
         std::array<Vec2<T>, 4> getPoints() const

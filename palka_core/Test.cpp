@@ -3,6 +3,7 @@
 //
 
 #include "Test.h"
+
 #include <rttr/registration>
 
 RTTR_REGISTRATION
@@ -14,8 +15,11 @@ RTTR_REGISTRATION
 
     registration::class_<Test2>("Test2")
             .property("z", &Test2::z)
+            .property("ftest2", &Test2::ftest2)
             .property("t", &Test2::t);
 
     registration::class_<Test3>("Test3")
+            .property("ftest", &Test3::ftest)
+            .property("stest", &Test3::stest)
             .property("asd", &Test3::asd);
 }

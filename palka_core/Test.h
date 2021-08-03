@@ -23,11 +23,14 @@ public:
 
 class Test2 : public palka::utility::DebugTree
 {
+public:
     RTTR_ENABLE(palka::utility::DebugTree)
     RTTR_REGISTRATION_FRIEND
-    std::string z;
-    Test1 t;
 public:
+    std::string z;
+    float ftest2;
+    Test1 t;
+
     Test2()
     {
         z = "fdsgsh";
@@ -37,10 +40,14 @@ public:
 
 class Test3 : public palka::utility::DebugTree
 {
+
     RTTR_ENABLE(palka::utility::DebugTree)
     RTTR_REGISTRATION_FRIEND
-    Test2 asd;
 public:
+    Test2 asd;
+    float ftest;
+    std::string stest;
+
     Test3() = default;
 };
 

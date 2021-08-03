@@ -1,7 +1,6 @@
 //
 // Created by NePutin on 7/10/2021.
 //
-
 #ifndef PALKA_REFLECTIONDEBUG_H
 #define PALKA_REFLECTIONDEBUG_H
 
@@ -49,9 +48,24 @@ namespace palka
                 return false;
         }
 
-        inline void property_get(std::string_view name, const rttr::variant& _prop_value)
+        template<class T>
+        inline void toplevel_property_get(std::string_view name, const rttr::property& prop, const T& instance)
         {
-            auto prop_value = wrapped_check(_prop_value) ? _prop_value.extract_wrapped_value() : _prop_value;
+
+        }
+
+        inline bool property_get(std::string_view name, const rttr::property& prop, const rttr::variant& instance, bool is_array = false)
+        {
+            bool v_change = false;
+            rttr::variant prop_value;
+            if (is_array)
+            {
+                prop_value = wrapped_check(instance) ? instance.extract_wrapped_value() : instance;
+            } else
+            {
+                auto _prop_value = prop.get_value(instance);
+                prop_value = wrapped_check(_prop_value) ? _prop_value.extract_wrapped_value() : _prop_value;
+            }
             ImGui::PushID(&prop_value);
             switch (checkType(prop_value))
             {
@@ -59,12 +73,40 @@ namespace palka
                 {
                     auto i = prop_value.get_value<int>();
                     ImGui::Text("%s = %i", name.data(), i);
+                    if (!is_array && ImGui::BeginPopupContextItem(instance.get_type().get_name().data()))
+                    {
+                        int changedValue = i;
+                        if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
+                        ImGui::PushItemWidth(200);
+                        ImGui::DragInt(name.data(), &changedValue, 1.f, -900.f, 900.f);
+                        if (changedValue != i)
+                        {
+                            prop.set_value(instance, changedValue);
+                            v_change = true;
+                        }
+                        ImGui::PopItemWidth();
+                        ImGui::EndPopup();
+                    }
                 }
                     break;
                 case FLOAT:
                 {
                     auto i = prop_value.get_value<float>();
                     ImGui::Text("%s = %f", name.data(), i);
+                    if (!is_array && ImGui::BeginPopupContextItem(instance.get_type().get_name().data()))
+                    {
+                        float changedValue = i;
+                        if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
+                        ImGui::PushItemWidth(200);
+                        ImGui::DragFloat(name.data(), &changedValue, 1.f, -900.f, 900.f);
+                        if (changedValue != i)
+                        {
+                            prop.set_value(instance, changedValue);
+                            v_change = true;
+                        }
+                        ImGui::PopItemWidth();
+                        ImGui::EndPopup();
+                    }
                 }
                     break;
                 case DOUBLE:
@@ -107,7 +149,7 @@ namespace palka
                                     {
                                         ImGui::TableSetColumnIndex(j);
                                         std::string format = "[" + std::to_string(index) + "]";
-                                        property_get(format, view_array.get_value(index));
+                                        property_get(format, prop, view_array.get_value(index), true);
                                         index += 4;
                                     }
                                 }
@@ -119,7 +161,7 @@ namespace palka
                             for (auto& i : view_array)
                             {
                                 std::string format = "[" + std::to_string(++count) + "]";
-                                property_get(format, i);
+                                property_get(format, prop, i, true);
                             }
                         }
                         ImGui::TreePop();
@@ -129,10 +171,13 @@ namespace palka
             }
             ImGui::Spacing();
             ImGui::PopID();
+            return v_change;
         }
 
-        inline void reflect(const rttr::variant& value, int id = 0, std::string_view name = "")
+        template<class T>
+        inline std::pair<rttr::variant, bool> reflect(const rttr::variant& value, T& instance, int id = 0, std::string_view name = "")
         {
+            bool v_change = false;
             auto type = value.get_type();
             ImGui::PushID(id);
             if (type.is_valid() && type.is_class())
@@ -143,16 +188,60 @@ namespace palka
                     {
                         rttr::variant prop_value = prop.get_value(value);
                         rttr::type prop_type = prop.get_type();
+                        auto test = prop.get_name();
                         if (prop_type.is_valid() && prop_type.is_class())
-                            reflect(prop_value, ++id, prop.get_name().to_string());
-                        else
-                            property_get(prop.get_name().to_string(), prop_value);
+                        {
+                            auto val23 = reflect(prop_value, instance, ++id, prop.get_name().to_string());
+                            if (value.get_type() == rttr::type::get(instance))
+                            {
+                                if (val23.second)
+                                    value.get_type().set_property_value(prop.get_name(), instance, val23.first);
+                                else
+                                {
+                                    if (val23.second)
+                                        value.get_type().set_property_value(prop.get_name(), value, val23.first);
+                                }
+                            }
+                        } else
+                        {
+                            bool t = property_get(prop.get_name().to_string(), prop, value);
+                            v_change = (v_change) ? v_change : t;
+                            if (v_change && !prop_type.is_class() && value.get_type() == rttr::type::get(instance))
+                            {
+                                if (prop_type == rttr::type::get<int>())
+                                {
+                                    int _val = prop.get_value(value).to_int();
+                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                } else if (prop_type == rttr::type::get<float>())
+                                {
+                                    float _val = prop.get_value(value).to_float();
+                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                } else if (prop_type == rttr::type::get<double>())
+                                {
+                                    double _val = prop.get_value(value).to_double();
+                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                } else if (prop_type == rttr::type::get<std::string>())
+                                {
+                                    std::string _val = prop.get_value(value).to_string();
+                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                } else if (prop_type == rttr::type::get<bool>())
+                                {
+                                    bool _val = prop.get_value(value).to_bool();
+                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                }
+                                v_change = false;
+                            }
+                        }
                     }
                     ImGui::TreePop();
                 }
             } else
-                property_get(type.get_name().to_string(), value);
+            {
+                //property_get(type.get_name().to_string(), value);
+                int z = 1;
+            }
             ImGui::PopID();
+            return {value, v_change};
         }
     }
 
@@ -160,7 +249,7 @@ namespace palka
     inline void draw(const T& val)
     {
         ImGui::Begin("Debug");
-        utility::reflect(rttr::variant(val));
+        utility::reflect(rttr::variant(val), val);
         ImGui::End();
     }
 }

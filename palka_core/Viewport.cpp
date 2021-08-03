@@ -3,6 +3,7 @@
 //
 
 #include "Viewport.h"
+
 #include <rttr/registration>
 
 RTTR_REGISTRATION
@@ -10,10 +11,10 @@ RTTR_REGISTRATION
     using namespace rttr;
     registration::class_<palka::Viewport>("Viewport")
             .constructor<palka::RectF>()
-            .property("center", &palka::Viewport::center)
+            .property("center", &palka::Viewport::getCenter, &palka::Viewport::setCenter)
             .property("rect", &palka::Viewport::rect)
-            .property("size", &palka::Viewport::size)
+            .property("size", &palka::Viewport::getSize, &palka::Viewport::setSize)
             .property("t", &palka::Viewport::t)
-            .property("rotation", &palka::Viewport::rotation)
+            .property("rotation", &palka::Viewport::getRotation, &palka::Viewport::setRotation)
             .property("needUpdate", &palka::Viewport::needUpdate);
 }

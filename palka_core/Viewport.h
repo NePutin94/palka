@@ -54,10 +54,15 @@ namespace palka
             return rect;
         }
 
-        void rotate(float angle)
+        void setRotation(float angle)
         {
             rotation = angle;
             needUpdate = true;
+        }
+
+        [[nodiscard]] float getRotation() const
+        {
+            return rotation;
         }
 
         void setSize(const Vec2f& sz)
@@ -67,18 +72,18 @@ namespace palka
             needUpdate = true;
         }
 
-        auto getSize()
+        [[nodiscard]] const auto& getSize() const
         {
             return size;
         }
 
-        void setCenter(Vec2f c)
+        void setCenter(const Vec2f& c)
         {
             center = c;
             needUpdate = true;
         }
 
-        auto getCenter()
+        [[nodiscard]] const auto& getCenter()const
         {
             return center;
         }
@@ -117,8 +122,8 @@ namespace palka
         Vec2f mapPixelToCoords(const Vec2f& point)
         {
             Vec2f normalized;
-            float width = static_cast<float>(getSize().x);
-            float height = static_cast<float>(getSize().y);
+            auto width = static_cast<float>(getSize().x);
+            auto height = static_cast<float>(getSize().y);
             RectF viewport = {0, 0, width, height};
 
             normalized.x = -1.f + 2.f * (point.x - viewport.left) / viewport.w;

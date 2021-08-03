@@ -42,11 +42,12 @@ namespace palka
         Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)})
         {
             init();
-            txt2.LoadFromFile("Data\\tex\\Hero.png");
+            txt2.LoadFromFile("Data\\tex\\debug.png");
             sp.setTexture(txt2, {0, 0, 330, 303});
-            sp.setSize({330, 303});
+            sp.setTextureRect({60,60,120, 120});
             sp.setPosition({0, 0});
             sp.setRotation(0);
+            v.setCenter({w.getSize().x / 1.5f, w.getSize().y / 1.5f});
         }
 
         void run()
@@ -77,7 +78,7 @@ namespace palka
             w.NewFrame();
 
             w.setViewport(v);
-            w.draw(sp);
+            DebugDraw::DrawSpriteDebug(sp);
 
             w.ImGUiEndFrame();
             w.EndFrame();
@@ -85,7 +86,6 @@ namespace palka
 
         void update()
         {
-            v.setCenter({w.getSize().x / 1.5f, w.getSize().y / 1.5f});
             palka::draw(sp);
             palka::draw(v);
         }

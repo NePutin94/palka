@@ -41,6 +41,8 @@ namespace palka
 
         Vec2 operator-=(Vec2 val);
 
+        Vec2 operator*(Vec2 val);
+
         Vec2 operator+(T val);
 
         Vec2 operator-(T val);
@@ -161,6 +163,12 @@ namespace palka
         this->x += val.x;
         this->y += val.y;
         return (*this);
+    }
+
+    template<class T>
+    Vec2<T> Vec2<T>::operator*(Vec2 val)
+    {
+        return Vec2(val.x * this->x,val.y * this->y);
     }
 }
 #endif //PALKA_VEC2_H

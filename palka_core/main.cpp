@@ -5,7 +5,9 @@
 #include "ReflectionDebug.h"
 #include "Test.h"
 #include <chrono>
+
 using namespace std;
+
 int main(int argc, char* argv[])
 {
     TTF_Init();

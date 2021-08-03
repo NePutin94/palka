@@ -12,4 +12,8 @@ RTTR_REGISTRATION
             .constructor<>()
             .property("x", &palka::Vec2f::x)
             .property("y", &palka::Vec2f::y);
+    registration::class_<palka::Vec2i>("Vec2i")
+            .constructor<>()
+            .property("x", &palka::Vec2i::x)
+            .property("y", &palka::Vec2i::y);
 }
