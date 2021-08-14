@@ -16,7 +16,6 @@
 #include <string>
 #include "config.h"
 #include "Vec2.h"
-#include "Context.h"
 #include "Texture.h"
 #include "Matrix.h"
 #include "Sprite.h"
@@ -26,6 +25,7 @@
 #include "Viewport.h"
 #include "ReflectionDebug.h"
 #include "Window.h"
+#include "../palka_entities/Object.h"
 
 namespace palka
 {
@@ -35,36 +35,36 @@ namespace palka
         bool console_open = false;
         Window w;
         bool isRuning;
-        Texture txt2;
-        Sprite sp;
+        //Texture txt2;
+        //Sprite sp;
         Viewport v;
+        Object o;
     public:
-        Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)})
+        explicit Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)}), o("test")
         {
             init();
-            txt2.LoadFromFile("Data\\tex\\debug.png");
-            sp.setTexture(txt2, {0, 0, 330, 303});
-            sp.setTextureRect({60,60,120, 120});
-            sp.setPosition({0, 0});
-            sp.setRotation(0);
-            v.setCenter({w.getSize().x / 1.5f, w.getSize().y / 1.5f});
+            Texture test;
+            test.LoadFromFile("Data\\tex\\Hero.png");
+            //txt2 = std::move(test);
+            //sp.setTexture(txt2, {18, 26, 29, 38});
+            // sp.setTextureRect({18, 20, 29, 38});
+            //sp.setPosition({0, 0});
+            //sp.setRotation(0);
+            o.setTexture(std::move(test), {18, 26, 29, 38});
+            o.setPosition({0, 0});
+           // v.setCenter({w.getSize().x / 2.f, w.getSize().y / 2.f});
+            w.setViewport(v);
         }
 
         void run()
         {
             while (isRuning)
             {
-                w.ImGUiNewFrame();
                 handleEvents();
+                w.ImGUiNewFrame();
                 update();
                 render();
             }
-        }
-
-        static void setImGuiStyle()
-        {
-            ImGuiStyle* style = &ImGui::GetStyle();
-            style->WindowRounding = 5.0f;
         }
 
         void init()
@@ -76,18 +76,17 @@ namespace palka
         void render()
         {
             w.NewFrame();
-
-            w.setViewport(v);
-            DebugDraw::DrawSpriteDebug(sp);
-
+            DebugDraw::DrawSpriteDebug(o.sprite, w);
+            Console::AppLog::Draw("Console", &console_open);
             w.ImGUiEndFrame();
             w.EndFrame();
         }
 
         void update()
         {
-            palka::draw(sp);
-            palka::draw(v);
+            palka::debug(o.sprite);
+            palka::debug(v);
+            palka::debug(DebugDraw());
         }
 
         void handleEvents()
@@ -95,14 +94,13 @@ namespace palka
             SDL_Event event;
             while (w.pollEvent(event))
             {
-                ImGui_ImplSDL2_ProcessEvent(&event);
                 if (event.type == SDL_QUIT)
-                    isRuning = true;
+                    isRuning = false;
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKQUOTE)
                     console_open = !console_open;
-                if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
-                    event.window.windowID == SDL_GetWindowID(this->w.getWindow()))
-                    isRuning = true;
+//                if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
+//                    event.window.windowID == SDL_GetWindowID(this->w.getWindow()))
+//                    isRuning = true;
             }
         }
     };

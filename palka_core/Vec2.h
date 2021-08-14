@@ -8,9 +8,13 @@
 #include "config.h"
 #include <cmath>
 #include <string>
+
 #ifdef REFLECTION_CORE
+
 #include <rttr/type>
 #include <rttr/registration_friend>
+#include <SDL_rect.h>
+
 #endif
 namespace palka
 {
@@ -18,7 +22,8 @@ namespace palka
     class Vec2
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
 #endif
     public:
@@ -26,7 +31,9 @@ namespace palka
         T y = 0;
 
         Vec2() = default;
+
         Vec2(const Vec2&) = default;
+
         Vec2(T x, T y) : x(x), y(y)
         {}
 
@@ -41,6 +48,8 @@ namespace palka
 
         Vec2 operator-=(Vec2 val);
 
+        Vec2 operator/(Vec2 val);
+
         Vec2 operator*(Vec2 val);
 
         Vec2 operator+(T val);
@@ -50,6 +59,11 @@ namespace palka
         Vec2 operator/(T val);
 
         Vec2 operator*(T val);
+
+        SDL_FPoint toPoint() const
+        {
+            return SDL_FPoint{(float) x, (float) y};
+        }
 
         Vec2 abs();
 
@@ -64,6 +78,7 @@ namespace palka
             return "x: " + std::to_string(x) + " y: " + std::to_string(y);
         }
     };
+
     template<class T>
     Vec2<T> rotateBy(const Vec2<T>& vec, float degrees, const Vec2<T>& center)
     {
@@ -168,7 +183,13 @@ namespace palka
     template<class T>
     Vec2<T> Vec2<T>::operator*(Vec2 val)
     {
-        return Vec2(val.x * this->x,val.y * this->y);
+        return Vec2(val.x * this->x, val.y * this->y);
+    }
+
+    template<class T>
+    Vec2<T> Vec2<T>::operator/(Vec2 val)
+    {
+        return {x / val.x, y / val.y};
     }
 }
 #endif //PALKA_VEC2_H

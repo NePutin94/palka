@@ -21,7 +21,7 @@ namespace palka
 
         enum valueType
         {
-            INT, FLOAT, DOUBLE, STRING, BOOL, ARRAY
+            INT, FLOAT, DOUBLE, STRING, BOOL, ARRAY, UINT, ENUM
         };
 
         inline valueType checkType(const rttr::variant& value)
@@ -32,12 +32,16 @@ namespace palka
                 return valueType::STRING;
             else if (value.is_type<int>())
                 return valueType::INT;
+            else if (value.is_type<unsigned int>())
+                return valueType::UINT;
             else if (value.is_type<double>())
                 return valueType::DOUBLE;
             else if (value.is_type<bool>())
                 return valueType::BOOL;
             else if (value.get_type().is_array())
                 return valueType::ARRAY;
+            else if (value.get_type().is_enumeration())
+                return valueType::ENUM;
         }
 
         inline bool wrapped_check(const rttr::variant& value)
@@ -73,7 +77,7 @@ namespace palka
                 {
                     auto i = prop_value.get_value<int>();
                     ImGui::Text("%s = %i", name.data(), i);
-                    if (!is_array && ImGui::BeginPopupContextItem(instance.get_type().get_name().data()))
+                    if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
                     {
                         int changedValue = i;
                         if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
@@ -89,16 +93,38 @@ namespace palka
                     }
                 }
                     break;
+                case UINT:
+                {
+                    auto i = prop_value.get_value<unsigned int>();
+                    ImGui::Text("%s = %i", name.data(), i);
+                    if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
+                    {
+                        unsigned int changedValue = i;
+                        if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
+                        ImGui::PushItemWidth(200);
+                        int min = 0;
+                        int max = 2100;
+                        ImGui::DragScalar(name.data(), ImGuiDataType_U32, &changedValue, 1.f, &min,&max);
+                        if (changedValue != i)
+                        {
+                            prop.set_value(instance, changedValue);
+                            v_change = true;
+                        }
+                        ImGui::PopItemWidth();
+                        ImGui::EndPopup();
+                    }
+                }
+                    break;
                 case FLOAT:
                 {
                     auto i = prop_value.get_value<float>();
                     ImGui::Text("%s = %f", name.data(), i);
-                    if (!is_array && ImGui::BeginPopupContextItem(instance.get_type().get_name().data()))
+                    if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
                     {
                         float changedValue = i;
                         if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
                         ImGui::PushItemWidth(200);
-                        ImGui::DragFloat(name.data(), &changedValue, 1.f, -900.f, 900.f);
+                        ImGui::DragFloat(name.data(), &changedValue, 1.f, -2000.f, 2000.f);
                         if (changedValue != i)
                         {
                             prop.set_value(instance, changedValue);
@@ -125,6 +151,20 @@ namespace palka
                 {
                     auto i = prop_value.get_value<bool>();
                     ImGui::Text("%s = %s", name.data(), (i) ? "true" : "false");
+                    if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
+                    {
+                        bool changedValue = i;
+                        if (ImGui::Selectable("Set to zero")) changedValue = false;
+                        ImGui::PushItemWidth(200);
+                        ImGui::Checkbox(name.data(),  &changedValue);
+                        if (changedValue != i)
+                        {
+                            prop.set_value(instance, changedValue);
+                            v_change = true;
+                        }
+                        ImGui::PopItemWidth();
+                        ImGui::EndPopup();
+                    }
                 }
                     break;
                 case ARRAY:
@@ -168,6 +208,39 @@ namespace palka
                     }
                 }
                     break;
+                case ENUM:
+                {
+                    auto i = prop_value.to_string();
+                    ImGui::Text("%s = %s", name.data(), i.c_str());
+                    enumeration enum_align = prop_value.get_type().get_enumeration();
+                    if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
+                    {
+                        static auto changedValue = i;
+                        if (ImGui::Selectable("Set to zero")) changedValue = "";
+                        ImGui::PushItemWidth(200);
+                        auto values = enum_align.get_names();
+                        if (ImGui::BeginCombo("##combo", changedValue.c_str()))
+                        {
+                            for(auto& v : values)
+                            {
+                                bool is_selected = (changedValue == v);
+                                if (ImGui::Selectable(v.data(), is_selected))
+                                    changedValue = v.data();
+                                if (is_selected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+                        if (changedValue != i)
+                        {
+                            prop.set_value(instance, enum_align.name_to_value(changedValue));
+                            v_change = true;
+                        }
+                        ImGui::PopItemWidth();
+                        ImGui::EndPopup();
+                    }
+                }
+                    break;
             }
             ImGui::Spacing();
             ImGui::PopID();
@@ -208,27 +281,39 @@ namespace palka
                             v_change = (v_change) ? v_change : t;
                             if (v_change && !prop_type.is_class() && value.get_type() == rttr::type::get(instance))
                             {
-                                if (prop_type == rttr::type::get<int>())
-                                {
-                                    int _val = prop.get_value(value).to_int();
-                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                } else if (prop_type == rttr::type::get<float>())
-                                {
-                                    float _val = prop.get_value(value).to_float();
-                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                } else if (prop_type == rttr::type::get<double>())
-                                {
-                                    double _val = prop.get_value(value).to_double();
-                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                } else if (prop_type == rttr::type::get<std::string>())
-                                {
-                                    std::string _val = prop.get_value(value).to_string();
-                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                } else if (prop_type == rttr::type::get<bool>())
-                                {
-                                    bool _val = prop.get_value(value).to_bool();
-                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                }
+                                auto _val = prop.get_value(value);
+                                value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                if (prop_type == rttr::type::get<int>())
+//                                {
+//                                    int _val = prop.get_value(value).to_int();
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                }
+//                                else if (prop_type == rttr::type::get<unsigned int>())
+//                                {
+//                                    unsigned int _val = prop.get_value(value).to_uint16();
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                }else if (prop_type == rttr::type::get<float>())
+//                                {
+//                                    float _val = prop.get_value(value).to_float();
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                } else if (prop_type == rttr::type::get<double>())
+//                                {
+//                                    double _val = prop.get_value(value).to_double();
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                } else if (prop_type == rttr::type::get<std::string>())
+//                                {
+//                                    std::string _val = prop.get_value(value).to_string();
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                } else if (prop_type == rttr::type::get<bool>())
+//                                {
+//                                    bool _val = prop.get_value(value).to_bool();
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                }
+//                                else if (prop_type.is_enumeration())
+//                                {
+//                                    auto _val = prop.get_value(value);
+//                                    value.get_type().set_property_value(prop.get_name(), instance, _val);
+//                                }
                                 v_change = false;
                             }
                         }
@@ -246,7 +331,7 @@ namespace palka
     }
 
     template<class T>
-    inline void draw(const T& val)
+    inline void debug(const T& val)
     {
         ImGui::Begin("Debug");
         utility::reflect(rttr::variant(val), val);

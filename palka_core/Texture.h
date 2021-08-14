@@ -11,7 +11,7 @@
 #include <string>
 #include <cassert>
 #include "Rect.h"
-#include "Context.h"
+#include "Window.h"
 
 namespace palka
 {
@@ -24,16 +24,41 @@ namespace palka
     public:
         Texture() = default;
 
-        explicit Texture(std::string_view path, Vec2i size, SDL_Renderer* renderer = Context::GetContext()) : size(size), file_path(path),
-                                                                                                              source(nullptr)
+        Texture(const Texture&) = delete;
+
+        Texture(Texture&& other) noexcept
         {
-            source = IMG_LoadTexture(Context::GetContext(), path.data());
+            assert(("Can't move", !(source != nullptr)));
+            source = other.source;
+            size = other.size;
+            file_path = std::move(other.file_path);
+
+            other.source = nullptr;
+        }
+
+        Texture& operator=(Texture&& other) noexcept
+        {
+            assert(("Can't move", !(source != nullptr)));
+            source = other.source;
+            size = other.size;
+            file_path = std::move(other.file_path);
+
+            other.source = nullptr;
+        }
+
+        explicit Texture(std::string_view path, Vec2i size, SDL_Renderer* renderer = Window::GetContext()) : size(size), file_path(path),
+                                                                                                             source(nullptr)
+        {
+            source = IMG_LoadTexture(Window::GetContext(), path.data());
         }
 
         void LoadFromFile(std::string_view path)
         {
             assert(!(source != nullptr));
-            source = IMG_LoadTexture(Context::GetContext(), path.data());
+            source = IMG_LoadTexture(Window::GetContext(), path.data());
+            int w, h;
+            SDL_QueryTexture(source, NULL, NULL, &w, &h);
+            size = {w, h};
             file_path = path;
         }
 
@@ -50,16 +75,6 @@ namespace palka
         [[nodiscard]] auto getFilePath() const
         {
             return file_path;
-        }
-
-        void draw(Vec2i pos, SDL_Renderer* renderer = Context::GetContext())
-        {
-            //SDL_Rect s{0, 0, size.x, size.y};
-            SDL_Rect d{pos.x, pos.y, pos.x + size.x, pos.y + size.y};
-            SDL_Rect rct2;
-            rct2.x = rct2.y = 100;
-            rct2.w = rct2.h = 200;
-            SDL_RenderCopy(Context::GetContext(), source, 0, &rct2);
         }
 
         [[nodiscard]] SDL_Texture* getSdl() const

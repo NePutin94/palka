@@ -32,6 +32,15 @@ namespace palka
         explicit Quad(std::array<Vec2<T>, 4> arr);
 
         explicit Quad(Rect<T> r);
+        Quad<int> toInt()
+        {
+            Quad<int> q;
+            q.leftTop = Vec2i(leftTop.x,leftTop.y);
+            q.rightTop = Vec2i(rightTop.x,rightTop.y);
+            q.leftBottom = Vec2i(leftBottom.x,leftBottom.y);
+            q.rightBottom = Vec2i(rightBottom.x,rightBottom.y);
+            return q;
+        }
     };
 
     template<class T>
@@ -64,7 +73,7 @@ namespace palka
 
         SDL_FRect getRectF() const
         {
-            return {left, top, w, h};
+            return {(float)left, (float)top, (float)w, (float)h};
         }
 
         std::array<Vec2<T>, 4> getPoints() const

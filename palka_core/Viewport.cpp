@@ -13,7 +13,7 @@ RTTR_REGISTRATION
             .constructor<palka::RectF>()
             .property("center", &palka::Viewport::getCenter, &palka::Viewport::setCenter)
             .property("rect", &palka::Viewport::rect)
-            .property("size", &palka::Viewport::getSize, &palka::Viewport::setSize)
+            .property("scale", &palka::Viewport::getScale, &palka::Viewport::setScale)
             .property("t", &palka::Viewport::t)
             .property("rotation", &palka::Viewport::getRotation, &palka::Viewport::setRotation)
             .property("needUpdate", &palka::Viewport::needUpdate);

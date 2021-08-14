@@ -17,10 +17,6 @@
 using namespace rttr;
 namespace palka
 {
-    struct test
-    {
-
-    };
     class Viewport
     {
     RTTR_ENABLE()
@@ -30,10 +26,10 @@ namespace palka
         Vec2f size;
         Vec2f center;
         RectF rect;
+        Vec2f scale = {1, 1};
         float rotation;
         bool needUpdate;
         Transform t;
-        test tt;
     public:
         Viewport(const RectF& r) : rect(r), size(r.w, r.h), needUpdate(true), rotation(0), center()
         {
@@ -65,16 +61,16 @@ namespace palka
             return rotation;
         }
 
-        void setSize(const Vec2f& sz)
-        {
-            size = sz;
-            rect = {rect.left, rect.top, size.x, size.y};
-            needUpdate = true;
-        }
+//        void setSize(const Vec2f& sz)
+//        {
+//            size = sz;
+//            rect = {rect.left, rect.top, size.x, size.y};
+//            needUpdate = true;
+//        }
 
-        [[nodiscard]] const auto& getSize() const
+        [[nodiscard]] Vec2f getScale() const
         {
-            return size;
+            return scale;
         }
 
         void setCenter(const Vec2f& c)
@@ -83,14 +79,15 @@ namespace palka
             needUpdate = true;
         }
 
-        [[nodiscard]] const auto& getCenter()const
+        [[nodiscard]] const auto& getCenter() const
         {
             return center;
         }
 
-        void zoom(float f)
+        void setScale(Vec2f sc)
         {
-            setSize({size.x * f, size.y * f});
+            scale = sc;
+            //setSize({size.x * f, size.y * f});
         }
 
         Transform getView()
@@ -119,11 +116,20 @@ namespace palka
             return t;
         }
 
+        auto applyTranslate(Quad<float> q)
+        {
+            q.leftTop -= getCenter();
+            q.rightTop -= getCenter();
+            q.rightBottom -= getCenter();
+            q.leftBottom -= getCenter();
+            return q;
+        }
+
         Vec2f mapPixelToCoords(const Vec2f& point)
         {
             Vec2f normalized;
-            auto width = static_cast<float>(getSize().x);
-            auto height = static_cast<float>(getSize().y);
+            auto width = static_cast<float>(size.x);
+            auto height = static_cast<float>(size.y);
             RectF viewport = {0, 0, width, height};
 
             normalized.x = -1.f + 2.f * (point.x - viewport.left) / viewport.w;
@@ -132,13 +138,15 @@ namespace palka
             return getView().getInverse().transformPoint(normalized);
         }
 
-        Vec2f getStaticOffset()
+        Vec2f getStaticOffset(Vec2i windowSize)
         {
-            const float viewPortScaleX = std::round(((int) 1280 / getSize().x) * 100) / 100;
-            const float viewPortScaleY = std::round(((int) 1280 / getSize().y) * 100) / 100;
-            Vec2f offset = Vec2f(getSize().x / 2, getSize().y / 2) - getCenter();
+            const float viewPortScaleX = std::round((windowSize.x / size.x) * 100) / 100;
+            const float viewPortScaleY = std::round((windowSize.y / size.y) * 100) / 100;
+            Transform trans;
+            Vec2f offset = trans.rotate(rotation, center).transformPoint({0, 0}) + Vec2f(size.x / 2, size.y / 2) - getCenter();
             offset.x *= viewPortScaleX;
             offset.y *= viewPortScaleY;
+
             return offset;
         }
     };

@@ -15,7 +15,7 @@ namespace palka
         virtual ~Drawable()
         {}
 
-        virtual void draw(SDL_Renderer* target) const = 0;
+        virtual void draw(SDL_Renderer* target, SDL_FPoint viewPos) const = 0;
     };
 }
 #endif //PALKA_DRAWABLE_H

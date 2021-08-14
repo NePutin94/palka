@@ -1,10 +1,6 @@
 #include <algorithm>
 #include "Vec2.h"
 #include "Engine.h"
-#include "Transform.h"
-#include "ReflectionDebug.h"
-#include "Test.h"
-#include <chrono>
 
 using namespace std;
 
@@ -22,22 +18,27 @@ int main(int argc, char* argv[])
 //#include "imgui_impl_opengl3.h"
 //#include <stdio.h>
 //#include <SDL.h>
+//#include <SDL_main.h>
 //#include <glad/glad.h>          // Initialize with gladLoadGL()
 //#include <SDL_image.h>
-//
-//
+//#include "Viewport.h"
+//#include "Sprite.h"
+//#include "Texture.h"
+//#include "ReflectionDebug.h"
+//#include "DebugDraw.h"
 //// Main code
-//int main(int, char**)
+//int main(int argc, char* argv[])
 //{
 //    // Setup SDL
 //    // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
 //    // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to latest version of SDL is recommended!)
-//    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
+//    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
 //    {
 //        printf("Error: %s\n", SDL_GetError());
 //        return -1;
 //    }
 //    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+//    palka::Viewport view({0, 0, 1280, 720});
 //
 //    const char* glsl_version = "#version 130";
 //    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -57,7 +58,7 @@ int main(int argc, char* argv[])
 //    SDL_GL_SetSwapInterval(1); // Enable vsync
 //    bool err = gladLoadGL() == 0;
 //
-//    if(err)
+//    if (err)
 //    {
 //        fprintf(stderr, "Failed to initialize OpenGL loader!\n");
 //        return 1;
@@ -72,6 +73,7 @@ int main(int argc, char* argv[])
 //    ImGui_ImplOpenGL3_Init(glsl_version);
 //
 //    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+//    palka::Context::SetContext(renderer);
 //    SDL_RendererInfo info;
 //    SDL_GetRendererInfo(renderer, &info);
 //    printf("%s", info.name);
@@ -79,19 +81,25 @@ int main(int argc, char* argv[])
 //    bool show_demo_window = true;
 //    bool show_another_window = false;
 //    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-//    auto txt = IMG_LoadTexture(renderer, "Data\\tex\\test.png");
+//    palka::Texture test;
+//    test.LoadFromFile("Data\\tex\\Hero.png");
+//    palka::Texture test2;
+//    test2.LoadFromFile("Data\\tex\\pix.png");
+//    palka::Sprite sp;
+//    sp.setTexture(test, {18, 26, 29, 38});
+//    sp.setPosition({100, 100});
 //
 //    bool done = false;
-//    while(!done)
+//    while (!done)
 //    {
 //        SDL_Event event;
-//        while(SDL_PollEvent(&event))
+//        while (SDL_PollEvent(&event))
 //        {
 //            ImGui_ImplSDL2_ProcessEvent(&event);
-//            if(event.type == SDL_QUIT)
+//            if (event.type == SDL_QUIT)
 //                done = true;
-//            if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
-//               event.window.windowID == SDL_GetWindowID(window))
+//            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
+//                event.window.windowID == SDL_GetWindowID(window))
 //                done = true;
 //        }
 //
@@ -99,43 +107,53 @@ int main(int argc, char* argv[])
 //        ImGui_ImplSDL2_NewFrame(window);
 //        ImGui::NewFrame();
 //
-//        if(show_demo_window)
-//            ImGui::ShowDemoWindow(&show_demo_window);
 //
-//        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-//        {
-//            static float f = 0.0f;
-//            static int counter = 0;
+//        palka::debug(view);
 //
-//            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-//
-//            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-//            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-//            ImGui::Checkbox("Another Window", &show_another_window);
-//
-//            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-//            ImGui::ColorEdit3("clear color", (float*) &clear_color); // Edit 3 floats representing a color
-//
-//            if(ImGui::Button(
-//                    "Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-//                counter++;
-//            ImGui::SameLine();
-//            ImGui::Text("counter = %d", counter);
-//
-//            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-//            ImGui::End();
-//        }
-//
-//        ImGui::Render();
+//        SDL_RenderFlush(renderer);
 //        glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
 //        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 //        glClear(GL_COLOR_BUFFER_BIT);
+//        SDL_RenderFlush(renderer);
+//        static float x = 0;
+//        static float y = 0;
+//        static float x2 = 1;
+//        static float y2 = 1;
+//        ImGui::DragFloat("x", &x);
+//        ImGui::DragFloat("y", &y);
+//        ImGui::DragFloat("x2", &x2);
+//        ImGui::DragFloat("y2", &y2);
 //
-//        SDL_Rect rct2;
-//        rct2.x = rct2.y = 200;
-//        rct2.w = rct2.h = 400;
-//        SDL_RenderCopy(renderer, txt, 0, &rct2);
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glLoadMatrixf(view.getView().getMatrix());
+//        auto sc = view.getScale();
+//        SDL_RenderSetScale(renderer, sc.x, sc.y);
+//        glMatrixMode(GL_MODELVIEW);
+////        glMatrixMode(GL_MODELVIEW);
+////        glPopMatrix();
+////        glLoadIdentity();
+////        glTranslatef(-x, -y, 0.f);
+////        //glScalef(x2, y2, 0.f);
+////        glPushMatrix();
+//        SDL_RenderFlush(renderer);
+//        //SDL_RenderCopy(renderer, txt, 0, &rct2);
 //
+//        auto r2 = sp.getLocalRect();
+//        auto r = sp.getQuad(palka::RectF(r2.left, r2.top, r2.w, r2.h));
+//        //sp2.setScale({1,static_cast<float>(r2.h)});
+//        // const float viewPortScaleX = std::round(((w.getSize().x / v.getSize().x) * 100) / 100);
+//        // const float viewPortScaleY = std::round(((w.getSize().y / v.getSize().y) * 100) / 100);
+//        //Vec2f scale = {viewPortScaleX,viewPortScaleY};
+//
+//        //auto rr = Quad(sp.getGlobalRect().getPoints());
+//        SDL_RenderFlush(renderer);
+//        sp.draw(renderer);
+//        //sp2.draw(renderer);
+//        palka::DebugDraw::DrawBoxF(r, 4, renderer);
+////        SDL_Rect outlineRect{static_cast<int>(r.leftTop.x), static_cast<int>(r.leftTop.y), sp.getTextureRect().w,sp.getTextureRect().h};
+////        SDL_RenderDrawRect(renderer, &outlineRect);
+//        ImGui::Render();
 //        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 //        SDL_GL_SwapWindow(window);
 //    }
@@ -151,5 +169,5 @@ int main(int argc, char* argv[])
 //
 //    return 0;
 //}
-
+//
 

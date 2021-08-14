@@ -17,7 +17,7 @@
 #include "Drawable.h"
 #include "Viewport.h"
 #include "ConsoleLog.h"
-#include "Context.h"
+#include "SDL_render.h"
 
 namespace palka
 {
@@ -31,6 +31,7 @@ namespace palka
         SDL_GLContext gl_context;
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     public:
+
         Window(const Vec2i& size) : size(size)
         {
         }
@@ -54,7 +55,7 @@ namespace palka
             bool err = gladLoadGL() == 0;
 
             if (err)
-                fprintf(stderr, "Failed to initialize OpenGL loader!\n");
+                Console::AppLog::addLog("Failed to initialize OpenGL loader!", Console::error);
 
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
@@ -69,7 +70,7 @@ namespace palka
         void create()
         {
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
-                printf("Error: %s\n", SDL_GetError());
+                Console::AppLog::addLog_("Error: %s", Console::error, SDL_GetError());
             SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -82,7 +83,7 @@ namespace palka
 
             SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
                                                               SDL_WINDOW_ALLOW_HIGHDPI);
-            window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            window = SDL_CreateWindow("palka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       size.x, size.y,
                                       window_flags);
 
@@ -91,13 +92,19 @@ namespace palka
             SDL_Renderer* renderer = SDL_CreateRenderer(getWindow(), -1, SDL_RENDERER_ACCELERATED);
             SDL_RendererInfo info;
             SDL_GetRendererInfo(renderer, &info);
-            Context::SetContext(renderer);
+            Console::AppLog::addLog(info.name, Console::info);
+            SetContext(renderer);
         }
 
         void setViewport(Viewport& v)
         {
-            // if (view != &v)
-            view = &v;
+            if (view != &v)
+                view = &v;
+        }
+
+        Viewport* getViewport()
+        {
+            return view;
         }
 
         SDL_Window* getWindow()
@@ -112,12 +119,7 @@ namespace palka
 
         void draw(const Drawable& d)
         {
-            glViewport(0, 0, getSize().x, getSize().y);
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glLoadMatrixf(view->getView().getMatrix());
-            glMatrixMode(GL_MODELVIEW);
-            d.draw(Context::GetContext());
+            d.draw(GetContext(), view->getCenter().toPoint());
         }
 
         void ImGUiNewFrame()
@@ -131,13 +133,16 @@ namespace palka
         {
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         }
 
         void NewFrame()
         {
             glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
+            SDL_Rect vRect{0, 0, getSize().x, getSize().y};
+            SDL_RenderSetViewport(GetContext(), &vRect);
+            auto sc = view->getScale();
+            SDL_RenderSetScale(GetContext(), sc.x, sc.y);
         }
 
         void EndFrame()
@@ -149,6 +154,7 @@ namespace palka
         {
             if (SDL_PollEvent(&e))
             {
+                ImGui_ImplSDL2_ProcessEvent(&e);
                 if (e.type == SDL_WINDOWEVENT &&
                     e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
@@ -159,6 +165,19 @@ namespace palka
                 return true;
             }
             return false;
+        }
+
+    private:
+        static void SetContext(SDL_Renderer* c)
+        {
+            context = c;
+        }
+
+        static SDL_Renderer* context;
+    public:
+        static SDL_Renderer* GetContext()
+        {
+            return context;
         }
     };
 }

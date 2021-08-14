@@ -46,6 +46,16 @@ namespace palka
 
         Vec2f getCenter() const;
 
+        void copy(TransformObject t)
+        {
+            this->scale = t.scale;
+            this->angle = t.angle;
+            this->pos = t.pos;
+            this->center = t.center;
+            this->t = t.t;
+            this->updateTransform = t.updateTransform;
+        }
+
         auto getTransform();
 
         Quad<float> getQuad(RectF rect);

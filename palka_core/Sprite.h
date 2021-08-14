@@ -23,14 +23,14 @@ namespace palka
 {
     class Sprite : public Drawable, public TransformObject
     {
-    private:
-        const Texture* txt;
-        RectI src;
-        Vec2f size;
 #ifdef REFLECTION_CORE
         RTTR_ENABLE(TransformObject)
         RTTR_REGISTRATION_FRIEND
 #endif
+    private:
+        const Texture* txt;
+        RectI src;
+        SDL_RendererFlip flip_p = SDL_FLIP_NONE;
     public:
 
         Sprite() = default;
@@ -41,13 +41,21 @@ namespace palka
 
         void setTextureRect(RectI rect);
 
-        auto getTextureRect();
+        void setFlip(SDL_RendererFlip flip_p)
+        { this->flip_p = flip_p; }
+
+        SDL_RendererFlip getFlip()
+        { return flip_p; }
+
+        RectI getTextureRect() const;
 
         RectI getLocalRect() const;
 
         RectF getGlobalRect() const;
 
-        void draw(SDL_Renderer* r) const override;
+        void draw(SDL_Renderer* , SDL_FPoint viewPos) const override;
+
+        friend class Window;
     };
 }
 #endif //PALKA_SPRITE_H

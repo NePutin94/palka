@@ -45,7 +45,7 @@ namespace palka
             matrix[3] = a20; matrix[7] = a21; matrix[11] = 0.f; matrix[15] = a22;
         }
 
-        void combine(const Transform& tf);
+        Transform combine(const Transform& tf);
 
         auto translate(float x, float y);
 
@@ -53,9 +53,9 @@ namespace palka
 
         auto scale(float x, float y, Vec2f center);
 
-        auto rotate(float angle);
+        Transform rotate(float angle);
 
-        auto rotate(float angle, Vec2f center);
+        Transform rotate(float angle, Vec2f center);
 
         auto& getMatrix()
         {

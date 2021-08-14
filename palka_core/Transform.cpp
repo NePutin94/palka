@@ -50,18 +50,18 @@ palka::Transform palka::Transform::getInverse() const
     }
 }
 
-auto palka::Transform::rotate(float angle, palka::Vec2f center)
+palka::Transform palka::Transform::rotate(float angle, palka::Vec2f center)
 {
-    float rad = angle * M_PI / 180.f;
+    float rad = -angle * M_PI / 180.f;
     float cos = std::cos(rad);
     float sin = std::sin(rad);
     Transform rot(cos, -sin, center.x * (1 - cos) + center.y * sin,
-                  cos, sin, center.y * (1 - cos) - center.x * sin,
+                  sin, cos, center.y * (1 - cos) - center.x * sin,
                   0, 0, 1);
     return combine(rot);
 }
 
-auto palka::Transform::rotate(float angle)
+palka::Transform palka::Transform::rotate(float angle)
 {
     float rad = angle * M_PI / 180.f;
     float cos = std::cos(rad);
@@ -80,7 +80,7 @@ auto palka::Transform::scale(float x, float y, palka::Vec2f center)
     return combine(scale);
 }
 
-void palka::Transform::combine(const palka::Transform& tf)
+palka::Transform palka::Transform::combine(const palka::Transform& tf)
 {
     const float* a = matrix;
     const float* b = tf.matrix;
@@ -96,6 +96,7 @@ void palka::Transform::combine(const palka::Transform& tf)
     *this = Transform(_00, _01, _02,
                       _10, _11, _12,
                       _20, _21, _22);
+    return *this;
 }
 
 auto palka::Transform::translate(float x, float y)
