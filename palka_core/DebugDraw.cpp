@@ -14,9 +14,5 @@ RTTR_REGISTRATION
     registration::class_<palka::DebugDraw>("DebugDraw")
             .property("line color", &palka::DebugDraw::line_color)
             .property("point color", &palka::DebugDraw::point_color);
-    registration::class_<palka::Color>("Color")
-            .property("r", &palka::Color::r)
-            .property("g", &palka::Color::g)
-            .property("b", &palka::Color::b);
 }
 

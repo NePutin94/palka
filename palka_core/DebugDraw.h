@@ -13,18 +13,10 @@
 #include <SDL_render.h>
 #include <imgui.h>
 #include <rttr/type>
+#include "Color.h"
 
 namespace palka
 {
-    struct Color
-    {
-    RTTR_ENABLE()
-    public:
-        Color(int r, int g, int b) noexcept: r(r), g(g), b(b) {}
-        unsigned int r = 0;
-        unsigned int g = 0;
-        unsigned int b = 0;
-    };
 
     class DebugDraw
     {
@@ -107,7 +99,7 @@ namespace palka
 //            SimpleTextF(rr.leftBottom, &open, "xcvb", rr.leftBottom.toString(), Pos::LeftSideBottom);
 //            SimpleTextF(rr.rightTop, &open, "gh", rr.rightTop.toString(), Pos::RightSideTop);
 //            SimpleTextF(rr.rightBottom, &open, "zxc", rr.rightBottom.toString(), Pos::RightSideBottom);
-            DebugDraw::DrawVertexF({r.leftTop, r.rightBottom, sp.getPosition() + sp.getCenter() * sp.getScale()}, Window::GetContext());
+            DebugDraw::DrawVertexF({w.getViewport()->applyTranslate(r.leftTop), w.getViewport()->applyTranslate(r.rightBottom), sp.getPosition() + sp.getCenter() * sp.getScale()}, Window::GetContext());
         }
 
         enum Pos

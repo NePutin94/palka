@@ -5,9 +5,9 @@
 #include "Sprite.h"
 #include "Rect.h"
 
-void palka::Sprite::setTexture(const Texture& tex, RectI rect)
+void palka::Sprite::setTexture(Texture& tex, RectI rect)
 {
-    txt = &tex;
+    txt.set_data(&tex);
     setTextureRect(rect);
 }
 
@@ -34,18 +34,18 @@ palka::RectF palka::Sprite::getGlobalRect() const
 
 void palka::Sprite::draw(SDL_Renderer* r, SDL_FPoint viewPos) const
 {
-    assert(("Texture is empty", !(txt == nullptr)));
+    //assert(("Texture is empty", !(txt.get_data() == nullptr)));
     auto srcRect = src.getRect();
     auto dstRect = getGlobalRect().getRectF();
-    dstRect.x -= viewPos.x;
-    dstRect.y -= viewPos.y;
+    dstRect.x += viewPos.x;
+    dstRect.y += viewPos.y;
     SDL_FPoint center = {getCenter().x, getCenter().y};
-    SDL_RenderCopyExF(r, txt->getSdl(), &srcRect, &dstRect, getRotation(), &center, flip_p);
+    SDL_RenderCopyExF(r, txt.get_data()->getSdl(), &srcRect, &dstRect, getRotation(), &center, flip_p);
 }
 
-palka::Sprite::Sprite(const palka::Texture& tex)
+palka::Sprite::Sprite(palka::Texture& tex)
 {
-    txt = &tex;
+    txt.set_data(&tex);
     auto sz = tex.getSize();
     setTextureRect({0, 0, sz.x, sz.y});
 }
@@ -67,6 +67,7 @@ RTTR_REGISTRATION
             .constructor<>()
             .property("setRect", &palka::Sprite::getTextureRect, &palka::Sprite::setTextureRect)
             .property("flip", &palka::Sprite::getFlip, &palka::Sprite::setFlip)
+            .property("texture", &palka::Sprite::txt)
             .property("src", &palka::Sprite::src);
 }
 

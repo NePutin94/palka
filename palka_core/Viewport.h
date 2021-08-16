@@ -19,54 +19,16 @@ namespace palka
 {
     class Viewport
     {
-    RTTR_ENABLE()
-
+        RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
     private:
-        Vec2f size;
         Vec2f center;
-        RectF rect;
         Vec2f scale = {1, 1};
-        float rotation;
-        bool needUpdate;
-        Transform t;
     public:
-        Viewport(const RectF& r) : rect(r), size(r.w, r.h), needUpdate(true), rotation(0), center()
+        Viewport(const RectF& r) : center()
         {
 
         }
-
-        void reset(const RectF& r)
-        {
-            center.x = r.left + r.w / 2.f;
-            center.y = r.top + r.h / 2.f;
-            size.x = r.w;
-            size.y = r.h;
-            rotation = 0;
-        }
-
-        auto getRect()
-        {
-            return rect;
-        }
-
-        void setRotation(float angle)
-        {
-            rotation = angle;
-            needUpdate = true;
-        }
-
-        [[nodiscard]] float getRotation() const
-        {
-            return rotation;
-        }
-
-//        void setSize(const Vec2f& sz)
-//        {
-//            size = sz;
-//            rect = {rect.left, rect.top, size.x, size.y};
-//            needUpdate = true;
-//        }
 
         [[nodiscard]] Vec2f getScale() const
         {
@@ -76,7 +38,6 @@ namespace palka
         void setCenter(const Vec2f& c)
         {
             center = c;
-            needUpdate = true;
         }
 
         [[nodiscard]] const auto& getCenter() const
@@ -90,64 +51,21 @@ namespace palka
             //setSize({size.x * f, size.y * f});
         }
 
-        Transform getView()
+        template<class T>
+        auto applyTranslate(Quad<T> q)
         {
-            if (needUpdate)
-            {
-                Vec2f m_center = center;
-                Vec2f m_size(size.x, size.y);
-                float m_rotation = rotation;
-                float angle = m_rotation * M_PI / 180.f;
-                float cosine = std::cos(angle);
-                float sine = std::sin(angle);
-                float tx = -m_center.x * cosine - m_center.y * sine + m_center.x;
-                float ty = m_center.x * sine - m_center.y * cosine + m_center.y;
-
-                float a = 2.f / m_size.x;
-                float b = -2.f / m_size.y;
-                float c = -a * m_center.x;
-                float d = -b * m_center.y;
-
-                t = Transform(a * cosine, a * sine, a * tx + c,
-                              -b * sine, b * cosine, b * ty + d,
-                              0.f, 0.f, 1.f);
-                needUpdate = false;
-            }
-            return t;
-        }
-
-        auto applyTranslate(Quad<float> q)
-        {
-            q.leftTop -= getCenter();
-            q.rightTop -= getCenter();
-            q.rightBottom -= getCenter();
-            q.leftBottom -= getCenter();
+            q.leftTop += getCenter();
+            q.rightTop += getCenter();
+            q.rightBottom += getCenter();
+            q.leftBottom += getCenter();
             return q;
         }
 
-        Vec2f mapPixelToCoords(const Vec2f& point)
+        template<class T>
+        auto applyTranslate(Vec2<T> q)
         {
-            Vec2f normalized;
-            auto width = static_cast<float>(size.x);
-            auto height = static_cast<float>(size.y);
-            RectF viewport = {0, 0, width, height};
-
-            normalized.x = -1.f + 2.f * (point.x - viewport.left) / viewport.w;
-            normalized.y = 1.f - 2.f * (point.y - viewport.top) / viewport.h;
-
-            return getView().getInverse().transformPoint(normalized);
-        }
-
-        Vec2f getStaticOffset(Vec2i windowSize)
-        {
-            const float viewPortScaleX = std::round((windowSize.x / size.x) * 100) / 100;
-            const float viewPortScaleY = std::round((windowSize.y / size.y) * 100) / 100;
-            Transform trans;
-            Vec2f offset = trans.rotate(rotation, center).transformPoint({0, 0}) + Vec2f(size.x / 2, size.y / 2) - getCenter();
-            offset.x *= viewPortScaleX;
-            offset.y *= viewPortScaleY;
-
-            return offset;
+            q += getCenter();
+            return q;
         }
     };
 }

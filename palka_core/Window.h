@@ -14,6 +14,7 @@
 #include <imgui.h>
 #include <GL/gl.h>
 #include "Vec2.h"
+#include "Color.h"
 #include "Drawable.h"
 #include "Viewport.h"
 #include "ConsoleLog.h"
@@ -29,7 +30,7 @@ namespace palka
         Viewport* view;
         ImGuiIO* io;
         SDL_GLContext gl_context;
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        Color bg_color{80, 180, 250};
     public:
 
         Window(const Vec2i& size) : size(size)
@@ -72,7 +73,7 @@ namespace palka
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
                 Console::AppLog::addLog_("Error: %s", Console::error, SDL_GetError());
             SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-
+            //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -80,6 +81,10 @@ namespace palka
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+            //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+            //SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
             SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
                                                               SDL_WINDOW_ALLOW_HIGHDPI);
@@ -94,6 +99,10 @@ namespace palka
             SDL_GetRendererInfo(renderer, &info);
             Console::AppLog::addLog(info.name, Console::info);
             SetContext(renderer);
+            int Buffers, Samples;
+            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &Buffers );
+            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &Samples );
+            int z = 123;
         }
 
         void setViewport(Viewport& v)
@@ -137,8 +146,8 @@ namespace palka
 
         void NewFrame()
         {
-            glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT);
+            SDL_SetRenderDrawColor(GetContext(), bg_color.r, bg_color.g, bg_color.b, 255);
+            SDL_RenderClear(GetContext());
             SDL_Rect vRect{0, 0, getSize().x, getSize().y};
             SDL_RenderSetViewport(GetContext(), &vRect);
             auto sc = view->getScale();

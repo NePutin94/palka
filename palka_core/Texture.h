@@ -13,6 +13,13 @@
 #include "Rect.h"
 #include "Window.h"
 
+#ifdef REFLECTION_CORE
+
+#include <rttr/type>
+#include <rttr/registration_friend>
+
+#endif
+
 namespace palka
 {
     class Texture
@@ -60,6 +67,30 @@ namespace palka
             SDL_QueryTexture(source, NULL, NULL, &w, &h);
             size = {w, h};
             file_path = path;
+        }
+
+        void setBlendMode(SDL_BlendMode blending)
+        {
+            SDL_SetTextureBlendMode(source, blending);
+        }
+
+        auto getBlendMode() const
+        {
+            SDL_BlendMode blend;
+            SDL_GetTextureBlendMode(source, &blend);
+            return blend;
+        }
+
+        void setAlpha(unsigned int alpha)
+        {
+            SDL_SetTextureAlphaMod(source, alpha);
+        }
+
+        unsigned int getAlpha() const
+        {
+            Uint8 blend;
+            SDL_GetTextureAlphaMod(source, &blend);
+            return blend;
         }
 
         ~Texture()
