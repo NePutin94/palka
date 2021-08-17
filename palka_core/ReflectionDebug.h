@@ -55,12 +55,6 @@ namespace palka
                 return false;
         }
 
-        template<class T>
-        inline void toplevel_property_get(std::string_view name, const rttr::property& prop, const T& instance)
-        {
-
-        }
-
         inline bool property_get(std::string_view name, const rttr::property& prop, const rttr::variant& instance, bool is_array = false)
         {
             bool v_change = false;
@@ -247,8 +241,7 @@ namespace palka
                     break;
                 case POINTER:
                 {
-                    auto val2 = prop_value.extract_wrapped_value();
-                    auto type2 = val2.get_type().get_name();
+
                 }
                     break;
             }
