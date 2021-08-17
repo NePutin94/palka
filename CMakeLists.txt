@@ -24,7 +24,6 @@ if (WIN32)
     set(CMAKE_PREFIX_PATH E:\\freetype-master\\ft_gcc)
 endif (WIN32)
 
-
 find_package(SDL_ttf REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(Freetype REQUIRED)
@@ -36,7 +35,7 @@ find_package(SDL_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL_TTF_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLAD_INCLUDE} ${SDL_IMAGE_INCLUDE_DIRS})
 include_directories("./imgui")
 
-add_executable(palka ${CORE_SRC} ${ENTITIES_SRC} ${IMGUI2_SRC} ${GLAD_SRC} palka_core/Matrix.h palka_core/ReflectionDebug.h palka_core/Drawable.h palka_core/RawPtrWrapper.h)
+add_executable(palka ${CORE_SRC} ${ENTITIES_SRC} ${IMGUI2_SRC} ${GLAD_SRC} palka_core/Matrix.h palka_core/ReflectionDebug.h palka_core/Drawable.h)
 
 target_link_libraries(palka mingw32 ${SDLTTF_LIBRARY} Freetype::Freetype SDL2::SDL2main SDL2::SDL2 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${SDL_IMAGE_LIBRARIES} RTTR::Core imm32)
 target_compile_definitions(palka PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD GL_GLEXT_PROTOTYPES=1)
