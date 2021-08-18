@@ -21,10 +21,12 @@ namespace palka
 
         inline valueType checkType(const rttr::variant& value)
         {
-            if (value.is_type<float>())
-                return valueType::FLOAT;
-            else if (value.is_type<std::string>() || value.is_type<std::string_view>())
+            if (value.is_type<std::string>() || value.is_type<std::string_view>())
                 return valueType::STRING;
+            else if (value.get_type().is_class())
+                return NONE;
+            else if (value.is_type<float>())
+                return valueType::FLOAT;
             else if (value.is_type<int>())
                 return valueType::INT;
             else if (value.is_type<unsigned int>())
@@ -245,7 +247,7 @@ namespace palka
         }
 
         template<class T>
-        inline rttr::variant reflect(const rttr::variant& value, T& instance, int id = 0, std::string_view name = "")
+        inline rttr::variant reflect(const rttr::variant& value, T& instance, std::string_view name = "", int id = 0)
         {
             static bool v_change = false;
             rttr::type type = value.get_type();
@@ -265,21 +267,20 @@ namespace palka
                     {
                         rttr::variant prop_value = prop.get_value(_value);
                         rttr::type prop_type = prop.get_type();
-                        auto test = prop.get_name();
-                        if (prop_type.is_valid() && prop_type.is_class())
+                        if (prop_type.is_valid() && prop_type.is_class() && checkType(prop_value) == NONE)
                         {
-                            auto val23 = reflect(prop_value, instance, ++id, prop.get_name().to_string());
+                            auto top_value = reflect(prop_value, instance, prop.get_name().to_string(), ++id);
                             if (_value.get_type() == rttr::type::get(instance))
                             {
                                 if (v_change)
                                 {
-                                    _value.get_type().set_property_value(prop.get_name(), instance, val23);
+                                    _value.get_type().set_property_value(prop.get_name(), instance, top_value);
                                     v_change = false;
                                 }
                             } else
                             {
                                 if (v_change)
-                                    _value.get_type().set_property_value(prop.get_name(), _value, val23);
+                                    _value.get_type().set_property_value(prop.get_name(), _value, top_value);
                             }
                         } else
                         {
@@ -289,10 +290,11 @@ namespace palka
                             {
                                 auto _val = prop.get_value(_value);
                                 if (_value.get_type() == rttr::type::get(instance))
+                                {
                                     _value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                else
+                                    v_change = false;
+                                } else
                                     _value.get_type().set_property_value(prop.get_name(), _value, _val);
-                                v_change = true;
                             }
                         }
                     }
@@ -300,7 +302,7 @@ namespace palka
                 }
             } else
             {
-                //property_get(type.get_name().to_string(), value);
+                assert(!"this is not a class");
             }
             ImGui::PopID();
             return {_value};
@@ -308,10 +310,10 @@ namespace palka
     }
 
     template<class T>
-    inline void debug(const T& val)
+    inline void debug(const T& val, std::string name = "")
     {
         ImGui::Begin("Debug");
-        utility::reflect(rttr::variant(val), val);
+        utility::reflect(rttr::variant(val), val, name);
         ImGui::End();
     }
 }

@@ -20,7 +20,7 @@ namespace palka
 #ifdef REFLECTION_CORE
         RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
-        Raw_Ptr<Texture> debug_texture;
+        //Raw_Ptr<Texture> debug_texture;
 #endif
     public:
         std::string name;
@@ -30,7 +30,7 @@ namespace palka
         void updateTexture(Texture&& txt)
         {
             texture = std::move(txt);
-            debug_texture.set_data(&texture);
+           // debug_texture.set_data(&texture);
         }
     public:
         explicit Object(std::string_view name) : name(name), isActive(true)

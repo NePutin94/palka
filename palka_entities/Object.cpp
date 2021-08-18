@@ -11,7 +11,8 @@ RTTR_REGISTRATION
     using namespace rttr;
     registration::class_<palka::Object>("Object")
             .constructor<std::string_view>()
-            .property("sprite", &palka::Object::sprite);
-            //.property("texture", &palka::Object::debug_texture);
+            .property("sprite", &palka::Object::sprite)
+            .property_readonly("name", &palka::Object::getName)
+            .property_readonly("isActive", &palka::Object::IsActive);
 }
 #endif

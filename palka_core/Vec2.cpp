@@ -3,6 +3,8 @@
 //
 
 #include "Vec2.h"
+#include "Texture.h"
+
 #include <rttr/registration>
 
 RTTR_REGISTRATION
@@ -17,3 +19,5 @@ RTTR_REGISTRATION
             .property("x", &palka::Vec2i::x)
             .property("y", &palka::Vec2i::y);
 }
+
+

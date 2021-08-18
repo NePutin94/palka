@@ -36,77 +36,33 @@ namespace palka
 
         Texture(const Texture& other) = delete;
 
-        Texture(Texture&& other) noexcept
-        {
-            assert(("Can't move", !(source != nullptr)));
-            source = other.source;
-            size = other.size;
-            file_path = std::move(other.file_path);
+        Texture(Texture&& other) noexcept;
 
-            other.source = nullptr;
-        }
+        Texture& operator=(Texture&& other) noexcept;
 
-        Texture& operator=(Texture&& other) noexcept
-        {
-            assert(("Can't move", !(source != nullptr)));
-            source = other.source;
-            size = other.size;
-            file_path = std::move(other.file_path);
+        explicit Texture(std::string_view path, Vec2i size, SDL_Renderer* renderer = Window::GetContext());
 
-            other.source = nullptr;
-        }
+        void LoadFromFile(std::string_view path);
 
-        explicit Texture(std::string_view path, Vec2i size, SDL_Renderer* renderer = Window::GetContext()) : size(size), file_path(path),
-                                                                                                             source(nullptr)
-        {
-            source = IMG_LoadTexture(Window::GetContext(), path.data());
-        }
+        void setBlendMode(SDL_BlendMode blending);
 
-        void LoadFromFile(std::string_view path)
-        {
-            assert(!(source != nullptr));
-            source = IMG_LoadTexture(Window::GetContext(), path.data());
-            int w, h;
-            SDL_QueryTexture(source, NULL, NULL, &w, &h);
-            size = {w, h};
-            file_path = path;
-        }
+        SDL_BlendMode getBlendMode() const;
 
-        void setBlendMode(SDL_BlendMode blending)
-        {
-            SDL_SetTextureBlendMode(source, blending);
-        }
+        void setAlpha(unsigned int alpha);
 
-        auto getBlendMode() const
-        {
-            SDL_BlendMode blend;
-            SDL_GetTextureBlendMode(source, &blend);
-            return blend;
-        }
-
-        void setAlpha(unsigned int alpha)
-        {
-            SDL_SetTextureAlphaMod(source, alpha);
-        }
-
-        unsigned int getAlpha() const
-        {
-            Uint8 blend;
-            SDL_GetTextureAlphaMod(source, &blend);
-            return blend;
-        }
+        unsigned int getAlpha() const;
 
         ~Texture()
         {
             SDL_DestroyTexture(source);
         }
 
-        [[nodiscard]] auto getSize() const
+        [[nodiscard]] Vec2i getSize() const
         {
             return size;
         }
 
-        [[nodiscard]] auto getFilePath() const
+        [[nodiscard]] std::string_view getFilePath() const
         {
             return file_path;
         }

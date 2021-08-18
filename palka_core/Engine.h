@@ -82,7 +82,7 @@ namespace palka
 
         void update()
         {
-            palka::debug(o->sprite);
+            palka::debug(o, o->getName());
             //palka::debug(v);
             //palka::debug(DebugDraw());
         }

@@ -3,6 +3,64 @@
 //
 
 #include "Texture.h"
+
+palka::Texture& palka::Texture::operator=(palka::Texture&& other) noexcept
+{
+    assert(("you are moving empty texture, why?", !(source != nullptr)));
+    source = other.source;
+    size = other.size;
+    file_path = std::move(other.file_path);
+    other.source = nullptr;
+
+    return *this;
+}
+
+palka::Texture::Texture(Texture&& other) noexcept
+{
+    *this = std::move(other);
+}
+
+void palka::Texture::LoadFromFile(std::string_view path)
+{
+    assert(!(source != nullptr));
+    source = IMG_LoadTexture(Window::GetContext(), path.data());
+    int w, h;
+    SDL_QueryTexture(source, NULL, NULL, &w, &h);
+    size = {w, h};
+    file_path = path;
+}
+
+palka::Texture::Texture(std::string_view path, palka::Vec2i size, SDL_Renderer* renderer) : size(size), file_path(path),
+                                                                                            source(nullptr)
+{
+    LoadFromFile(path);
+}
+
+unsigned int palka::Texture::getAlpha() const
+{
+    Uint8 blend;
+    SDL_GetTextureAlphaMod(source, &blend);
+    return blend;
+}
+
+SDL_BlendMode palka::Texture::getBlendMode() const
+{
+    SDL_BlendMode blend;
+    SDL_GetTextureBlendMode(source, &blend);
+    return blend;
+}
+
+void palka::Texture::setAlpha(unsigned int alpha)
+{
+    SDL_SetTextureAlphaMod(source, alpha);
+}
+
+void palka::Texture::setBlendMode(SDL_BlendMode blending)
+{
+    SDL_SetTextureBlendMode(source, blending);
+}
+
+
 #ifdef REFLECTION_CORE
 
 #include <rttr/registration>
