@@ -14,7 +14,6 @@
 #include "TransformObject.h"
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/type>
 #include <rttr/wrapper_mapper.h>
 #include <rttr/registration_friend>
@@ -30,14 +29,14 @@ namespace palka
         RTTR_REGISTRATION_FRIEND
 #endif
     private:
-        Raw_Ptr<Texture> txt;
+        Raw_Ptr<Texture> texture;
         RectI src;
         SDL_RendererFlip flip_p = SDL_FLIP_NONE;
     public:
 
         Sprite() = default;
 
-        Sprite(Texture& tex);
+        explicit Sprite(Texture& tex);
 
         void setTexture(Texture& tex, RectI rect = {});
 

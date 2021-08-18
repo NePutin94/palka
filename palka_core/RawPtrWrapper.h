@@ -16,6 +16,7 @@ public:
     Raw_Ptr() : m_data(nullptr) {}
     explicit Raw_Ptr(T* obj) : m_data(obj) {}
     explicit Raw_Ptr(T) : m_data(nullptr) {}
+
     T* get_data() const { return m_data; }
     void set_data(T* obj) { m_data = obj; }
 private:

@@ -35,12 +35,10 @@ namespace palka
         bool console_open = false;
         Window w;
         bool isRuning;
-        //Texture txt2;
-        //Sprite sp;
         Viewport v;
-        Object o;
+        std::shared_ptr<Object> o;
     public:
-        explicit Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)}), o("test")
+        explicit Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)}), o(std::make_shared<Object>("test"))
         {
             init();
             Texture test;
@@ -50,8 +48,8 @@ namespace palka
             // sp.setTextureRect({18, 20, 29, 38});
             //sp.setPosition({0, 0});
             //sp.setRotation(0);
-            o.setTexture(std::move(test), {18, 26, 29, 38});
-            o.setPosition({0, 0});
+            o->setTexture(std::move(test), {18, 26, 29, 38});
+            o->setPosition({0, 0});
            // v.setCenter({w.getSize().x / 2.f, w.getSize().y / 2.f});
             w.setViewport(v);
         }
@@ -76,7 +74,7 @@ namespace palka
         void render()
         {
             w.NewFrame();
-            DebugDraw::DrawSpriteDebug(o.sprite, w);
+            DebugDraw::DrawSpriteDebug(o->sprite, w);
             Console::AppLog::Draw("Console", &console_open);
             w.ImGUiEndFrame();
             w.EndFrame();
@@ -84,9 +82,9 @@ namespace palka
 
         void update()
         {
-            palka::debug(o.sprite);
-            palka::debug(v);
-            palka::debug(DebugDraw());
+            palka::debug(o->sprite);
+            //palka::debug(v);
+            //palka::debug(DebugDraw());
         }
 
         void handleEvents()
@@ -98,9 +96,6 @@ namespace palka
                     isRuning = false;
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKQUOTE)
                     console_open = !console_open;
-//                if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
-//                    event.window.windowID == SDL_GetWindowID(this->w.getWindow()))
-//                    isRuning = true;
             }
         }
     };

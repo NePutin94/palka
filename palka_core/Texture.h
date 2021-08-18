@@ -14,24 +14,27 @@
 #include "Window.h"
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/type>
 #include <rttr/registration_friend>
-
 #endif
 
 namespace palka
 {
     class Texture
     {
+#ifdef REFLECTION_CORE
+        RTTR_ENABLE()
+        RTTR_REGISTRATION_FRIEND
+#endif
     private:
         SDL_Texture* source = nullptr;
         std::string file_path;
         Vec2i size;
+        bool copy = false;
     public:
         Texture() = default;
 
-        Texture(const Texture&) = delete;
+        Texture(const Texture& other) = delete;
 
         Texture(Texture&& other) noexcept
         {
@@ -108,7 +111,7 @@ namespace palka
             return file_path;
         }
 
-        [[nodiscard]] SDL_Texture* getSdl() const
+        [[nodiscard]] SDL_Texture* getTextureP()
         {
             return source;
         }

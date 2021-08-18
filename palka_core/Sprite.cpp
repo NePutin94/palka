@@ -7,7 +7,9 @@
 
 void palka::Sprite::setTexture(Texture& tex, RectI rect)
 {
-    txt.set_data(&tex);
+    texture.set_data(&tex);
+    auto sz = texture.get_data()->getSize();
+    setTextureRect({0, 0, sz.x, sz.y});
     setTextureRect(rect);
 }
 
@@ -40,20 +42,16 @@ void palka::Sprite::draw(SDL_Renderer* r, SDL_FPoint viewPos) const
     dstRect.x += viewPos.x;
     dstRect.y += viewPos.y;
     SDL_FPoint center = {getCenter().x, getCenter().y};
-    SDL_RenderCopyExF(r, txt.get_data()->getSdl(), &srcRect, &dstRect, getRotation(), &center, flip_p);
+    SDL_RenderCopyExF(r, texture.get_data()->getTextureP(), &srcRect, &dstRect, getRotation(), &center, flip_p);
 }
 
 palka::Sprite::Sprite(palka::Texture& tex)
 {
-    txt.set_data(&tex);
-    auto sz = tex.getSize();
-    setTextureRect({0, 0, sz.x, sz.y});
+    setTexture(tex);
 }
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/registration>
-
 RTTR_REGISTRATION
 {
     registration::enumeration<SDL_RendererFlip>("SDL_RendererFlip")
@@ -67,8 +65,7 @@ RTTR_REGISTRATION
             .constructor<>()
             .property("setRect", &palka::Sprite::getTextureRect, &palka::Sprite::setTextureRect)
             .property("flip", &palka::Sprite::getFlip, &palka::Sprite::setFlip)
-            .property("texture", &palka::Sprite::txt)
+            .property("texture", &palka::Sprite::texture)
             .property("src", &palka::Sprite::src);
 }
-
 #endif

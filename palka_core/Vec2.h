@@ -50,7 +50,11 @@ namespace palka
 
         Vec2 operator/(Vec2 val);
 
+        Vec2 operator/=(Vec2 val);
+
         Vec2 operator*(Vec2 val);
+
+        Vec2 operator*=(Vec2 val);
 
         Vec2 operator+(T val);
 
@@ -59,6 +63,10 @@ namespace palka
         Vec2 operator/(T val);
 
         Vec2 operator*(T val);
+
+        bool operator==(Vec2 val);
+
+        bool operator!=(Vec2 val);
 
         SDL_FPoint toPoint() const
         {
@@ -167,17 +175,15 @@ namespace palka
     template<class T>
     Vec2<T> Vec2<T>::operator-=(Vec2 val)
     {
-        this->x -= val.x;
-        this->y -= val.y;
+        *this = *this - val;
         return (*this);
     }
 
     template<class T>
     Vec2<T> Vec2<T>::operator+=(Vec2 val)
     {
-        this->x += val.x;
-        this->y += val.y;
-        return (*this);
+        *this = *this + val;
+        return *this;
     }
 
     template<class T>
@@ -190,6 +196,32 @@ namespace palka
     Vec2<T> Vec2<T>::operator/(Vec2 val)
     {
         return {x / val.x, y / val.y};
+    }
+
+    template<class T>
+    bool Vec2<T>::operator==(Vec2 val)
+    {
+        return val.x == this->x && val.y == this->y;
+    }
+
+    template<class T>
+    bool Vec2<T>::operator!=(Vec2 val)
+    {
+        return !(*this == val);
+    }
+
+    template<class T>
+    Vec2<T> Vec2<T>::operator/=(Vec2 val)
+    {
+        *this = *this / val;
+        return *this;
+    }
+
+    template<class T>
+    Vec2<T> Vec2<T>::operator*=(Vec2 val)
+    {
+        *this = *this * val;
+        return *this;
     }
 }
 #endif //PALKA_VEC2_H

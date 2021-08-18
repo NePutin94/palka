@@ -14,11 +14,6 @@ namespace palka
 {
     namespace utility
     {
-        struct DebugTree
-        {
-        RTTR_ENABLE()
-        };
-
         enum valueType
         {
             INT, FLOAT, DOUBLE, STRING, BOOL, ARRAY, UINT, ENUM, POINTER, NONE
@@ -59,7 +54,6 @@ namespace palka
         {
             bool v_change = false;
             rttr::variant prop_value;
-
             if (is_array)
             {
                 prop_value = wrapped_check(instance) ? instance.extract_wrapped_value() : instance;
@@ -251,9 +245,9 @@ namespace palka
         }
 
         template<class T>
-        inline std::pair<rttr::variant, bool> reflect(const rttr::variant& value, T& instance, int id = 0, std::string_view name = "")
+        inline rttr::variant reflect(const rttr::variant& value, T& instance, int id = 0, std::string_view name = "")
         {
-            bool v_change = false;
+            static bool v_change = false;
             rttr::type type = value.get_type();
             rttr::variant _value;
             ImGui::PushID(id);
@@ -263,8 +257,7 @@ namespace palka
                 {
                     _value = value.extract_wrapped_value();
                     type = _value.get_type();
-                }
-                else
+                } else
                     _value = value;
                 if (ImGui::TreeNode((void*) (id + type.get_id()), "%s", (name.empty()) ? type.get_name().to_string().c_str() : name.data()))
                 {
@@ -278,23 +271,28 @@ namespace palka
                             auto val23 = reflect(prop_value, instance, ++id, prop.get_name().to_string());
                             if (_value.get_type() == rttr::type::get(instance))
                             {
-                                if (val23.second)
-                                    _value.get_type().set_property_value(prop.get_name(), instance, val23.first);
-                                else
+                                if (v_change)
                                 {
-                                    if (val23.second)
-                                        _value.get_type().set_property_value(prop.get_name(), _value, val23.first);
+                                    _value.get_type().set_property_value(prop.get_name(), instance, val23);
+                                    v_change = false;
                                 }
+                            } else
+                            {
+                                if (v_change)
+                                    _value.get_type().set_property_value(prop.get_name(), _value, val23);
                             }
                         } else
                         {
                             bool t = property_get(prop.get_name().to_string(), prop, _value);
                             v_change = (v_change) ? v_change : t;
-                            if (v_change && !prop_type.is_class() && _value.get_type() == rttr::type::get(instance))
+                            if (v_change && !prop_type.is_class())
                             {
                                 auto _val = prop.get_value(_value);
-                                _value.get_type().set_property_value(prop.get_name(), instance, _val);
-                                v_change = false;
+                                if (_value.get_type() == rttr::type::get(instance))
+                                    _value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                else
+                                    _value.get_type().set_property_value(prop.get_name(), _value, _val);
+                                v_change = true;
                             }
                         }
                     }
@@ -303,10 +301,9 @@ namespace palka
             } else
             {
                 //property_get(type.get_name().to_string(), value);
-                int z = 1;
             }
             ImGui::PopID();
-            return {_value, v_change};
+            return {_value};
         }
     }
 
