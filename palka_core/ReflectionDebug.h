@@ -240,6 +240,9 @@ namespace palka
 
                 }
                     break;
+                default:
+
+                    break;
             }
             ImGui::Spacing();
             ImGui::PopID();
@@ -312,7 +315,7 @@ namespace palka
     template<class T>
     inline void debug(const T& val, std::string name = "")
     {
-        ImGui::Begin("Debug");
+        ImGui::Begin("ReflectionDebug");
         utility::reflect(rttr::variant(val), val, name);
         ImGui::End();
     }

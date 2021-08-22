@@ -107,6 +107,9 @@ namespace palka
             bottom2 += origin;
             return Quad<T>({top1, top2, bottom1, bottom2});
         }
+
+        bool operator==(Rect other);
+        bool operator!=(Rect other);
     };
 
     template<class T>
@@ -166,6 +169,18 @@ namespace palka
             intersection = Rect<T>(0, 0, 0, 0);
             return false;
         }
+    }
+
+    template<class T>
+    bool Rect<T>::operator==(Rect other)
+    {
+        return this->left == other.left && this->top == other.top && this->w == other.w && this->h == other.h;
+    }
+
+    template<class T>
+    bool Rect<T>::operator!=(Rect other)
+    {
+        return !((*this) == other);
     }
 
     using RectF = Rect<float>;

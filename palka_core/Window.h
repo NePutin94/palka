@@ -19,6 +19,7 @@
 #include "Viewport.h"
 #include "ConsoleLog.h"
 #include "SDL_render.h"
+#include "EventManager.h"
 
 namespace palka
 {
@@ -31,11 +32,11 @@ namespace palka
         ImGuiIO* io;
         SDL_GLContext gl_context;
         Color bg_color{80, 180, 250};
+        EventManager eManager;
+
     public:
 
-        Window(const Vec2i& size) : size(size)
-        {
-        }
+        Window(const Vec2i& size) : size(size){}
 
         ~Window()
         {
@@ -52,7 +53,7 @@ namespace palka
         {
             gl_context = SDL_GL_CreateContext(getWindow());
             SDL_GL_MakeCurrent(getWindow(), gl_context);
-            SDL_GL_SetSwapInterval(1); // Enable vsync
+            SDL_GL_SetSwapInterval(1);
             bool err = gladLoadGL() == 0;
 
             if (err)
@@ -82,10 +83,6 @@ namespace palka
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-            //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
-            //SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
             SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
                                                               SDL_WINDOW_ALLOW_HIGHDPI);
             window = SDL_CreateWindow("palka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -99,10 +96,16 @@ namespace palka
             SDL_GetRendererInfo(renderer, &info);
             Console::AppLog::addLog(info.name, Console::info);
             SetContext(renderer);
-            int Buffers, Samples;
-            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &Buffers );
-            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &Samples );
-            int z = 123;
+
+            eManager.addEvent(SDL_WINDOWEVENT, [this](SDL_Event& e)
+            {
+                if(e.window.event == SDL_WINDOWEVENT_RESIZED)
+                {
+                    size.x = e.window.data1;
+                    size.y = e.window.data2;
+                    Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
+                }
+            });
         }
 
         void setViewport(Viewport& v)
@@ -159,21 +162,31 @@ namespace palka
             SDL_GL_SwapWindow(getWindow());
         }
 
-        bool pollEvent(SDL_Event& e)
+        auto& getEManager()
         {
-            if (SDL_PollEvent(&e))
+            return eManager;
+        }
+
+        void inputHandler()
+        {
+            eManager.updateInput();
+        }
+
+        void eventHandler(SDL_Event& e)
+        {
+            eManager.clear();
+            while (SDL_PollEvent(&e))
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
-                if (e.type == SDL_WINDOWEVENT &&
-                    e.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    size.x = e.window.data1;
-                    size.y = e.window.data2;
-                    Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
-                }
-                return true;
+//                if (e.type == SDL_WINDOWEVENT &&
+//                    e.window.event == SDL_WINDOWEVENT_RESIZED)
+//                {
+//                    size.x = e.window.data1;
+//                    size.y = e.window.data2;
+//                    Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
+//                }
+                eManager.updateEvent(e);
             }
-            return false;
         }
 
     private:

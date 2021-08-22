@@ -27,16 +27,19 @@ bool palka::Console::AppLog::hasNewLogByTyp(logType t)
     newLog = false;
     if (offset == 0) //if offset is zero, we look at the end of the vector
     {
-        if (Buffer.back().type == t && prev) {
+        if (Buffer.back().type == t && prev)
+        {
             offset = Buffer.size() - 1;
             //Just change the offset value from zero to something else, most likely there is more than one element in the vector
             return true;
         }
-    } else {
+    } else
+    {
         //We know the location of the previous log displayed on the screen,
         //just see if there are still logs that we might have missed (hasNewLogByTyp may not be called every application tick)
         if (auto it = std::find_if(Buffer.begin() + (offset + 1), Buffer.end(), [t](auto val) { return val.type == t; });
-                it != Buffer.end()) {
+                it != Buffer.end())
+        {
             offset = std::distance(Buffer.begin(), it);
             //if we find such a log(the first one we find), we calculate offset to it from the beginning of the vector
             return true;
@@ -49,10 +52,12 @@ void palka::Console::AppLog::addLog(Log log)
 {
     std::unique_lock<std::shared_mutex> lock{globalMutex};
     newLog = true;
-    if (!Buffer.empty()) {
+    if (!Buffer.empty())
+    {
         if (Buffer.back().pervText != log.pervText)
             Buffer.emplace_back(log);
-        else {
+        else
+        {
             newLog = false;
             offset = 0;
             //We added a copy of the log, so the next log to output will be exactly at the end of the vector
@@ -84,7 +89,8 @@ void Console::AppLog::saveLog(std::string_view path)
 {
     std::ofstream out;
     out.open(path.data());
-    if (out.is_open()) {
+    if (out.is_open())
+    {
         for (auto log : Buffer)
             out << log.text << std::endl;
     }
@@ -101,7 +107,8 @@ void palka::Console::Log::count_update(int count)
 
 void Console::AppLog::Draw(const char* title, bool* p_open)
 {
-    if (*p_open) {
+    if (*p_open)
+    {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always, ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y * 0.3));
         ImGui::SetNextWindowBgAlpha(0.8f);
@@ -116,8 +123,10 @@ void Console::AppLog::Draw(const char* title, bool* p_open)
         ImGui::Checkbox("Find By Type", &find);
         static std::string item_current = logType_s[0].data();
         ImGui::PushItemWidth(45);
-        if (ImGui::BeginCombo("", item_current.c_str(), ImGuiComboFlags_NoArrowButton)) {
-            for (auto& item : logType_s) {
+        if (ImGui::BeginCombo("", item_current.c_str(), ImGuiComboFlags_NoArrowButton))
+        {
+            for (auto& item : logType_s)
+            {
                 bool is_selected = (item_current == item);
                 if (ImGui::Selectable(item.data(), is_selected))
                     item_current = item;
@@ -137,9 +146,11 @@ void Console::AppLog::Draw(const char* title, bool* p_open)
         ImGui::PushItemWidth(300);
         bool input_change = ImGui::InputText("Input", buff_input, IM_ARRAYSIZE(buff_input), ImGuiInputTextFlags_EnterReturnsTrue);
         std::string last_result;
-        if (input_change) {
+        if (input_change)
+        {
             ScrollToBottom = true;
-            if (buff_input[0] == '/') {
+            if (buff_input[0] == '/')
+            {
 
             }
         }
@@ -148,10 +159,13 @@ void Console::AppLog::Draw(const char* title, bool* p_open)
         ImGui::Separator();
         ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
         if (copy) ImGui::LogToClipboard();
-        if (value_changed) {
+        if (value_changed)
+        {
             std::string input = buff_search;
-            for (auto item : Buffer) {
-                if (item.text.find(input) != std::string::npos) {
+            for (auto item : Buffer)
+            {
+                if (item.text.find(input) != std::string::npos)
+                {
                     ImGui::TextColored(item.color, item.text.c_str());
                 }
 //                std::string found = "";
@@ -172,9 +186,12 @@ void Console::AppLog::Draw(const char* title, bool* p_open)
 //                    ImGui::TextColored(item.color, item.text.c_str());
 //                }
             }
-        } else if (find && item_current != "all") {
-            for (const auto& item : Buffer) {
-                ImGui::TextColored(item.color, "%s", logType_s[item.type].data());
+        } else if (find && item_current != "all")
+        {
+            for (const auto& item : Buffer)
+            {
+                if (logType_s[item.type].data() == item_current)
+                ImGui::TextColored(item.color, "%s", item.text.c_str());
             }
         } else
             for (const auto& i : Buffer)
@@ -196,7 +213,8 @@ Console::Log::Log(std::string clearText, logType t)
     std::string ti = std::to_string(std::round(time / 10) / 100);
     ti.erase(ti.find_first_of('.') + 3, ti.size());
     std::string FormattedText = "[sec:" + ti;
-    switch (t) {
+    switch (t)
+    {
         case logType::error:
             color = ImVec4(1, 0.35f, 0, 1);
             FormattedText += " type:error";

@@ -26,6 +26,7 @@
 #include "ReflectionDebug.h"
 #include "Window.h"
 #include "../palka_entities/Object.h"
+#include "EventManager.h"
 
 namespace palka
 {
@@ -37,21 +38,24 @@ namespace palka
         bool isRuning;
         Viewport v;
         std::shared_ptr<Object> o;
+
     public:
         explicit Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)}), o(std::make_shared<Object>("test"))
         {
             init();
             Texture test;
             test.LoadFromFile("Data\\tex\\Hero.png");
-            //txt2 = std::move(test);
-            //sp.setTexture(txt2, {18, 26, 29, 38});
-            // sp.setTextureRect({18, 20, 29, 38});
-            //sp.setPosition({0, 0});
-            //sp.setRotation(0);
             o->setTexture(std::move(test), {18, 26, 29, 38});
-            o->setPosition({0, 0});
-           // v.setCenter({w.getSize().x / 2.f, w.getSize().y / 2.f});
+            //o->setPosition({0, 0});
             w.setViewport(v);
+            w.getEManager().addInput(SDLK_t, []()
+            {
+                Console::AppLog::addLog("key press", Console::info);
+            });
+            w.getEManager().addInput(SDLK_BACKQUOTE, [this]()
+            {
+                console_open = !console_open;
+            });
         }
 
         void run()
@@ -83,20 +87,24 @@ namespace palka
         void update()
         {
             palka::debug(o, o->getName());
-            //palka::debug(v);
-            //palka::debug(DebugDraw());
+            w.inputHandler();
+
+
         }
 
         void handleEvents()
         {
             SDL_Event event;
-            while (w.pollEvent(event))
-            {
-                if (event.type == SDL_QUIT)
-                    isRuning = false;
-                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKQUOTE)
-                    console_open = !console_open;
-            }
+            w.eventHandler(event);
+
+//            while (w.pollEvent(event))
+//            {
+//                if (event.type == SDL_QUIT)
+//                    isRuning = false;
+//                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKQUOTE)
+//
+//                tets.updateEvent(event);
+//            }
         }
     };
 }

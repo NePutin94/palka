@@ -15,23 +15,20 @@
 
 namespace palka
 {
-    class Object : public TransformObject
+    class Object
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
-        //Raw_Ptr<Texture> debug_texture;
 #endif
     public:
         std::string name;
         bool isActive;
         Texture texture;
         Sprite sprite;
-        void updateTexture(Texture&& txt)
-        {
-            texture = std::move(txt);
-           // debug_texture.set_data(&texture);
-        }
+        Vec2f position;
+
     public:
         explicit Object(std::string_view name) : name(name), isActive(true)
         {}
@@ -39,6 +36,17 @@ namespace palka
         explicit Object(Texture&& textrue, std::string_view name) : name(name), isActive(true)
         {
             setTexture(std::move(texture), {});
+        }
+
+        void setPosition(Vec2f pos)
+        {
+            position = pos;
+            sprite.setPosition(position);
+        }
+
+        Vec2f getPosition()
+        {
+            return position;
         }
 
         bool IsActive() const
@@ -53,13 +61,12 @@ namespace palka
 
         void setTexture(Texture&& txt, RectI rect)
         {
-            updateTexture(std::move(txt));
+            texture = std::move(txt);
             sprite.setTexture(texture, rect);
         }
 
         operator Drawable&()
         {
-            sprite.copy((TransformObject) *this);
             return sprite;
         }
     };

@@ -10,7 +10,8 @@ void palka::Sprite::setTexture(Texture& tex, RectI rect)
     texture.set_data(&tex);
     auto sz = texture.get_data()->getSize();
     setTextureRect({0, 0, sz.x, sz.y});
-    setTextureRect(rect);
+    if (rect != RectI{0, 0, 0, 0})
+        setTextureRect(rect);
 }
 
 void palka::Sprite::setTextureRect(palka::RectI rect)
@@ -51,7 +52,9 @@ palka::Sprite::Sprite(palka::Texture& tex)
 }
 
 #ifdef REFLECTION_CORE
+
 #include <rttr/registration>
+
 RTTR_REGISTRATION
 {
     registration::enumeration<SDL_RendererFlip>("SDL_RendererFlip")
@@ -68,4 +71,5 @@ RTTR_REGISTRATION
             .property("texture", &palka::Sprite::texture)
             .property("src", &palka::Sprite::src);
 }
+
 #endif
