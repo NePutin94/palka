@@ -3,4 +3,3 @@
 //
 
 #include "Window.h"
-SDL_Renderer* palka::Window::context = nullptr;

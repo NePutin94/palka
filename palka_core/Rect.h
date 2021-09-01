@@ -32,13 +32,14 @@ namespace palka
         explicit Quad(std::array<Vec2<T>, 4> arr);
 
         explicit Quad(Rect<T> r);
+
         Quad<int> toInt()
         {
             Quad<int> q;
-            q.leftTop = Vec2i(leftTop.x,leftTop.y);
-            q.rightTop = Vec2i(rightTop.x,rightTop.y);
-            q.leftBottom = Vec2i(leftBottom.x,leftBottom.y);
-            q.rightBottom = Vec2i(rightBottom.x,rightBottom.y);
+            q.leftTop = Vec2i(leftTop.x, leftTop.y);
+            q.rightTop = Vec2i(rightTop.x, rightTop.y);
+            q.leftBottom = Vec2i(leftBottom.x, leftBottom.y);
+            q.rightBottom = Vec2i(rightBottom.x, rightBottom.y);
             return q;
         }
     };
@@ -56,10 +57,15 @@ namespace palka
 
         Rect() = default;
 
-        Rect(T x, T y, T w, T h) : left(x), top(y), w(w), h(h)
+        Rect(T x, T y, T w, T h) noexcept : left(x), top(y), w(w), h(h)
         {}
 
         Rect(const Rect&) = default;
+
+        static constexpr Rect Zero()
+        {
+            return Rect((T) 0, (T) 0, (T) 0, (T) 0);
+        }
 
         template<class T2>
         bool contains(Vec2<T2>);
@@ -73,7 +79,7 @@ namespace palka
 
         SDL_FRect getRectF() const
         {
-            return {(float)left, (float)top, (float)w, (float)h};
+            return {(float) left, (float) top, (float) w, (float) h};
         }
 
         std::array<Vec2<T>, 4> getPoints() const
@@ -109,6 +115,7 @@ namespace palka
         }
 
         bool operator==(Rect other);
+
         bool operator!=(Rect other);
     };
 

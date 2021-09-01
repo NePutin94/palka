@@ -9,13 +9,17 @@
 
 namespace palka
 {
+    class Window;
     class Drawable
     {
+    private:
+        virtual void draw(Window& win) const = 0;
+
     public:
         virtual ~Drawable()
         {}
 
-        virtual void draw(SDL_Renderer* target, SDL_FPoint viewPos) const = 0;
+        friend class Window;
     };
 }
 #endif //PALKA_DRAWABLE_H

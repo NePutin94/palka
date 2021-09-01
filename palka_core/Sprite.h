@@ -32,6 +32,7 @@ namespace palka
         Raw_Ptr<Texture> texture;
         RectI src;
         SDL_RendererFlip flip_p = SDL_FLIP_NONE;
+        void draw(Window& win) const override;
     public:
 
         Sprite() = default;
@@ -53,8 +54,6 @@ namespace palka
         RectI getLocalRect() const;
 
         RectF getGlobalRect() const;
-
-        void draw(SDL_Renderer*, SDL_FPoint viewPos) const override;
 
         friend class Window;
     };

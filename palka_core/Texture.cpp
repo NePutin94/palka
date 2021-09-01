@@ -20,20 +20,20 @@ palka::Texture::Texture(Texture&& other) noexcept
     *this = std::move(other);
 }
 
-void palka::Texture::LoadFromFile(std::string_view path)
+void palka::Texture::LoadFromFile(std::string_view path,Window& win)
 {
     assert(!(source != nullptr));
-    source = IMG_LoadTexture(Window::GetContext(), path.data());
+    source = IMG_LoadTexture(win.getContext(), path.data());
     int w, h;
     SDL_QueryTexture(source, NULL, NULL, &w, &h);
     size = {w, h};
     file_path = path;
 }
 
-palka::Texture::Texture(std::string_view path, palka::Vec2i size, SDL_Renderer* renderer) : size(size), file_path(path),
+palka::Texture::Texture(std::string_view path, palka::Vec2i size, Window& win) : size(size), file_path(path),
                                                                                             source(nullptr)
 {
-    LoadFromFile(path);
+    LoadFromFile(path,win);
 }
 
 unsigned int palka::Texture::getAlpha() const
@@ -62,19 +62,17 @@ void palka::Texture::setBlendMode(SDL_BlendMode blending)
 
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/registration>
-
 RTTR_REGISTRATION
 {
     registration::enumeration<SDL_BlendMode>("SDL_BlendMode")
             (
-                    value("SDL_BLENDMODE_ADD", SDL_BlendMode::SDL_BLENDMODE_ADD),
-                    value("SDL_BLENDMODE_BLEND", SDL_BlendMode::SDL_BLENDMODE_BLEND),
+                    value("SDL_BLENDMODE_ADD",     SDL_BlendMode::SDL_BLENDMODE_ADD),
+                    value("SDL_BLENDMODE_BLEND",   SDL_BlendMode::SDL_BLENDMODE_BLEND),
                     value("SDL_BLENDMODE_INVALID", SDL_BlendMode::SDL_BLENDMODE_INVALID),
-                    value("SDL_BLENDMODE_MOD", SDL_BlendMode::SDL_BLENDMODE_MOD),
-                    value("SDL_BLENDMODE_MUL", SDL_BlendMode::SDL_BLENDMODE_MUL),
-                    value("SDL_BLENDMODE_NONE", SDL_BlendMode::SDL_BLENDMODE_NONE)
+                    value("SDL_BLENDMODE_MOD",     SDL_BlendMode::SDL_BLENDMODE_MOD),
+                    value("SDL_BLENDMODE_MUL",     SDL_BlendMode::SDL_BLENDMODE_MUL),
+                    value("SDL_BLENDMODE_NONE",    SDL_BlendMode::SDL_BLENDMODE_NONE)
             );
     using namespace rttr;
     registration::class_<palka::Texture>("Texture")
@@ -82,5 +80,4 @@ RTTR_REGISTRATION
             .property("blend mode", &palka::Texture::getBlendMode, &palka::Texture::setBlendMode)
             .property("alpha", &palka::Texture::getAlpha, &palka::Texture::setAlpha);
 }
-
 #endif

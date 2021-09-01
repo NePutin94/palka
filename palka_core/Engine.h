@@ -38,23 +38,49 @@ namespace palka
         bool isRuning;
         Viewport v;
         std::shared_ptr<Object> o;
-
+        DebugDraw deb_draw;
+        Vec2f p[4] = {{150, 150},
+                      {200, 200},
+                      {250, 250},
+                      {300, 300}};
     public:
-        explicit Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)}), o(std::make_shared<Object>("test"))
+        explicit Engine(Vec2i size) : w(size), isRuning(false), v({0, 0, static_cast<float>(size.x), static_cast<float>(size.y)}),
+                                      o(std::make_shared<Object>("test"))
         {
             init();
             Texture test;
-            test.LoadFromFile("Data\\tex\\Hero.png");
+            test.LoadFromFile("Data\\tex\\Hero.png", w);
             o->setTexture(std::move(test), {18, 26, 29, 38});
-            //o->setPosition({0, 0});
             w.setViewport(v);
-            w.getEManager().addInput(SDLK_t, []()
-            {
-                Console::AppLog::addLog("key press", Console::info);
+            static bool mousePress = false;
+            static int selectIndex = -1;
+            w.getEManager().addEvent(MouseEvent::Motion(), [this](SDL_Event& event) {
+                float x = event.motion.x;
+                float y = event.motion.y;
+                if (mousePress)
+                {
+                    if(selectIndex > 0)
+                        p[selectIndex] = Vec2f{x, y};
+                    int i = 0;
+                    for (auto& point: p)
+                    {
+                        Vec2f np1 = point - 5;
+                        if (RectF(np1.x, np1.y, 10, 10).contains(Vec2f(x, y)))
+                        {
+                            point = Vec2f{x, y};
+                            selectIndex = i;
+                            break;
+                        }
+                        i++;
+                    }
+                }
             });
-            w.getEManager().addInput(SDLK_BACKQUOTE, [this]()
-            {
-                console_open = !console_open;
+            w.getEManager().addEvent(MouseEvent::ButtonPressed(MouseEvent::Left), [this](SDL_Event& event) {
+                mousePress = true;
+            });
+            w.getEManager().addEvent(MouseEvent::ButtonReleased(MouseEvent::Left), [this](SDL_Event& event) {
+                mousePress = false;
+                selectIndex = -1;
             });
         }
 
@@ -75,36 +101,55 @@ namespace palka
             isRuning = true;
         }
 
+        float getPt(float n1, float n2, float perc)
+        {
+            float diff = n2 - n1;
+
+            return n1 + (diff * perc);
+        }
+
         void render()
         {
             w.NewFrame();
+            SDL_FPoint pointsX[100];
+            int i = 0;
+            for (auto u = 0.0; u <= 1.0; u += 0.01)
+            {
+                // The Green Lines
+                float xu = pow(1 - u, 3) * p[0].x + 3 * u * pow(1 - u, 2) * p[1].x + 3 * pow(u, 2) * (1 - u) * p[2].x
+                           + pow(u, 3) * p[3].x;
+                float yu = pow(1 - u, 3) * p[0].y + 3 * u * pow(1 - u, 2) * p[1].y + 3 * pow(u, 2) * (1 - u) * p[2].y
+                           + pow(u, 3) * p[3].y;
+                pointsX[i++] = {xu, yu};
+                SDL_SetRenderDrawColor(w.getContext(), 255, 120, 120, 255);
+            }
+            SDL_RenderDrawLinesF(w.getContext(), pointsX, 100);
+
+            SDL_SetRenderDrawColor(w.getContext(), 255, 0, 120, 255);
+            for (auto& point: p)
+            {
+                Vec2f np1 = point - 5;
+                DebugDraw::DrawBoxF(RectF(np1.x, np1.y, 10, 10), w.getContext());
+            }
+
             DebugDraw::DrawSpriteDebug(o->sprite, w);
             Console::AppLog::Draw("Console", &console_open);
-            w.ImGUiEndFrame();
+            w.ImGuiEndFrame();
             w.EndFrame();
         }
 
         void update()
         {
             palka::debug(o, o->getName());
+            palka::debug(v, "Viewport");
+            palka::debug(deb_draw, "DebugDraw");
             w.inputHandler();
-
-
         }
 
         void handleEvents()
         {
             SDL_Event event;
             w.eventHandler(event);
-
-//            while (w.pollEvent(event))
-//            {
-//                if (event.type == SDL_QUIT)
-//                    isRuning = false;
-//                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKQUOTE)
-//
-//                tets.updateEvent(event);
-//            }
         }
     };
 }

@@ -34,11 +34,11 @@ namespace palka
 
         Vec2(const Vec2&) = default;
 
-        Vec2(T x, T y) : x(x), y(y)
+        Vec2(T x, T y) noexcept : x(x), y(y)
         {}
 
-        static Vec2 Zero()
-        { return Vec2(0, 0); }
+        static constexpr Vec2 Zero()
+        { return Vec2((T)0, (T)0); }
 
         Vec2 operator+(Vec2 val);
 

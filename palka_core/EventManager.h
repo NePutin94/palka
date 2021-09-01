@@ -46,7 +46,7 @@ namespace palka
 
     struct MouseEvent
     {
-        enum Mouse_Buttom
+        enum Mouse_Button
         {
             None = 0,
             Left = SDL_BUTTON_LEFT,
@@ -55,15 +55,15 @@ namespace palka
         };
 
         SDL_EventType type = (SDL_EventType) 0;
-        Mouse_Buttom key = None;
+        Mouse_Button key = None;
 
-        MouseEvent(SDL_EventType type, Mouse_Buttom b) : key(b), type(type)
+        MouseEvent(SDL_EventType type, Mouse_Button b) : key(b), type(type)
         {}
 
         MouseEvent(SDL_EventType type) : type(type)
         {}
 
-        MouseEvent(Mouse_Buttom b) : key(b)
+        MouseEvent(Mouse_Button b) : key(b)
         {}
 
         bool operator==(const MouseEvent& other) const
@@ -74,52 +74,55 @@ namespace palka
             return (type < o.type || (type == o.type && key < o.key));
         }
 
-        static MouseEvent ButtonPressed(Mouse_Buttom b)
+        static MouseEvent ButtonPressed(Mouse_Button b)
         {
             return MouseEvent{SDL_MOUSEBUTTONDOWN, b};
         }
 
-        static MouseEvent ButtonReleased(Mouse_Buttom b)
+        static MouseEvent ButtonReleased(Mouse_Button b)
         {
             return MouseEvent{SDL_MOUSEBUTTONUP, b};
         }
 
         static MouseEvent WheelScrolled()
         {
-            return MouseEvent{SDL_MOUSEWHEEL, Mouse_Buttom::None};
+            return MouseEvent{SDL_MOUSEWHEEL, Mouse_Button::None};
+        }
+
+        static MouseEvent Motion()
+        {
+            return MouseEvent{SDL_MOUSEMOTION , Mouse_Button::None};
         }
     };
 
     class EventManager
     {
     private:
-        std::multimap<KBoardEvent, std::function<void(SDL_Event&)>> KeyboardEvents;
-        std::multimap<MouseEvent, std::function<void(SDL_Event&)>> MouseEvents;
-        std::multimap<KBoardEvent, std::function<void()>> KeyboardInputs;
-        std::multimap<SDL_EventType, std::function<void(SDL_Event&)>> TypeEvents;
+        std::multimap<KBoardEvent,   std::function<void(SDL_Event&)>>   KeyboardEvents;
+        std::multimap<MouseEvent,    std::function<void(SDL_Event&)>>   MouseEvents;
+        std::multimap<KBoardEvent,   std::function<void()>>             KeyboardInputs;
+        std::multimap<SDL_EventType, std::function<void(SDL_Event&)>>   TypeEvents;
         std::set<SDL_KeyCode> keyPressed;
-
-        bool enable;
+        std::set<MouseEvent::Mouse_Button> mousebPress;
     public:
-        EventManager(bool enable = true) : enable(enable)
-        {};
+        EventManager() = default;
 
-        void addEvent(SDL_EventType t, std::function<void(SDL_Event&)> callback)
+        void addEvent(SDL_EventType t, const std::function<void(SDL_Event&)>& callback)
         {
             TypeEvents.emplace(t, callback);
         }
 
-        void addEvent(KBoardEvent e, std::function<void(SDL_Event&)> callback)
+        void addEvent(KBoardEvent e, const std::function<void(SDL_Event&)>& callback)
         {
             KeyboardEvents.emplace(e, callback);
         }
 
-        void addInput(SDL_KeyCode k, std::function<void()> callback)
+        void addInput(SDL_KeyCode k, const std::function<void()>& callback)
         {
             KeyboardInputs.emplace(KBoardEvent::KeyPressed(k), callback);
         }
 
-        void addEvent(MouseEvent e, std::function<void(SDL_Event&)> callback)
+        void addEvent(MouseEvent e, const std::function<void(SDL_Event&)>& callback)
         {
             MouseEvents.emplace(e, callback);
         }
@@ -129,9 +132,10 @@ namespace palka
             return keyPressed.count(key) == 1;
         }
 
-        void clear()
+        void clearInput()
         {
             keyPressed.clear();
+            mousebPress.clear();
         }
 
         void updateInput()
@@ -170,40 +174,35 @@ namespace palka
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                 {
-                    auto range = MouseEvents.equal_range(MouseEvent{(SDL_EventType) e.type, (MouseEvent::Mouse_Buttom) e.button.button});
+                    mousebPress.emplace((MouseEvent::Mouse_Button) e.button.button);
+                    auto range = MouseEvents.equal_range(MouseEvent{(SDL_EventType) e.type, (MouseEvent::Mouse_Button) e.button.button});
                     for (auto it = range.first; it != range.second; ++it)
                         it->second(e);
                 }
                     break;
                 case SDL_MOUSEBUTTONUP:
                 {
-                    auto range = MouseEvents.equal_range(MouseEvent{(SDL_EventType) e.type, (MouseEvent::Mouse_Buttom) e.button.button});
+                    auto range = MouseEvents.equal_range(MouseEvent{(SDL_EventType) e.type, (MouseEvent::Mouse_Button) e.button.button});
                     for (auto it = range.first; it != range.second; ++it)
                         it->second(e);
                 }
                     break;
-//                case SDL_MOUSEWHEEL:
-//                {
-//                    auto range = MouseEvents.equal_range(MouseEvent{e.type});
-//                    for(auto it = range.first; it != range.second; ++it)
-//                        it->second(e);
-//                }
-//                    break;
-//                case SDL_MOUSEMOTION:
-//                {
-//                    auto range = MouseEvents.equal_range(MouseEvent{e.type});
-//                    for(auto it = range.first; it != range.second; ++it)
-//                        it->second(e);
-//                }
-//                    break;
+                case SDL_MOUSEWHEEL:
+                {
+                    auto range = MouseEvents.equal_range(MouseEvent::WheelScrolled());
+                    for(auto it = range.first; it != range.second; ++it)
+                        it->second(e);
+                }
+                    break;
+                case SDL_MOUSEMOTION:
+                {
+                    auto range = MouseEvents.equal_range(MouseEvent::Motion());
+                    for(auto it = range.first; it != range.second; ++it)
+                        it->second(e);
+                }
+                    break;
             }
         }
-
-        void setEnable(bool e)
-        { enable = e; }
-
-        bool isEneable() const
-        { return enable; }
     };
 }
 

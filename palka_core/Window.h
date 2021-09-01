@@ -131,7 +131,7 @@ namespace palka
 
         void draw(const Drawable& d)
         {
-            d.draw(GetContext(), view->getCenter().toPoint());
+            d.draw(*this);
         }
 
         void ImGUiNewFrame()
@@ -141,7 +141,7 @@ namespace palka
             ImGui::NewFrame();
         }
 
-        void ImGUiEndFrame()
+        void ImGuiEndFrame()
         {
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -149,12 +149,12 @@ namespace palka
 
         void NewFrame()
         {
-            SDL_SetRenderDrawColor(GetContext(), bg_color.r, bg_color.g, bg_color.b, 255);
-            SDL_RenderClear(GetContext());
+            SDL_SetRenderDrawColor(getContext(), bg_color.r, bg_color.g, bg_color.b, 255);
+            SDL_RenderClear(getContext());
             SDL_Rect vRect{0, 0, getSize().x, getSize().y};
-            SDL_RenderSetViewport(GetContext(), &vRect);
+            SDL_RenderSetViewport(getContext(), &vRect);
             auto sc = view->getScale();
-            SDL_RenderSetScale(GetContext(), sc.x, sc.y);
+            SDL_RenderSetScale(getContext(), sc.x, sc.y);
         }
 
         void EndFrame()
@@ -174,30 +174,23 @@ namespace palka
 
         void eventHandler(SDL_Event& e)
         {
-            eManager.clear();
+            eManager.clearInput();
             while (SDL_PollEvent(&e))
             {
                 ImGui_ImplSDL2_ProcessEvent(&e);
-//                if (e.type == SDL_WINDOWEVENT &&
-//                    e.window.event == SDL_WINDOWEVENT_RESIZED)
-//                {
-//                    size.x = e.window.data1;
-//                    size.y = e.window.data2;
-//                    Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
-//                }
                 eManager.updateEvent(e);
             }
         }
 
     private:
-        static void SetContext(SDL_Renderer* c)
+        void SetContext(SDL_Renderer* c)
         {
             context = c;
         }
 
-        static SDL_Renderer* context;
+        SDL_Renderer* context;
     public:
-        static SDL_Renderer* GetContext()
+        SDL_Renderer* getContext()
         {
             return context;
         }

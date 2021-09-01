@@ -270,6 +270,7 @@ namespace palka
                     {
                         rttr::variant prop_value = prop.get_value(_value);
                         rttr::type prop_type = prop.get_type();
+                        std::string_view prop_name = prop.get_name().data();
                         if (prop_type.is_valid() && prop_type.is_class() && checkType(prop_value) == NONE)
                         {
                             auto top_value = reflect(prop_value, instance, prop.get_name().to_string(), ++id);
@@ -287,17 +288,20 @@ namespace palka
                             }
                         } else
                         {
-                            bool t = property_get(prop.get_name().to_string(), prop, _value);
-                            v_change = (v_change) ? v_change : t;
-                            if (v_change && !prop_type.is_class())
+                            bool ret = property_get(prop.get_name().to_string(), prop, _value); //this is a top-level property and you need to notify about its change,
+                                                                                                // so if we changed it, we change it for _value, if _value is the original object,
+                                                                                                // then we apply the changes immediately to it
+                                                                                                //If _value is a nested object, then we must apply all the changes higher up the hierarchy, so v_change=true
+                            v_change = (v_change) ? v_change : ret;
+                            if (ret && !prop_type.is_class())
                             {
                                 auto _val = prop.get_value(_value);
                                 if (_value.get_type() == rttr::type::get(instance))
                                 {
-                                    _value.get_type().set_property_value(prop.get_name(), instance, _val);
+                                    _value.get_type().set_property_value(prop_name.data(), instance, _val);
                                     v_change = false;
                                 } else
-                                    _value.get_type().set_property_value(prop.get_name(), _value, _val);
+                                    _value.get_type().set_property_value(prop_name.data(), _value, _val);
                             }
                         }
                     }

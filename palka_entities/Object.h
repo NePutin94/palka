@@ -18,8 +18,7 @@ namespace palka
     class Object
     {
 #ifdef REFLECTION_CORE
-    RTTR_ENABLE()
-
+        RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
 #endif
     public:

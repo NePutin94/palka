@@ -10,7 +10,7 @@ void palka::Sprite::setTexture(Texture& tex, RectI rect)
     texture.set_data(&tex);
     auto sz = texture.get_data()->getSize();
     setTextureRect({0, 0, sz.x, sz.y});
-    if (rect != RectI{0, 0, 0, 0})
+    if (rect != RectI::Zero())
         setTextureRect(rect);
 }
 
@@ -27,7 +27,7 @@ palka::RectI palka::Sprite::getTextureRect() const
 
 palka::RectI palka::Sprite::getLocalRect() const
 {
-    return RectI(0, 0, src.w, src.h);
+    return {0, 0, src.w, src.h};
 }
 
 palka::RectF palka::Sprite::getGlobalRect() const
@@ -35,15 +35,15 @@ palka::RectF palka::Sprite::getGlobalRect() const
     return RectF{getPosition().x, getPosition().y, (float) src.w * getScale().x, (float) src.h * getScale().y};
 }
 
-void palka::Sprite::draw(SDL_Renderer* r, SDL_FPoint viewPos) const
+void palka::Sprite::draw(Window& win) const
 {
-    //assert(("Texture is empty", !(txt.get_data() == nullptr)));
     auto srcRect = src.getRect();
     auto dstRect = getGlobalRect().getRectF();
-    dstRect.x += viewPos.x;
-    dstRect.y += viewPos.y;
+    auto[X, Y] = win.getViewport()->applyTranslate(Vec2f{dstRect.x, dstRect.y});
+    dstRect.x = X;
+    dstRect.y = Y;
     SDL_FPoint center = {getCenter().x, getCenter().y};
-    SDL_RenderCopyExF(r, texture.get_data()->getTextureP(), &srcRect, &dstRect, getRotation(), &center, flip_p);
+    SDL_RenderCopyExF(win.getContext(), texture.get_data()->getTextureP(), &srcRect, &dstRect, getRotation(), &center, flip_p);
 }
 
 palka::Sprite::Sprite(palka::Texture& tex)

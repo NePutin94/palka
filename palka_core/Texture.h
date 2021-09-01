@@ -14,8 +14,10 @@
 #include "Window.h"
 
 #ifdef REFLECTION_CORE
+
 #include <rttr/type>
 #include <rttr/registration_friend>
+
 #endif
 
 namespace palka
@@ -30,7 +32,6 @@ namespace palka
         SDL_Texture* source = nullptr;
         std::string file_path;
         Vec2i size;
-        bool copy = false;
     public:
         Texture() = default;
 
@@ -40,9 +41,9 @@ namespace palka
 
         Texture& operator=(Texture&& other) noexcept;
 
-        explicit Texture(std::string_view path, Vec2i size, SDL_Renderer* renderer = Window::GetContext());
+        explicit Texture(std::string_view path, Vec2i size, Window& renderer);
 
-        void LoadFromFile(std::string_view path);
+        void LoadFromFile(std::string_view path, Window& renderer);
 
         void setBlendMode(SDL_BlendMode blending);
 

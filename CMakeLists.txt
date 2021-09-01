@@ -12,6 +12,7 @@ file(GLOB_RECURSE IMGUI2_SRC RELATIVE ${CMAKE_SOURCE_DIR} "./imgui/*.cpp")
 file(GLOB_RECURSE GLAD_SRC RELATIVE ${CMAKE_SOURCE_DIR} "./glad/src/*.c")
 file(GLOB_RECURSE CORE_SRC RELATIVE ${CMAKE_SOURCE_DIR} "./palka_core/*.cpp")
 file(GLOB_RECURSE ENTITIES_SRC RELATIVE ${CMAKE_SOURCE_DIR} "./palka_entities/*.cpp")
+set(HEADER_SOURCE palka_core/Matrix.h palka_core/ReflectionDebug.h palka_core/Drawable.h)
 
 if (WIN32)
     set(GLAD_INCLUDE "./glad/include")
@@ -35,7 +36,8 @@ find_package(SDL_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL_TTF_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLAD_INCLUDE} ${SDL_IMAGE_INCLUDE_DIRS})
 include_directories("./imgui")
 
-add_executable(palka ${CORE_SRC} ${ENTITIES_SRC} ${IMGUI2_SRC} ${GLAD_SRC} palka_core/Matrix.h palka_core/ReflectionDebug.h palka_core/Drawable.h)
+
+add_executable(palka ${CORE_SRC} ${HEADER_SOURCE} ${ENTITIES_SRC} ${IMGUI2_SRC} ${GLAD_SRC} )
 
 target_link_libraries(palka mingw32 ${SDLTTF_LIBRARY} Freetype::Freetype SDL2::SDL2main SDL2::SDL2 ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${SDL_IMAGE_LIBRARIES} RTTR::Core imm32)
 target_compile_definitions(palka PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD GL_GLEXT_PROTOTYPES=1)
