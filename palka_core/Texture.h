@@ -55,6 +55,7 @@ namespace palka
 
         ~Texture()
         {
+            if(source!=nullptr)
             SDL_DestroyTexture(source);
         }
 
