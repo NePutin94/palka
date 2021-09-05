@@ -13,7 +13,6 @@
 
 #include <rttr/type>
 #include <rttr/registration_friend>
-#include <SDL_rect.h>
 
 #endif
 namespace palka
@@ -67,11 +66,6 @@ namespace palka
         bool operator==(Vec2 val);
 
         bool operator!=(Vec2 val);
-
-        SDL_FPoint toPoint() const
-        {
-            return SDL_FPoint{(float) x, (float) y};
-        }
 
         Vec2 abs();
 

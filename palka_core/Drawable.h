@@ -5,7 +5,6 @@
 #ifndef PALKA_DRAWABLE_H
 #define PALKA_DRAWABLE_H
 
-#include <SDL_render.h>
 
 namespace palka
 {

@@ -5,7 +5,6 @@
 #ifndef PALKA_RECT_H
 #define PALKA_RECT_H
 
-#include <SDL_rect.h>
 #include "Vec2.h"
 #include "Matrix.h"
 #include <utility>
@@ -71,16 +70,6 @@ namespace palka
         bool contains(Vec2<T2>);
 
         bool intersects(Rect, Rect&);
-
-        SDL_Rect getRect() const
-        {
-            return {(int) left, (int) top, (int) w, (int) h};
-        }
-
-        SDL_FRect getRectF() const
-        {
-            return {(float) left, (float) top, (float) w, (float) h};
-        }
 
         std::array<Vec2<T>, 4> getPoints() const
         {

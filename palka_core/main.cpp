@@ -199,10 +199,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    TTF_Init();
     palka::Engine e(palka::Vec2(1280, 720));
     e.run();
-    TTF_Quit();
     return 0;
 }
 

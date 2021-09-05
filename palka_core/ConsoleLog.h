@@ -10,7 +10,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <SDL.h>
 #include <shared_mutex>
 
 namespace palka

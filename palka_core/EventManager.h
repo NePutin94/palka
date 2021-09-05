@@ -5,24 +5,74 @@
 #ifndef PALKA_EVENTMANAGER_H
 #define PALKA_EVENTMANAGER_H
 
-#include <SDL_events.h>
 #include <set>
 #include <map>
 #include <functional>
 #include <utility>
+#include <GLFW/glfw3.h>
 
 namespace palka
 {
+    enum EventType
+    {
+        NONE,
+        KEYDOWN,
+        KEYUP,
+        MOUSEBDOWN,
+        MOUSEBUP,
+        MOUSESCROLL,
+        MOUSEMOTION,
+        WINDOWRESIZE,
+        WINDOWMOTION
+    };
+
+    struct EventData
+    {
+        struct
+        {
+            int x;
+            int y;
+        } WindowPos;
+        struct
+        {
+            int newX;
+            int newY;
+        } WindowResize;
+        struct
+        {
+            int key;
+            int action;
+            int scancode;
+            int mode;
+        } KeyPress;
+        struct
+        {
+            int button;
+            int action;
+            int mods;
+        } MouseButtonPress;
+        struct
+        {
+            int offsetX;
+            int offsetY;
+        } MouseScroll;
+        struct
+        {
+            int x;
+            int y;
+        } MouseMotion;
+    };
+
     struct KBoardEvent
     {
-        SDL_EventType type = (SDL_EventType) 0;
-        SDL_KeyCode key = (SDL_KeyCode) 0;
+        EventType type = NONE;
+        int key = -1;
         //KBoardEvent() : type(), key() {}
 
-        KBoardEvent(SDL_EventType type, SDL_KeyCode key) : type(type), key(key)
+        KBoardEvent(EventType type, int key) : type(type), key(key)
         {}
 
-        KBoardEvent(SDL_KeyCode key) : key(key)
+        KBoardEvent(int key) : key(key)
         {}
 
         bool operator==(const KBoardEvent& other) const
@@ -33,14 +83,14 @@ namespace palka
             return type < o.type || (type == o.type && key < o.key);
         }
 
-        static KBoardEvent KeyPressed(SDL_KeyCode k)
+        static KBoardEvent KeyPressed(int k)
         {
-            return KBoardEvent{SDL_KEYDOWN, k};
+            return KBoardEvent{KEYDOWN, k};
         }
 
-        static KBoardEvent KeyReleased(SDL_KeyCode k)
+        static KBoardEvent KeyReleased(int k)
         {
-            return KBoardEvent{SDL_KEYUP, k};
+            return KBoardEvent{KEYUP, k};
         }
     };
 
@@ -49,18 +99,18 @@ namespace palka
         enum Mouse_Button
         {
             None = 0,
-            Left = SDL_BUTTON_LEFT,
-            Right = SDL_BUTTON_RIGHT,
-            Middle = SDL_BUTTON_MIDDLE
+            Left = GLFW_MOUSE_BUTTON_LEFT,
+            Right = GLFW_MOUSE_BUTTON_RIGHT,
+            Middle = GLFW_MOUSE_BUTTON_MIDDLE
         };
 
-        SDL_EventType type = (SDL_EventType) 0;
+        EventType type = NONE;
         Mouse_Button key = None;
 
-        MouseEvent(SDL_EventType type, Mouse_Button b) : key(b), type(type)
+        MouseEvent(EventType type, Mouse_Button b) : key(b), type(type)
         {}
 
-        MouseEvent(SDL_EventType type) : type(type)
+        MouseEvent(EventType type) : type(type)
         {}
 
         MouseEvent(Mouse_Button b) : key(b)
@@ -76,132 +126,154 @@ namespace palka
 
         static MouseEvent ButtonPressed(Mouse_Button b)
         {
-            return MouseEvent{SDL_MOUSEBUTTONDOWN, b};
+            return MouseEvent{MOUSEBDOWN, b};
         }
 
         static MouseEvent ButtonReleased(Mouse_Button b)
         {
-            return MouseEvent{SDL_MOUSEBUTTONUP, b};
+            return MouseEvent{MOUSEBUP, b};
         }
 
         static MouseEvent WheelScrolled()
         {
-            return MouseEvent{SDL_MOUSEWHEEL, Mouse_Button::None};
+            return MouseEvent{MOUSESCROLL, Mouse_Button::None};
         }
 
         static MouseEvent Motion()
         {
-            return MouseEvent{SDL_MOUSEMOTION , Mouse_Button::None};
+            return MouseEvent{MOUSEMOTION, Mouse_Button::None};
         }
     };
 
     class EventManager
     {
     private:
-        std::multimap<KBoardEvent,   std::function<void(SDL_Event&)>>   KeyboardEvents;
-        std::multimap<MouseEvent,    std::function<void(SDL_Event&)>>   MouseEvents;
-        std::multimap<KBoardEvent,   std::function<void()>>             KeyboardInputs;
-        std::multimap<SDL_EventType, std::function<void(SDL_Event&)>>   TypeEvents;
-        std::set<SDL_KeyCode> keyPressed;
-        std::set<MouseEvent::Mouse_Button> mousebPress;
+        static std::multimap<KBoardEvent, std::function<void(EventData)>> KeyboardEvents;
+        static std::multimap<MouseEvent, std::function<void(EventData)>> MouseEvents;
+        //std::multimap<KBoardEvent, std::function<void()>> KeyboardInputs;
+        static std::multimap<EventType, std::function<void(EventData)>> TypeEvents;
+        static std::set<int> keyPressed;
+        static std::set <MouseEvent::Mouse_Button> mousebPress;
     public:
-        EventManager() = default;
 
-        void addEvent(SDL_EventType t, const std::function<void(SDL_Event&)>& callback)
+        static void addEvent(EventType t, const std::function<void(EventData)>& callback)
         {
             TypeEvents.emplace(t, callback);
         }
 
-        void addEvent(KBoardEvent e, const std::function<void(SDL_Event&)>& callback)
+        static void addEvent(KBoardEvent e, const std::function<void(EventData)>& callback)
         {
             KeyboardEvents.emplace(e, callback);
         }
 
-        void addInput(SDL_KeyCode k, const std::function<void()>& callback)
-        {
-            KeyboardInputs.emplace(KBoardEvent::KeyPressed(k), callback);
-        }
+//        void addInput(int k, const std::function<void()>& callback)
+//        {
+//            KeyboardInputs.emplace(KBoardEvent::KeyPressed(k), callback);
+//        }
 
-        void addEvent(MouseEvent e, const std::function<void(SDL_Event&)>& callback)
+        static void addEvent(MouseEvent e, const std::function<void(EventData)>& callback)
         {
             MouseEvents.emplace(e, callback);
         }
 
-        bool isKeyPressed(SDL_KeyCode key)
+        static bool isKeyPressed(int key)
         {
             return keyPressed.count(key) == 1;
         }
 
-        void clearInput()
+        static void clearInput()
         {
             keyPressed.clear();
             mousebPress.clear();
         }
 
-        void updateInput()
+        static void MouseMotionEventHolder(GLFWwindow* window, double xpos, double ypos)
         {
-            for (auto e : keyPressed)
+            EventData data;
+            data.MouseMotion.x = xpos;
+            data.MouseMotion.y = ypos;
+            auto range = MouseEvents.equal_range(MouseEvent::Motion());
+            for (auto it = range.first; it != range.second; ++it)
+                it->second(data);
+        }
+
+        static void MouseScrollEventHolder(GLFWwindow* window, double xoffset, double yoffset)
+        {
+            EventData data;
+            data.MouseScroll.offsetX = xoffset;
+            data.MouseScroll.offsetY = yoffset;
+            auto range = MouseEvents.equal_range(MouseEvent::WheelScrolled());
+            for (auto it = range.first; it != range.second; ++it)
+                it->second(data);
+        }
+
+        static void MouseButtonEventHolder(GLFWwindow* window, int button, int action, int mods)
+        {
+            EventData data;
+            data.MouseButtonPress.action = action;
+            data.MouseButtonPress.button = button;
+            data.MouseButtonPress.mods = mods;
+            if (action == GLFW_PRESS)
             {
-                auto range = KeyboardInputs.equal_range(KBoardEvent::KeyPressed(e));
+                mousebPress.emplace((MouseEvent::Mouse_Button) button);
+                auto range = MouseEvents.equal_range(MouseEvent{MOUSEBDOWN, (MouseEvent::Mouse_Button) button});
                 for (auto it = range.first; it != range.second; ++it)
-                    it->second();
+                    it->second(data);
+            } else if (action == GLFW_RELEASE)
+            {
+                auto range = MouseEvents.equal_range(MouseEvent{MOUSEBUP, (MouseEvent::Mouse_Button) button});
+                for (auto it = range.first; it != range.second; ++it)
+                    it->second(data);
             }
         }
 
-        void updateEvent(SDL_Event& e)
+        static void KeyBoardEventHolder(GLFWwindow* window, int key, int scancode, int action, int mods)
         {
+            EventData data;
+            data.KeyPress.action = action;
+            data.KeyPress.key = key;
+            data.KeyPress.mode = mods;
+            data.KeyPress.scancode = scancode;
+            if (action == GLFW_PRESS)
             {
-                auto range = TypeEvents.equal_range((SDL_EventType) e.type);
+                keyPressed.emplace(key);
+                auto range = KeyboardEvents.equal_range(KBoardEvent{EventType::KEYDOWN, key});
                 for (auto it = range.first; it != range.second; ++it)
-                    it->second(e);
-            }
-            switch (e.type)
+                    it->second(data);
+            } else if (action == GLFW_RELEASE)
             {
-                case SDL_KEYDOWN:
-                {
-                    keyPressed.emplace((SDL_KeyCode) e.key.keysym.sym);
-                    auto range = KeyboardEvents.equal_range(KBoardEvent{(SDL_EventType) e.type, (SDL_KeyCode) e.key.keysym.sym});
-                    for (auto it = range.first; it != range.second; ++it)
-                        it->second(e);
-                }
-                    break;
-                case SDL_KEYUP:
-                {
-                    auto range = KeyboardEvents.equal_range(KBoardEvent{(SDL_EventType) e.type, (SDL_KeyCode) e.key.keysym.sym});
-                    for (auto it = range.first; it != range.second; ++it)
-                        it->second(e);
-                }
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                {
-                    mousebPress.emplace((MouseEvent::Mouse_Button) e.button.button);
-                    auto range = MouseEvents.equal_range(MouseEvent{(SDL_EventType) e.type, (MouseEvent::Mouse_Button) e.button.button});
-                    for (auto it = range.first; it != range.second; ++it)
-                        it->second(e);
-                }
-                    break;
-                case SDL_MOUSEBUTTONUP:
-                {
-                    auto range = MouseEvents.equal_range(MouseEvent{(SDL_EventType) e.type, (MouseEvent::Mouse_Button) e.button.button});
-                    for (auto it = range.first; it != range.second; ++it)
-                        it->second(e);
-                }
-                    break;
-                case SDL_MOUSEWHEEL:
-                {
-                    auto range = MouseEvents.equal_range(MouseEvent::WheelScrolled());
-                    for(auto it = range.first; it != range.second; ++it)
-                        it->second(e);
-                }
-                    break;
-                case SDL_MOUSEMOTION:
-                {
-                    auto range = MouseEvents.equal_range(MouseEvent::Motion());
-                    for(auto it = range.first; it != range.second; ++it)
-                        it->second(e);
-                }
-                    break;
+                auto range = KeyboardEvents.equal_range(KBoardEvent{EventType::KEYUP, key});
+                for (auto it = range.first; it != range.second; ++it)
+                    it->second(data);
             }
+        }
+
+        static void WindowResizeEventHolder(GLFWwindow* window, int width, int height)
+        {
+            EventData data;
+            data.WindowResize.newX = width;
+            data.WindowResize.newY = height;
+            auto range = TypeEvents.equal_range(WINDOWRESIZE);
+            for (auto it = range.first; it != range.second; ++it)
+                it->second(data);
+        }
+
+        static void WindowMotionEventHolder(GLFWwindow* window, int xpos, int ypos)
+        {
+            EventData data;
+            data.WindowPos.x = xpos;
+            data.WindowPos.y = ypos;
+            auto range = TypeEvents.equal_range(WINDOWMOTION);
+            for (auto it = range.first; it != range.second; ++it)
+                it->second(data);
+        }
+
+        static void bindEvents(GLFWwindow* w)
+        {
+            glfwSetMouseButtonCallback(w, &EventManager::MouseButtonEventHolder);
+            glfwSetCursorPosCallback(w, &EventManager::MouseMotionEventHolder);
+            glfwSetKeyCallback(w, &EventManager::KeyBoardEventHolder);
+            glfwSetScrollCallback(w, &EventManager::MouseScrollEventHolder);
         }
     };
 }

@@ -5,20 +5,17 @@
 #ifndef PALKA_WINDOW_H
 #define PALKA_WINDOW_H
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <glad/glad.h>
-#include <imgui_impl_sdl.h>
+
+#include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui.h>
 #include <GL/gl.h>
+#include <GLFW/glfw3.h>
 #include "Vec2.h"
 #include "Color.h"
 #include "Drawable.h"
 #include "Viewport.h"
 #include "ConsoleLog.h"
-#include "SDL_render.h"
 #include "EventManager.h"
 
 namespace palka
@@ -27,84 +24,66 @@ namespace palka
     {
     private:
         Vec2i size;
-        SDL_Window* window;
+        GLFWwindow* window;
         Viewport* view;
         ImGuiIO* io;
-        SDL_GLContext gl_context;
         Color bg_color{80, 180, 250};
         EventManager eManager;
 
     public:
 
-        Window(const Vec2i& size) : size(size){}
+        Window(const Vec2i& size) : size(size)
+        {}
 
         ~Window()
         {
             ImGui_ImplOpenGL3_Shutdown();
-            ImGui_ImplSDL2_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
             ImGui::DestroyContext();
 
-            SDL_GL_DeleteContext(gl_context);
-            SDL_DestroyWindow(getWindow());
-            SDL_Quit();
+            glfwDestroyWindow(window);
+            glfwTerminate();
         }
 
         void initImgui()
         {
-            gl_context = SDL_GL_CreateContext(getWindow());
-            SDL_GL_MakeCurrent(getWindow(), gl_context);
-            SDL_GL_SetSwapInterval(1);
-            bool err = gladLoadGL() == 0;
-
-            if (err)
-                Console::AppLog::addLog("Failed to initialize OpenGL loader!", Console::error);
-
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
-            io = &ImGui::GetIO();
-            ImGui::StyleColorsDark();
+            ImGuiIO& io = ImGui::GetIO();
+            (void) io;
+            //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+            //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-            const char* glsl_version = "#version 130";
-            ImGui_ImplSDL2_InitForOpenGL(getWindow(), gl_context);
-            ImGui_ImplOpenGL3_Init(glsl_version);
+            // Setup Dear ImGui style
+            ImGui::StyleColorsDark();
+            //ImGui::StyleColorsClassic();
+
+            // Setup Platform/Renderer backends
+            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplOpenGL3_Init("#version 130");
         }
 
         void create()
         {
-            if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
-                Console::AppLog::addLog_("Error: %s", Console::error, SDL_GetError());
-            SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-            //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+            glfwInit();
 
-            SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
-                                                              SDL_WINDOW_ALLOW_HIGHDPI);
-            window = SDL_CreateWindow("palka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                      size.x, size.y,
-                                      window_flags);
+            const char* glsl_version = "#version 130";
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 
+            window = glfwCreateWindow(1280, 720, "palka", NULL, NULL);
+
+            glfwMakeContextCurrent(window);
             initImgui();
 
-            SDL_Renderer* renderer = SDL_CreateRenderer(getWindow(), -1, SDL_RENDERER_ACCELERATED);
-            SDL_RendererInfo info;
-            SDL_GetRendererInfo(renderer, &info);
-            Console::AppLog::addLog(info.name, Console::info);
-            SetContext(renderer);
+            EventManager::bindEvents(window);
+            EventManager::addEvent(WINDOWRESIZE, [this](EventData e) {
 
-            eManager.addEvent(SDL_WINDOWEVENT, [this](SDL_Event& e)
-            {
-                if(e.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    size.x = e.window.data1;
-                    size.y = e.window.data2;
-                    Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
-                }
+                size.x = e.WindowResize.newX;
+                size.y = e.WindowResize.newY;
+                Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
             });
         }
 
@@ -119,7 +98,7 @@ namespace palka
             return view;
         }
 
-        SDL_Window* getWindow()
+        GLFWwindow* getWindow()
         {
             return window;
         }
@@ -137,7 +116,7 @@ namespace palka
         void ImGUiNewFrame()
         {
             ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
+            ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
         }
 
@@ -149,51 +128,31 @@ namespace palka
 
         void NewFrame()
         {
-            SDL_SetRenderDrawColor(getContext(), bg_color.r, bg_color.g, bg_color.b, 255);
-            SDL_RenderClear(getContext());
-            SDL_Rect vRect{0, 0, getSize().x, getSize().y};
-            SDL_RenderSetViewport(getContext(), &vRect);
-            auto sc = view->getScale();
-            SDL_RenderSetScale(getContext(), sc.x, sc.y);
+            glViewport(0, 0, 1280, 720);
+            glClearColor(0, 120, 120, 255);
+            glClear(GL_COLOR_BUFFER_BIT);
         }
 
         void EndFrame()
         {
-            SDL_GL_SwapWindow(getWindow());
+            glfwSwapBuffers(window);
         }
 
-        auto& getEManager()
+        EventManager& getEManager()
         {
             return eManager;
         }
 
         void inputHandler()
         {
-            eManager.updateInput();
+            //eManager.updateInput();
         }
 
-        void eventHandler(SDL_Event& e)
+        void eventHandler()
         {
-            eManager.clearInput();
-            while (SDL_PollEvent(&e))
-            {
-                ImGui_ImplSDL2_ProcessEvent(&e);
-                eManager.updateEvent(e);
-            }
+            glfwPollEvents();
         }
 
-    private:
-        void SetContext(SDL_Renderer* c)
-        {
-            context = c;
-        }
-
-        SDL_Renderer* context;
-    public:
-        SDL_Renderer* getContext()
-        {
-            return context;
-        }
     };
 }
 #endif //PALKA_WINDOW_H
