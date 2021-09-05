@@ -3,7 +3,6 @@
 //
 
 #include "Vec2.h"
-#include "Texture.h"
 
 #include <rttr/registration>
 

@@ -21,8 +21,7 @@ namespace palka
     class Vec2
     {
 #ifdef REFLECTION_CORE
-    RTTR_ENABLE()
-
+        RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
 #endif
     public:

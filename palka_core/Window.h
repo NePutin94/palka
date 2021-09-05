@@ -5,12 +5,14 @@
 #ifndef PALKA_WINDOW_H
 #define PALKA_WINDOW_H
 
-
+#include <glew.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
+
+
 #include "Vec2.h"
 #include "Color.h"
 #include "Drawable.h"
@@ -31,6 +33,11 @@ namespace palka
         EventManager eManager;
 
     public:
+        static void error_callback(int error, const char* description)
+        {
+            fprintf(stderr, "Error: %s\n", description);
+        }
+
 
         Window(const Vec2i& size) : size(size)
         {}
@@ -65,19 +72,32 @@ namespace palka
 
         void create()
         {
-            glfwInit();
-
-            const char* glsl_version = "#version 130";
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-
-            window = glfwCreateWindow(1280, 720, "palka", NULL, NULL);
+            if( !glfwInit() )
+            {
+                fprintf( stderr, "Failed to initialize GLFW\n" );
+                exit( EXIT_FAILURE );
+            }
+            glfwSetErrorCallback(error_callback);
+            glfwDefaultWindowHints();
+            glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+            window = glfwCreateWindow( 1280, 720, "palka", NULL, NULL );
+            if (!window)
+            {
+                fprintf( stderr, "Failed to open GLFW window\n" );
+                glfwTerminate();
+                exit( EXIT_FAILURE );
+            }
 
             glfwMakeContextCurrent(window);
-            initImgui();
 
+            GLenum err = glewInit();
+            if (GLEW_OK != err)
+            {
+                std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
+                glfwTerminate();
+            }
+            auto glVersion =  glGetString(GL_VERSION);
+            initImgui();
             EventManager::bindEvents(window);
             EventManager::addEvent(WINDOWRESIZE, [this](EventData e) {
 
@@ -128,7 +148,12 @@ namespace palka
 
         void NewFrame()
         {
-            glViewport(0, 0, 1280, 720);
+            glViewport( 0, 0, 1280, 720 );
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            glLoadMatrixf(view->getView().getMatrix());
             glClearColor(0, 120, 120, 255);
             glClear(GL_COLOR_BUFFER_BIT);
         }
