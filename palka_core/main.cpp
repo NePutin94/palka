@@ -1,3 +1,196 @@
+//
+//#include <glew.h>
+//#include <SDL_image.h>
+//#include <SDL.h>
+//
+//SDL_Surface *texture;
+//GLuint textureID=0;
+//void close(GLuint gProgramID, SDL_Window* window);
+//
+//bool initGL(GLuint* gProgramID, GLint* gVertexPos2DLocation, GLuint* gVBO, GLuint* gIBO);
+//
+//void printProgramLog(GLuint program);
+//
+//void printShaderLog(GLuint shader);
+//
+//void render(GLuint* gProgramID, GLint* gVertexPos2DLocation, GLuint* gVBO, GLuint* gIBO);
+//
+//
+//void close(GLuint gProgramID, SDL_Window* window)
+//{
+//    //Deallocate program
+//    glDeleteProgram(gProgramID);
+//
+//    //Destroy window
+//    SDL_DestroyWindow(window);
+//    window = NULL;
+//
+//    //Quit SDL subsystems
+//    SDL_Quit();
+//}
+//
+//bool initGL(GLuint* gProgramID)
+//{
+//    *gProgramID = glCreateProgram();
+//}
+//
+//
+//void render(GLuint* gProgramID)
+//{
+//    //Clear color buffer
+//    glClear(GL_COLOR_BUFFER_BIT);
+//
+//    //Bind program
+//    glUseProgram(*gProgramID);
+//    glBindTexture(GL_TEXTURE_2D, textureID);
+//
+//        glEnable(GL_BLEND);
+//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//    GLfloat Vertices[] = {(float)0, (float)0, 0,
+//                          (float)100, (float)0, 0,
+//                          (float)100, (float)100, 0,
+//                          (float)0, (float)100, 0};
+//    GLfloat TexCoord[] = {0, 0,
+//                          1, 0,
+//                          1, 1,
+//                          0, 1,
+//    };
+//    GLubyte indices[] = {0,1,2, // first triangle (bottom left - top left - top right)
+//                         0,2,3}; // second triangle (bottom left - top right - bottom right)
+//
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glVertexPointer(3, GL_FLOAT, 0, Vertices);
+//
+//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//    glTexCoordPointer(2, GL_FLOAT, 0, TexCoord);
+//
+//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices);
+//
+//    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//
+//    //Unbind program
+//    glUseProgram(NULL);
+//}
+//
+//int main(int argc, char* argv[])
+//{
+//    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+//    {
+//        printf("SDL_Init error: %s\n", SDL_GetError());
+//    }
+//    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+//
+//    SDL_Window* window = SDL_CreateWindow("Pong", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+//
+//
+//    SDL_GLContext context = SDL_GL_CreateContext(window);
+//
+//    if (context == NULL)
+//    {
+//        printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
+//        return 1;
+//    }
+//    GLuint gProgramID;
+//    glewExperimental = GL_TRUE;
+//    GLenum glewError = glewInit();
+//
+//    if (glewError != GLEW_OK)
+//    {
+//        printf("Error initializing glew! %s\n", glewGetErrorString(glewError));
+//        return 1;
+//    }
+//
+//    if (SDL_GL_SetSwapInterval(1) < 0)
+//    {
+//        printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
+//    }
+//
+//    //Initialize OpenGL
+//    if (!initGL(&gProgramID))
+//    {
+//        printf("Unable to initialize OpenGL!\n");
+//        return 1;
+//    }
+//
+//    bool quit = false;
+//
+//    SDL_Event e;
+//
+//    texture=IMG_Load("Data\\tex\\Hero.png");
+//
+//
+//    GLenum textureFormat;
+//    /* Find out pixel format type */
+//    auto bpp = texture->format->BytesPerPixel;
+//    if (bpp == 4) {
+//        if (texture->format->Rmask == 0x000000ff)
+//            textureFormat = GL_RGBA;
+//        else
+//            textureFormat = GL_BGRA;
+//    } else if (bpp == 3) {
+//        if (texture->format->Rmask == 0x000000ff)
+//            textureFormat = GL_RGB;
+//        else
+//            textureFormat = GL_BGR;
+//    } else {
+//
+//    }
+//    glGenTextures(1, &textureID);
+//    glBindTexture(GL_TEXTURE_2D, textureID);
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+//    glTexImage2D(
+//            GL_TEXTURE_2D,                  // texture type
+//            0,                              // level
+//            bpp,                            // internal format
+//            texture->w,                       // width
+//            texture->h,                       // height
+//            0,                              // border
+//            textureFormat,                  // format(in this texture?)
+//            GL_UNSIGNED_BYTE,               // data type
+//            texture->pixels                   // pointer to data
+//    );
+//    auto err = SDL_GetError();
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//    glDisable(GL_TEXTURE_2D);
+//    SDL_FreeSurface(texture);
+//    while (!quit)
+//    {
+//        while (SDL_PollEvent(&e) != 0)
+//        {
+//            if (e.type == SDL_QUIT)
+//            {
+//                quit = true;
+//            }
+//
+//            if (e.type == SDL_KEYDOWN)
+//            {
+//                SDL_Keycode keyPressed = e.key.keysym.sym;
+//
+//                switch (keyPressed)
+//                {
+//                    case SDLK_ESCAPE:
+//                        quit = true;
+//                        break;
+//                }
+//            }
+//        }
+//
+//        render(&gProgramID);
+//
+//        SDL_GL_SwapWindow(window);
+//    }
+//
+//    SDL_StopTextInput();
+//    close(gProgramID, window);
+//
+//    return 0;
+//}
 #include <algorithm>
 #include "Vec2.h"
 #include "Engine.h"
