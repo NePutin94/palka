@@ -35,9 +35,8 @@ namespace palka
     public:
         static void error_callback(int error, const char* description)
         {
-            fprintf(stderr, "Error: %s\n", description);
+            Console::AppLog::addLog_("Error: %s", Console::error, description);
         }
-
 
         Window(const Vec2i& size) : size(size)
         {}
@@ -61,7 +60,6 @@ namespace palka
             //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
             //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-            // Setup Dear ImGui style
             ImGui::StyleColorsDark();
             //ImGui::StyleColorsClassic();
 
@@ -72,31 +70,26 @@ namespace palka
 
         void create()
         {
-            if( !glfwInit() )
+            if (!glfwInit())
             {
-                fprintf( stderr, "Failed to initialize GLFW\n" );
-                exit( EXIT_FAILURE );
+                Console::AppLog::addLog("Failed to initialize GLFW", Console::fatal);
             }
             glfwSetErrorCallback(error_callback);
             glfwDefaultWindowHints();
-            glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-            window = glfwCreateWindow( 1280, 720, "palka", NULL, NULL );
+            window = glfwCreateWindow(1280, 720, "palka", NULL, NULL);
             if (!window)
-            {
-                fprintf( stderr, "Failed to open GLFW window\n" );
-                glfwTerminate();
-                exit( EXIT_FAILURE );
-            }
+                Console::AppLog::addLog("Failed to open GLFW window", Console::fatal);
 
             glfwMakeContextCurrent(window);
-
+            glfwSwapInterval(0);
+            glewExperimental = GL_TRUE;
             GLenum err = glewInit();
             if (GLEW_OK != err)
             {
                 std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
                 glfwTerminate();
             }
-            auto glVersion =  glGetString(GL_VERSION);
+            Console::AppLog::addLog_("GL_VERSION: %s", Console::info, glGetString(GL_VERSION));
             initImgui();
             EventManager::bindEvents(window);
             EventManager::addEvent(WINDOWRESIZE, [this](EventData e) {
@@ -148,7 +141,7 @@ namespace palka
 
         void NewFrame()
         {
-            glViewport( 0, 0, 1280, 720 );
+            glViewport(0, 0, 1280, 720);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             glMatrixMode(GL_MODELVIEW);

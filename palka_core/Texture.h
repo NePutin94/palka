@@ -5,13 +5,11 @@
 #ifndef PALKA_TEXTURE_H
 #define PALKA_TEXTURE_H
 
-#include <SDL.h>
 #include <string_view>
-#include <SDL_image.h>
 #include <string>
 #include <cassert>
 #include "Rect.h"
-#include "Window.h"
+#include <GLFW/glfw3.h>
 
 #ifdef REFLECTION_CORE
 
@@ -25,13 +23,15 @@ namespace palka
     class Texture
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
 #endif
     private:
-        SDL_Texture* source = nullptr;
         std::string file_path;
         Vec2i size;
+        GLuint textureID;
+        bool valid = true;
+
     public:
         Texture() = default;
 
@@ -41,38 +41,30 @@ namespace palka
 
         Texture& operator=(Texture&& other) noexcept;
 
-        explicit Texture(std::string_view path, Vec2i size, Window& renderer);
+        explicit Texture(std::string_view path, Vec2i size);
 
-        void LoadFromFile(std::string_view path, Window& renderer);
-
-        void setBlendMode(SDL_BlendMode blending);
-
-        SDL_BlendMode getBlendMode() const;
-
-        void setAlpha(unsigned int alpha);
-
-        unsigned int getAlpha() const;
+        void LoadFromFile(std::string_view path);
 
         ~Texture()
         {
-            if(source!=nullptr)
-            SDL_DestroyTexture(source);
+            if (valid)
+                glDeleteTextures(1, &textureID);
+        }
+        void bind()
+        {
+            glBindTexture(GL_TEXTURE_2D, textureID);
         }
 
-        [[nodiscard]] Vec2i getSize() const
+        Vec2i getSize() const
         {
             return size;
         }
 
-        [[nodiscard]] std::string_view getFilePath() const
+        std::string_view getFilePath() const
         {
             return file_path;
         }
 
-        [[nodiscard]] SDL_Texture* getTextureP()
-        {
-            return source;
-        }
     };
 }
 
