@@ -19,6 +19,7 @@
 #include "Viewport.h"
 #include "ConsoleLog.h"
 #include "EventManager.h"
+#include "RenderContext.h"
 
 namespace palka
 {
@@ -71,9 +72,7 @@ namespace palka
         void create()
         {
             if (!glfwInit())
-            {
                 Console::AppLog::addLog("Failed to initialize GLFW", Console::fatal);
-            }
             glfwSetErrorCallback(error_callback);
             glfwDefaultWindowHints();
             window = glfwCreateWindow(1280, 720, "palka", NULL, NULL);
@@ -124,6 +123,17 @@ namespace palka
         void draw(const Drawable& d)
         {
             d.draw(*this);
+        }
+
+        void draw(RenderContext& c)
+        {
+            float vertices[] = {
+                    // positions          // colors           // texture coords
+                    0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+                    0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+                    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+                    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+            };
         }
 
         void ImGUiNewFrame()

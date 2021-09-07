@@ -23,7 +23,7 @@ if (WIN32)
 #    set(SDL2_DIR D:\\Link\\SDL_GCC\\cmake)
 #    set(SDLTTFDIR E:\\SDL_ttf-main\\build)
     set(FREETYPE_DIR E:\\freetype-master\\ft_gcc\\lib\\cmake\\freetype)
-    set(CMAKE_PREFIX_PATH E:\\freetype-master\\ft_gcc D:\\Link\\glfw_gcc12) #E:\\freetype-master\\ft_gcc)
+    set(CMAKE_PREFIX_PATH E:\\freetype-master\\ft_gcc D:\\Link\\glfw_gcc12 E:\\freeglut-3.2.1\\build\\lib\\cmake\\FreeGLUT) #E:\\freetype-master\\ft_gcc)
     set(GLEW_ROOT_DIR D:\\Link\\glew)
 endif (WIN32)
 
@@ -32,7 +32,7 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(RTTR CONFIG REQUIRED Core)
-#find_package(SDL_ttf REQUIRED)
+#find_package(FreeGLUT REQUIRED)
 #find_package(SDL2 REQUIRED)
 #find_package(SDL_image REQUIRED)
 
@@ -43,8 +43,8 @@ include_directories(${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIR})
 include_directories("./imgui")
 
 #${CORE_SRC} ${HEADER_SOURCE} ${ENTITIES_SRC} ${GLAD_SRC} ${CORE_SRC} ${HEADER_SOURCE}
-add_executable(palka palka_core/main.cpp palka_core/Vec2.cpp palka_core/EventManager.cpp palka_core/ConsoleLog.cpp palka_core/Viewport.cpp palka_core/ReflectionDebug.h palka_core/Viewport.cpp stb_image.h stb_image_resize.h stb_image_write.h palka_core/Texture.cpp ${ENTITIES_SRC} ${IMGUI2_SRC} ${IMGUI2_HEADER})
+add_executable(palka palka_core/main.cpp palka_core/Shader.cpp palka_core/RenderContext.cpp palka_core/Vec2.cpp palka_core/EventManager.cpp palka_core/ConsoleLog.cpp palka_core/Viewport.cpp palka_core/ReflectionDebug.h palka_core/Viewport.cpp stb_image.h stb_image_resize.h stb_image_write.h palka_core/Texture.cpp ${ENTITIES_SRC} ${IMGUI2_SRC} ${IMGUI2_HEADER})
 #GLEW_LIBRARY GLUT_LIBRARY ${SDLTTF_LIBRARY} SDL2::SDL2main SDL2::SDL2 ${SDL_IMAGE_LIBRARIES}
-target_link_libraries(palka mingw32 Freetype::Freetype  ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} glfw RTTR::Core imm32 ws2_32 dwmapi)
+target_link_libraries(palka mingw32 Freetype::Freetype ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} glfw RTTR::Core imm32 ws2_32 dwmapi)
 
 target_compile_definitions(palka PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLEW GL_GLEXT_PROTOTYPES=1)
