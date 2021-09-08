@@ -13,12 +13,12 @@ namespace palka
     {
     RTTR_ENABLE()
     public:
-        Color(int r, int g, int b) noexcept: r(r), g(g), b(b)
+        Color(uint8_t r, uint8_t g, uint8_t b) noexcept: r(r), g(g), b(b)
         {}
 
-        unsigned int r = 0;
-        unsigned int g = 0;
-        unsigned int b = 0;
+        uint8_t r = 0;
+        uint8_t g = 0;
+        uint8_t b = 0;
     };
 }
 #endif //PALKA_COLOR_H

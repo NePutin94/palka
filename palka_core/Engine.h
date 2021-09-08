@@ -68,20 +68,14 @@ namespace palka
         void render()
         {
             w.NewFrame();
-            glUseProgram(s.shaderID);
-            float alpha = float(std::sin(timeSinceStart * 10) + 1) / 2;
-            GLint loc = glGetUniformLocation(s.shaderID, "time");
-            if (loc != -1)
-            {
-                glUniform1f(loc, alpha);
-            }
-            glColor3f(0, 0, 0);
-            glBegin(GL_QUADS);
-            glVertex3f(0, 0, 0.0f);
-            glVertex3f(0, 300, 0.0f);
-            glVertex3f(300, 300, 0.0f);
-            glVertex3f(300, 0, 0.0f);
-            glEnd();
+
+            VertArray vert(VertArray::Type::Quads);
+            vert.add({Vec2f{100, 100}, Color{0, 0, 255},     Vec2f{0, 0}});
+            vert.add({Vec2f{200, 100}, Color{0, 255, 0},     Vec2f{0, 0}});
+            vert.add({Vec2f{200, 200}, Color{255, 0, 0},     Vec2f{0, 0}});
+            vert.add({Vec2f{100, 200}, Color{255, 255, 255}, Vec2f{0, 0}});
+            w.draw(vert);
+
             Console::AppLog::Draw("Console", &console_open);
             w.ImGuiEndFrame();
             w.EndFrame();
@@ -93,7 +87,6 @@ namespace palka
             timeSinceStart = glfwGetTime();
             delta = timeSinceStart - oldTimeSinceStart;
             oldTimeSinceStart = timeSinceStart;
-            int z = 0;
         }
 
         void handleEvents()

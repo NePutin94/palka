@@ -20,6 +20,7 @@
 #include "ConsoleLog.h"
 #include "EventManager.h"
 #include "RenderContext.h"
+#include "VertexData.h"
 
 namespace palka
 {
@@ -125,15 +126,27 @@ namespace palka
             d.draw(*this);
         }
 
-        void draw(RenderContext& c)
+        void draw(VertArray array, RenderContext context = {})
         {
-            float vertices[] = {
-                    // positions          // colors           // texture coords
-                    0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-                    0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-                    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-                    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
-            };
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
+
+            Vertex* pointer = &array[0];
+
+            glVertexPointer(2,
+                            GL_FLOAT,
+                            sizeof(Vertex),
+                            &pointer->pos.x);
+
+            glColorPointer(3,
+                           GL_UNSIGNED_BYTE,
+                           sizeof(Vertex),
+                           &pointer->color.r);
+
+            glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), 4);
+
+            glDisableClientState(GL_COLOR_ARRAY);
+            glDisableClientState(GL_VERTEX_ARRAY);
         }
 
         void ImGUiNewFrame()

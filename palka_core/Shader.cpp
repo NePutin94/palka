@@ -10,6 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include "ConsoleLog.h"
+
 constexpr auto ENUM_TO_GL(palka::Shader::Type t)
 {
     switch (t)
@@ -20,13 +21,17 @@ constexpr auto ENUM_TO_GL(palka::Shader::Type t)
         case palka::Shader::VERTEX:
             return GL_VERTEX_SHADER;
             break;
+        case palka::Shader::GEOMETRY:
+            return GL_GEOMETRY_SHADER;
+            break;
     }
+    return -1;
 }
 
 void palka::Shader::load(std::string_view file_name)
 {
     std::ifstream file(file_name.data());
-    if(file.is_open())
+    if (file.is_open())
     {
         std::stringstream buffer;
         buffer << file.rdbuf();
@@ -39,27 +44,30 @@ void palka::Shader::load(std::string_view file_name)
 void palka::Shader::compile()
 {
     GLuint shader = glCreateShader(ENUM_TO_GL(type));
-    const GLchar *src = (const GLchar *)source.c_str();
+    const GLchar* src = (const GLchar*) source.c_str();
     glShaderSource(shader, 1, &src, 0);
     glCompileShader(shader);
     GLint isCompiled = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
-    if(isCompiled == GL_FALSE)
+    if (isCompiled == GL_FALSE)
     {
         GLint logLen;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
-        if( logLen > 0 ) {
+        if (logLen > 0)
+        {
             std::string log(logLen, ' ');
             GLsizei written;
             glGetShaderInfoLog(shader, logLen, &written, &log[0]);
+            log.insert(0, "\n");
             Console::AppLog::addLog(log, Console::error);
         }
+        return;
     }
     shaderID = glCreateProgram();
     glAttachShader(shaderID, shader);
     glLinkProgram(shaderID);
     GLint isLinked = 0;
-    glGetProgramiv(shaderID, GL_LINK_STATUS, (int *)&isLinked);
+    glGetProgramiv(shaderID, GL_LINK_STATUS, (int*) &isLinked);
     if (isLinked == GL_FALSE)
     {
         GLint maxLength = 0;
@@ -67,9 +75,28 @@ void palka::Shader::compile()
         std::string log(maxLength, ' ');
         glGetProgramInfoLog(shaderID, maxLength, &maxLength, &log[0]);
         Console::AppLog::addLog(log, Console::error);
+        log.insert(0, "\n");
         glDeleteProgram(shaderID);
         glDeleteShader(shader);
         return;
     }
     glDetachShader(shaderID, shader);
+}
+
+void palka::Shader::setValue(std::string_view name, float value)
+{
+    GLint loc = glGetUniformLocation((GLuint)shaderID, name.data());
+    if (loc != -1)
+    {
+        glUniform1f(loc, value);
+    }
+}
+
+void palka::Shader::setValue(std::string_view name, palka::Vec2f value)
+{
+    GLint loc = glGetUniformLocation((GLuint)shaderID, name.data());
+    if (loc != -1)
+    {
+        glUniform2f(loc, value.x,value.y);
+    }
 }

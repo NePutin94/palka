@@ -43,7 +43,7 @@ include_directories(${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIR})
 include_directories("./imgui")
 
 #${CORE_SRC} ${HEADER_SOURCE} ${ENTITIES_SRC} ${GLAD_SRC} ${CORE_SRC} ${HEADER_SOURCE}
-add_executable(palka palka_core/main.cpp palka_core/Shader.cpp palka_core/RenderContext.cpp palka_core/Vec2.cpp palka_core/EventManager.cpp palka_core/ConsoleLog.cpp palka_core/Viewport.cpp palka_core/ReflectionDebug.h palka_core/Viewport.cpp stb_image.h stb_image_resize.h stb_image_write.h palka_core/Texture.cpp ${ENTITIES_SRC} ${IMGUI2_SRC} ${IMGUI2_HEADER})
+add_executable(palka palka_core/main.cpp palka_core/Shader.cpp palka_core/VertexData.cpp palka_core/RenderContext.cpp palka_core/Vec2.cpp palka_core/EventManager.cpp palka_core/ConsoleLog.cpp palka_core/Viewport.cpp palka_core/ReflectionDebug.h palka_core/Viewport.cpp stb_image.h stb_image_resize.h stb_image_write.h palka_core/Texture.cpp ${ENTITIES_SRC} ${IMGUI2_SRC} ${IMGUI2_HEADER})
 #GLEW_LIBRARY GLUT_LIBRARY ${SDLTTF_LIBRARY} SDL2::SDL2main SDL2::SDL2 ${SDL_IMAGE_LIBRARIES}
 target_link_libraries(palka mingw32 Freetype::Freetype ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} glfw RTTR::Core imm32 ws2_32 dwmapi)
 

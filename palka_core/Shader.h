@@ -6,6 +6,7 @@
 #define PALKA_SHADER_H
 
 #include <string>
+#include "Vec2.h"
 
 namespace palka
 {
@@ -15,16 +16,29 @@ namespace palka
         enum Type
         {
             FRAGMENT,
-            VERTEX
+            VERTEX,
+            GEOMETRY
         };
 
         void load(std::string_view file_name);
- unsigned int shaderID;
-    private:
 
+        void setValue(std::string_view name, float value);
+
+        void setValue(std::string_view name, int value)
+        {
+
+        }
+        unsigned int shaderID;
+    private:
         std::string source;
         Type type = Type::FRAGMENT;
+
         void compile();
+
+
+
+
+        void setValue(std::string_view name, Vec2f value);
     };
 }
 

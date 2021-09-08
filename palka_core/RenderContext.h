@@ -14,6 +14,7 @@ namespace palka
     private:
         Texture* texture;
     public:
+        RenderContext(){}
         RenderContext(Texture* tex) : texture(tex)
         {}
     };
