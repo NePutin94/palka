@@ -21,14 +21,24 @@ namespace palka
     RTTR_ENABLE()
 #endif
     public:
-        Color() = default;
+        constexpr Color() = default;
 
-        Color(unsigned char r, unsigned char g, unsigned char b) noexcept: r(r), g(g), b(b)
+        constexpr Color(unsigned char r, unsigned char g, unsigned char b) noexcept: r(r), g(g), b(b)
         {}
 
         unsigned char r = 0;
         unsigned char g = 0;
         unsigned char b = 0;
+
+        static consteval auto White()
+        {
+            return Color{255,255,255};
+        }
+
+        static consteval auto Black()
+        {
+            return Color{0,0,0};
+        }
     };
 }
 #endif //PALKA_COLOR_H

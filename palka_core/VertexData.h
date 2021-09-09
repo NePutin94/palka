@@ -82,6 +82,11 @@ namespace palka
             return type;
         }
 
+        auto getSize()
+        {
+            return vertecies.size();
+        }
+
     private:
         std::vector<Vertex> vertecies;
         Type type;

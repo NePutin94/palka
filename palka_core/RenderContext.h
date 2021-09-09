@@ -5,7 +5,9 @@
 #ifndef PALKA_RENDERCONTEXT_H
 #define PALKA_RENDERCONTEXT_H
 
+#include "BlendMode.h"
 #include "Texture.h"
+#include "Transform.h"
 
 namespace palka
 {
@@ -13,10 +15,16 @@ namespace palka
     {
     private:
         Texture* texture;
+        BlendMode blend;
+        Transform* transform;
     public:
-        RenderContext(){}
+        RenderContext()
+        {}
+
         RenderContext(Texture* tex) : texture(tex)
         {}
+
+        friend class Window;
     };
 }
 

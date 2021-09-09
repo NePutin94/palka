@@ -29,7 +29,7 @@ namespace palka
     private:
         std::string file_path;
         Vec2i size;
-        GLuint textureID;
+        GLuint textureID = 0;
         bool valid = true;
 
     public:

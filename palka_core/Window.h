@@ -126,11 +126,20 @@ namespace palka
             d.draw(*this);
         }
 
-        void draw(VertArray array, RenderContext context = {})
+        void draw(VertArray array, Texture& tex, RenderContext context = {})
         {
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            tex.bind();
+            glBlendFuncSeparate(
+                    BlendMode::enumToGlConstant(context.blend.colorSrcFactor), BlendMode::enumToGlConstant(context.blend.colorDstFactor),
+                    BlendMode::enumToGlConstant(context.blend.alphaSrcFactor), BlendMode::enumToGlConstant(context.blend.alphaDstFactor));
+            glBlendEquationSeparate(
+                    BlendMode::enumToGlConstant(context.blend.colorEquation),
+                    BlendMode::enumToGlConstant(context.blend.alphaEquation));
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
-
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
             Vertex* pointer = &array[0];
 
             glVertexPointer(2,
@@ -143,10 +152,15 @@ namespace palka
                            sizeof(Vertex),
                            &pointer->color.r);
 
-            glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), 4);
+            glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &pointer->texCoord.x);
+
+            glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), array.getSize());
 
             glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
         }
 
         void ImGUiNewFrame()

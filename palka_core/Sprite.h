@@ -31,7 +31,7 @@ namespace palka
     private:
         Raw_Ptr<Texture> texture;
         RectI src;
-        SDL_RendererFlip flip_p = SDL_FLIP_NONE;
+        //SDL_RendererFlip flip_p = SDL_FLIP_NONE;
         void draw(Window& win) const override;
     public:
 
@@ -43,11 +43,11 @@ namespace palka
 
         void setTextureRect(RectI rect);
 
-        void setFlip(SDL_RendererFlip flip_p)
-        { this->flip_p = flip_p; }
-
-        SDL_RendererFlip getFlip()
-        { return flip_p; }
+//        void setFlip(SDL_RendererFlip flip_p)
+//        { this->flip_p = flip_p; }
+//
+//        SDL_RendererFlip getFlip()
+//        { return flip_p; }
 
         RectI getTextureRect() const;
 

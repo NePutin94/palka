@@ -37,13 +37,13 @@ palka::RectF palka::Sprite::getGlobalRect() const
 
 void palka::Sprite::draw(Window& win) const
 {
-    auto srcRect = src.getRect();
-    auto dstRect = getGlobalRect().getRectF();
-    auto[X, Y] = win.getViewport()->applyTranslate(Vec2f{dstRect.x, dstRect.y});
-    dstRect.x = X;
-    dstRect.y = Y;
-    SDL_FPoint center = {getCenter().x, getCenter().y};
-    SDL_RenderCopyExF(win.getContext(), texture.get_data()->getTextureP(), &srcRect, &dstRect, getRotation(), &center, flip_p);
+//    auto srcRect = src.getRect();
+//    auto dstRect = getGlobalRect().getRectF();
+//    auto[X, Y] = win.getViewport()->applyTranslate(Vec2f{dstRect.x, dstRect.y});
+//    dstRect.x = X;
+//    dstRect.y = Y;
+//    SDL_FPoint center = {getCenter().x, getCenter().y};
+//    SDL_RenderCopyExF(win.getContext(), texture.get_data()->getTextureP(), &srcRect, &dstRect, getRotation(), &center, flip_p);
 }
 
 palka::Sprite::Sprite(palka::Texture& tex)
@@ -57,17 +57,11 @@ palka::Sprite::Sprite(palka::Texture& tex)
 
 RTTR_REGISTRATION
 {
-    registration::enumeration<SDL_RendererFlip>("SDL_RendererFlip")
-            (
-                    value("SDL_FLIP_VERTICAL", SDL_RendererFlip::SDL_FLIP_VERTICAL),
-                    value("SDL_FLIP_HORIZONTAL", SDL_RendererFlip::SDL_FLIP_HORIZONTAL),
-                    value("SDL_FLIP_NONE", SDL_RendererFlip::SDL_FLIP_NONE)
-            );
     using namespace rttr;
     registration::class_<palka::Sprite>("Sprite")
             .constructor<>()
             .property("setRect", &palka::Sprite::getTextureRect, &palka::Sprite::setTextureRect)
-            .property("flip", &palka::Sprite::getFlip, &palka::Sprite::setFlip)
+           // .property("flip", &palka::Sprite::getFlip, &palka::Sprite::setFlip)
             .property("texture", &palka::Sprite::texture)
             .property("src", &palka::Sprite::src);
 }

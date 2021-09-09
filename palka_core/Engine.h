@@ -42,10 +42,10 @@ namespace palka
             view.setCenter({1280.f / 2, 720.f / 2});
 
             s.load("Data\\Shaders\\test.frag");
-            vert.add({Vec2f{100, 100}, Color{0, 0, 255},     Vec2f{0, 0}});
-            vert.add({Vec2f{200, 100}, Color{0, 255, 0},     Vec2f{0, 0}});
-            vert.add({Vec2f{200, 200}, Color{255, 0, 0},     Vec2f{0, 0}});
-            vert.add({Vec2f{100, 200}, Color{255, 255, 255}, Vec2f{0, 0}});
+            vert.add({Vec2f{100, 100}, Color::White(),     Vec2f{0, 0}});
+            vert.add({Vec2f{200, 100}, Color::White(),     Vec2f{1, 0}});
+            vert.add({Vec2f{200, 200}, Color::White(),     Vec2f{1, 1}});
+            vert.add({Vec2f{100, 200}, Color::White(),     Vec2f{0, 1}});
         }
 
         void run()
@@ -74,7 +74,7 @@ namespace palka
         {
             w.NewFrame();
 
-            w.draw(vert);
+            w.draw(vert, tex);
 
             Console::AppLog::Draw("Console", &console_open);
             w.ImGuiEndFrame();
