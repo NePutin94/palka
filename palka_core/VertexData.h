@@ -9,17 +9,36 @@
 #include "Vec2.h"
 #include "Color.h"
 
+#ifdef REFLECTION_CORE
+
+#include <rttr/type>
+#include <rttr/registration_friend>
+
+#endif
+
 namespace palka
 {
-    struct Vertex
+    class Vertex
     {
+#ifdef REFLECTION_CORE
+        RTTR_ENABLE()
+        RTTR_REGISTRATION_FRIEND
+#endif
+    public:
         Vec2f pos;
         Color color;
         Vec2f texCoord;
+        Vertex() {}
+        Vertex(Vec2f pos, Color color, Vec2f texPos) : pos(pos), color(color), texCoord(texPos)
+        {}
     };
 
     class VertArray
     {
+#ifdef REFLECTION_CORE
+        RTTR_ENABLE()
+        RTTR_REGISTRATION_FRIEND
+#endif
     public:
         enum Type : short
         {
@@ -36,6 +55,8 @@ namespace palka
             constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN};
             return enum_array[t];
         }
+
+        VertArray() = default;
 
         VertArray(Type t) : type(t)
         {}

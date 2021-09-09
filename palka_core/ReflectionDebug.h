@@ -14,16 +14,28 @@ namespace palka
 {
     namespace utility
     {
+        template<class T>
+        inline std::pair<bool, rttr::variant>
+        reflect(const rttr::variant& value, T& instance, std::string_view name = "", int id = 0, bool instanceEqualValue = false);
+
         enum valueType
         {
-            INT, FLOAT, DOUBLE, STRING, BOOL, ARRAY, UINT, ENUM, POINTER, NONE
+            INT, FLOAT, DOUBLE, STRING, BOOL, ARRAY, UINT, UCHAR, ENUM, POINTER, WRAPPED, NONE
         };
 
         inline valueType checkType(const rttr::variant& value)
         {
+            auto type = value.get_type();
             if (value.is_type<std::string>() || value.is_type<std::string_view>())
                 return valueType::STRING;
-            else if (value.get_type().is_class())
+            else if (type.is_array() || type.is_sequential_container())
+                return valueType::ARRAY;
+            else if (type.is_wrapper())
+            {
+                auto val = value.extract_wrapped_value();
+                auto wrap_value = checkType(val);
+                return wrap_value;
+            } else if (type.is_class())
                 return NONE;
             else if (value.is_type<float>())
                 return valueType::FLOAT;
@@ -31,15 +43,15 @@ namespace palka
                 return valueType::INT;
             else if (value.is_type<unsigned int>())
                 return valueType::UINT;
+            else if (value.is_type<unsigned char>())
+                return valueType::UCHAR;
             else if (value.is_type<double>())
                 return valueType::DOUBLE;
             else if (value.is_type<bool>())
                 return valueType::BOOL;
-            else if (value.get_type().is_array())
-                return valueType::ARRAY;
-            else if (value.get_type().is_enumeration())
+            else if (type.is_enumeration())
                 return valueType::ENUM;
-            else if (value.get_type().is_pointer())
+            else if (type.is_pointer())
                 return valueType::POINTER;
             return NONE;
         }
@@ -52,10 +64,12 @@ namespace palka
                 return false;
         }
 
+
         inline bool property_get(std::string_view name, const rttr::property& prop, const rttr::variant& instance, bool is_array = false)
         {
             bool v_change = false;
             rttr::variant prop_value;
+
             if (is_array)
             {
                 prop_value = wrapped_check(instance) ? instance.extract_wrapped_value() : instance;
@@ -64,6 +78,7 @@ namespace palka
                 auto _prop_value = prop.get_value(instance);
                 prop_value = wrapped_check(_prop_value) ? _prop_value.extract_wrapped_value() : _prop_value;
             }
+            auto type = prop_value.get_type();
             ImGui::PushID(&prop_value);
             switch (checkType(prop_value))
             {
@@ -77,6 +92,28 @@ namespace palka
                         if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
                         ImGui::PushItemWidth(200);
                         ImGui::DragInt(name.data(), &changedValue, 1.f, -900.f, 900.f);
+                        if (changedValue != i)
+                        {
+                            prop.set_value(instance, changedValue);
+                            v_change = true;
+                        }
+                        ImGui::PopItemWidth();
+                        ImGui::EndPopup();
+                    }
+                }
+                    break;
+                case UCHAR:
+                {
+                    auto i = prop_value.get_value<unsigned char>();
+                    ImGui::Text("%s = %i", name.data(), i);
+                    if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
+                    {
+                        unsigned char changedValue = i;
+                        if (ImGui::Selectable("Set to zero")) changedValue = 0.0f;
+                        ImGui::PushItemWidth(200);
+                        int min = 0;
+                        int max = 255;
+                        ImGui::DragScalar(name.data(), ImGuiDataType_U8, &changedValue, 1.f, &min, &max);
                         if (changedValue != i)
                         {
                             prop.set_value(instance, changedValue);
@@ -192,10 +229,21 @@ namespace palka
                         } else
                         {
                             size_t count = 0;
-                            for (auto& i : view_array)
+                            for (auto& i: view_array)
                             {
-                                std::string format = "[" + std::to_string(++count) + "]";
-                                property_get(format, prop, i, true);
+                                std::string format = "[" + std::to_string(count) + "]";
+                                if (i.get_type().is_class())
+                                {
+                                    auto val = reflect(i, i, format, count, true);
+                                    if (val.first)
+                                    {
+                                        view_array.set_value(count, val.second);
+                                        v_change = true;
+                                        prop.set_value(instance, prop_value);
+                                    }
+                                    count++;
+                                } else
+                                    property_get(format, prop, i, true);
                             }
                         }
                         ImGui::TreePop();
@@ -215,7 +263,7 @@ namespace palka
                         auto values = enum_align.get_names();
                         if (ImGui::BeginCombo("##combo", changedValue.c_str()))
                         {
-                            for (auto& v : values)
+                            for (auto& v: values)
                             {
                                 bool is_selected = (changedValue == v);
                                 if (ImGui::Selectable(v.data(), is_selected))
@@ -250,15 +298,23 @@ namespace palka
         }
 
         template<class T>
-        inline rttr::variant reflect(const rttr::variant& value, T& instance, std::string_view name = "", int id = 0)
+        inline std::pair<bool, rttr::variant>
+        reflect(const rttr::variant& value, T& instance, std::string_view name, int id, bool instanceEqualValue)
         {
-            static bool v_change = false;
+            static bool v_change = false; //a very bad representation that some value has been changed
+            //If it is changed at some level of the reflect call, then the values will
+            // be updated higher up the hierarchy, as long as the _value type != instance type
+            bool any_v_change = false; //reflect can be used to read array elements
+            // if they are a complex type, we need to know if the value of this type has changed
             rttr::type type = value.get_type();
             rttr::variant _value;
             ImGui::PushID(id);
+            //if we pass in instance rttr::variant{T} it will be wrapped by reference_wrapper and we should expand it
+            auto instance_unwrap = (instanceEqualValue && wrapped_check(instance)) ? rttr::variant{instance}.extract_wrapped_value()
+                                                                                   : instance;
             if (type.is_valid() && type.is_class())
             {
-                if (type.is_wrapper())
+                if (type.is_wrapper()) //if value ptr: rttr::varinat{std::shared_ptr{value}} we need to expand it to get a "pure" type
                 {
                     _value = value.extract_wrapped_value();
                     type = _value.get_type();
@@ -266,7 +322,7 @@ namespace palka
                     _value = value;
                 if (ImGui::TreeNode((void*) (id + type.get_id()), "%s", (name.empty()) ? type.get_name().to_string().c_str() : name.data()))
                 {
-                    for (auto& prop : type.get_properties())
+                    for (auto& prop: type.get_properties())
                     {
                         rttr::variant prop_value = prop.get_value(_value);
                         rttr::type prop_type = prop.get_type();
@@ -274,26 +330,32 @@ namespace palka
                         if (prop_type.is_valid() && prop_type.is_class() && checkType(prop_value) == NONE)
                         {
                             auto top_value = reflect(prop_value, instance, prop.get_name().to_string(), ++id);
-                            if (_value.get_type() == rttr::type::get(instance))
+                            any_v_change = (any_v_change) ? any_v_change : top_value.first;
+                            if (_value.get_type() == rttr::type::get(instance_unwrap))
                             {
                                 if (v_change)
                                 {
-                                    _value.get_type().set_property_value(prop.get_name(), instance, top_value);
+                                    if (instanceEqualValue)
+                                        _value.get_type().set_property_value(prop.get_name(), _value, top_value.second);
+                                    else
+                                        _value.get_type().set_property_value(prop.get_name(), instance_unwrap, top_value.second);
                                     v_change = false;
                                 }
                             } else
                             {
                                 if (v_change)
-                                    _value.get_type().set_property_value(prop.get_name(), _value, top_value);
+                                    _value.get_type().set_property_value(prop.get_name(), _value, top_value.second);
                             }
                         } else
                         {
-                            bool ret = property_get(prop.get_name().to_string(), prop, _value); //this is a top-level property and you need to notify about its change,
-                                                                                                // so if we changed it, we change it for _value, if _value is the original object,
-                                                                                                // then we apply the changes immediately to it
-                                                                                                //If _value is a nested object, then we must apply all the changes higher up the hierarchy, so v_change=true
+                            auto ret = property_get(prop.get_name().to_string(), prop, _value);
+                            //this is a top-level property and you need to notify about its change,
+                            // so if we changed it, we change it for _value, if _value is the original object,
+                            // then we apply the changes immediately to it
+                            //If _value is a nested object, then we must apply all the changes higher up the hierarchy, so v_change=true
                             v_change = (v_change) ? v_change : ret;
-                            if (ret && !prop_type.is_class())
+                            any_v_change = (any_v_change) ? any_v_change : v_change;
+                            if (ret)
                             {
                                 auto _val = prop.get_value(_value);
                                 if (_value.get_type() == rttr::type::get(instance))
@@ -301,7 +363,7 @@ namespace palka
                                     _value.get_type().set_property_value(prop_name.data(), instance, _val);
                                     v_change = false;
                                 } else
-                                    _value.get_type().set_property_value(prop_name.data(), _value, _val);
+                                    _value.get_type().set_property_value("red", _value, _val);
                             }
                         }
                     }
@@ -312,7 +374,7 @@ namespace palka
                 assert(!"this is not a class");
             }
             ImGui::PopID();
-            return {_value};
+            return {any_v_change, _value};
         }
     }
 

@@ -3,13 +3,16 @@
 //
 
 #include "Color.h"
+#include "config.h"
 #include <rttr/registration>
 
+#ifdef REFLECTION_CORE
+#include <rttr/registration>
 RTTR_REGISTRATION
 {
     rttr::registration::class_<palka::Color>("Color")
-            .property("r", &palka::Color::r)
-            .property("g", &palka::Color::g)
-            .property("b", &palka::Color::b);
+            .property("red", &palka::Color::r)
+            .property("green", &palka::Color::g)
+            .property("blue", &palka::Color::b);
 }
-
+#endif

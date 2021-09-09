@@ -32,8 +32,9 @@ namespace palka
         double timeSinceStart;
         float t = 0;
         float delta;
+        VertArray vert;
     public:
-        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y))
+        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y)),vert(VertArray::Type::Quads)
         {
             init();
             int x, y, n;
@@ -41,6 +42,10 @@ namespace palka
             view.setCenter({1280.f / 2, 720.f / 2});
 
             s.load("Data\\Shaders\\test.frag");
+            vert.add({Vec2f{100, 100}, Color{0, 0, 255},     Vec2f{0, 0}});
+            vert.add({Vec2f{200, 100}, Color{0, 255, 0},     Vec2f{0, 0}});
+            vert.add({Vec2f{200, 200}, Color{255, 0, 0},     Vec2f{0, 0}});
+            vert.add({Vec2f{100, 200}, Color{255, 255, 255}, Vec2f{0, 0}});
         }
 
         void run()
@@ -69,11 +74,6 @@ namespace palka
         {
             w.NewFrame();
 
-            VertArray vert(VertArray::Type::Quads);
-            vert.add({Vec2f{100, 100}, Color{0, 0, 255},     Vec2f{0, 0}});
-            vert.add({Vec2f{200, 100}, Color{0, 255, 0},     Vec2f{0, 0}});
-            vert.add({Vec2f{200, 200}, Color{255, 0, 0},     Vec2f{0, 0}});
-            vert.add({Vec2f{100, 200}, Color{255, 255, 255}, Vec2f{0, 0}});
             w.draw(vert);
 
             Console::AppLog::Draw("Console", &console_open);
@@ -83,7 +83,9 @@ namespace palka
 
         void update()
         {
-            debug(view, "view");
+            //debug(view, "view");
+            debug(vert, "vert");
+            Color test{0,0,255};
             timeSinceStart = glfwGetTime();
             delta = timeSinceStart - oldTimeSinceStart;
             oldTimeSinceStart = timeSinceStart;
