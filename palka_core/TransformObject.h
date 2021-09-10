@@ -6,6 +6,7 @@
 #define PALKA_TRANSFORMOBJECT_H
 
 #include "Transform.h"
+
 #ifdef REFLECTION_CORE
 
 #include <rttr/type>
@@ -21,12 +22,12 @@ namespace palka
         RTTR_REGISTRATION_FRIEND
 #endif
     private:
-        Vec2f scale{1.f,1.f};
+        Vec2f scale{1.f, 1.f};
         float angle{};
         Vec2f pos;
         Vec2f center;
-        Transform t;
-        bool updateTransform{};
+        mutable Transform t;
+        mutable bool updateTransform{};
     public:
         TransformObject() = default;
 
@@ -56,7 +57,7 @@ namespace palka
             this->updateTransform = t.updateTransform;
         }
 
-        auto getTransform();
+        Transform getTransform() const;
 
         Quad<float> getQuad(RectF rect);
     };

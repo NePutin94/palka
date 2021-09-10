@@ -13,10 +13,10 @@ namespace palka
 {
     class RenderContext
     {
-    private:
+    public:
         Texture* texture;
         BlendMode blend;
-        Transform* transform;
+        Transform transform;
     public:
         RenderContext()
         {}

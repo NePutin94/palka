@@ -4,7 +4,7 @@
 
 #include "TransformObject.h"
 
-auto palka::TransformObject::getTransform()
+palka::Transform palka::TransformObject::getTransform() const
 {
     if (updateTransform)
     {

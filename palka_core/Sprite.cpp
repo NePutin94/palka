@@ -1,7 +1,7 @@
 //
 // Created by NePutin on 6/26/2021.
 //
-
+#include "Window.h"
 #include "Sprite.h"
 #include "Rect.h"
 
@@ -9,9 +9,19 @@ void palka::Sprite::setTexture(Texture& tex, RectI rect)
 {
     texture.set_data(&tex);
     auto sz = texture.get_data()->getSize();
-    setTextureRect({0, 0, sz.x, sz.y});
     if (rect != RectI::Zero())
         setTextureRect(rect);
+    else
+        rect = {0, 0, sz.x, sz.y};
+    setTextureRect({0, 0, sz.x, sz.y});
+    vertex.add(Vertex{{0, 0},
+                       {0, 0}});
+    vertex.add(Vertex{{(float) rect.w, 0},
+                       {1,              0}});
+    vertex.add(Vertex{{(float) rect.w, (float) rect.h},
+                       {1,              1}});
+    vertex.add(Vertex{{0, (float) rect.h},
+                       {0, 1}});
 }
 
 void palka::Sprite::setTextureRect(palka::RectI rect)
@@ -37,16 +47,13 @@ palka::RectF palka::Sprite::getGlobalRect() const
 
 void palka::Sprite::draw(Window& win) const
 {
-//    auto srcRect = src.getRect();
-//    auto dstRect = getGlobalRect().getRectF();
-//    auto[X, Y] = win.getViewport()->applyTranslate(Vec2f{dstRect.x, dstRect.y});
-//    dstRect.x = X;
-//    dstRect.y = Y;
-//    SDL_FPoint center = {getCenter().x, getCenter().y};
-//    SDL_RenderCopyExF(win.getContext(), texture.get_data()->getTextureP(), &srcRect, &dstRect, getRotation(), &center, flip_p);
+    RenderContext context;
+    context.texture = texture.get_data();
+    context.transform = getTransform();
+    win.draw(vertex, context);
 }
 
-palka::Sprite::Sprite(palka::Texture& tex)
+palka::Sprite::Sprite(palka::Texture& tex) : vertex(VertArray::Type::Quads)
 {
     setTexture(tex);
 }
@@ -61,9 +68,8 @@ RTTR_REGISTRATION
     registration::class_<palka::Sprite>("Sprite")
             .constructor<>()
             .property("setRect", &palka::Sprite::getTextureRect, &palka::Sprite::setTextureRect)
-           // .property("flip", &palka::Sprite::getFlip, &palka::Sprite::setFlip)
             .property("texture", &palka::Sprite::texture)
+            .property("vertex", &palka::Sprite::vertex)
             .property("src", &palka::Sprite::src);
 }
-
 #endif

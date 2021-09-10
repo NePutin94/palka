@@ -307,6 +307,7 @@ namespace palka
             bool any_v_change = false; //reflect can be used to read array elements
             // if they are a complex type, we need to know if the value of this type has changed
             rttr::type type = value.get_type();
+            auto asdfsdf = type.get_properties();
             rttr::variant _value;
             ImGui::PushID(id);
             //if we pass in instance rttr::variant{T} it will be wrapped by reference_wrapper and we should expand it
@@ -338,7 +339,7 @@ namespace palka
                                     if (instanceEqualValue)
                                         _value.get_type().set_property_value(prop.get_name(), _value, top_value.second);
                                     else
-                                        _value.get_type().set_property_value(prop.get_name(), instance_unwrap, top_value.second);
+                                        _value.get_type().set_property_value(prop.get_name(), instance, top_value.second);
                                     v_change = false;
                                 }
                             } else

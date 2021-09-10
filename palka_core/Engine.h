@@ -14,6 +14,7 @@
 #include "ReflectionDebug.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Sprite.h"
 
 
 namespace palka
@@ -27,6 +28,7 @@ namespace palka
         GLuint textureID;
         bool isRuning = true;
         Texture tex;
+        Sprite test;
         Shader s;
         double oldTimeSinceStart = 0;
         double timeSinceStart;
@@ -39,6 +41,7 @@ namespace palka
             init();
             int x, y, n;
             tex.LoadFromFile("Data\\tex\\Hero.png");
+            test.setTexture(tex);
             view.setCenter({1280.f / 2, 720.f / 2});
 
             s.load("Data\\Shaders\\test.frag");
@@ -74,7 +77,7 @@ namespace palka
         {
             w.NewFrame();
 
-            w.draw(vert, tex);
+            w.draw(test);
 
             Console::AppLog::Draw("Console", &console_open);
             w.ImGuiEndFrame();
@@ -83,8 +86,8 @@ namespace palka
 
         void update()
         {
-            //debug(view, "view");
-            debug(vert, "vert");
+            debug(test, "sprite");
+            debug(view, "view");
             Color test{0,0,255};
             timeSinceStart = glfwGetTime();
             delta = timeSinceStart - oldTimeSinceStart;

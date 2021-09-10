@@ -126,11 +126,15 @@ namespace palka
             d.draw(*this);
         }
 
-        void draw(VertArray array, Texture& tex, RenderContext context = {})
+        void draw(VertArray array, RenderContext context = {})
         {
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
             glEnable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
-            tex.bind();
+            context.texture->bind();
             glBlendFuncSeparate(
                     BlendMode::enumToGlConstant(context.blend.colorSrcFactor), BlendMode::enumToGlConstant(context.blend.colorDstFactor),
                     BlendMode::enumToGlConstant(context.blend.alphaSrcFactor), BlendMode::enumToGlConstant(context.blend.alphaDstFactor));
@@ -140,6 +144,9 @@ namespace palka
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glLoadMatrixf(context.transform.getMatrix());
+            applyView();
+
             Vertex* pointer = &array[0];
 
             glVertexPointer(2,
@@ -176,14 +183,17 @@ namespace palka
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
 
-        void NewFrame()
+        void applyView()
         {
             glViewport(0, 0, 1280, 720);
             glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
             glLoadMatrixf(view->getView().getMatrix());
+            glMatrixMode(GL_MODELVIEW);
+            //glLoadIdentity();
+        }
+
+        void NewFrame()
+        {
             glClearColor(0, 120, 120, 255);
             glClear(GL_COLOR_BUFFER_BIT);
         }

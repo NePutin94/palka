@@ -31,6 +31,8 @@ namespace palka
         Vertex() {}
         Vertex(Vec2f pos, Color color, Vec2f texPos) : pos(pos), color(color), texCoord(texPos)
         {}
+        Vertex(Vec2f pos, Vec2f texPos) : pos(pos), color(Color::White()), texCoord(texPos)
+        {}
     };
 
     class VertArray

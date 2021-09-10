@@ -13,5 +13,4 @@ endif()
 add_executable(palka "main.cpp")
 add_subdirectory(palka_core)
 target_link_libraries(palka PalkaCore)
-
-
+install(TARGETS PalkaCore DESTINATION ${CMAKE_BINARY_DIR})

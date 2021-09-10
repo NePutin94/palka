@@ -21,7 +21,8 @@ namespace palka
     class Vec2
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
 #endif
     public:
@@ -32,39 +33,39 @@ namespace palka
 
         Vec2(const Vec2&) = default;
 
-        Vec2(T x, T y) noexcept : x(x), y(y)
+        Vec2(T x, T y) noexcept: x(x), y(y)
         {}
 
         static constexpr Vec2 Zero()
-        { return Vec2((T)0, (T)0); }
+        { return Vec2((T) 0, (T) 0); }
 
-        Vec2 operator+(Vec2 val);
+        Vec2 operator+(Vec2 val) const;
 
         Vec2 operator+=(Vec2 val);
 
-        Vec2 operator-(Vec2 val);
+        Vec2 operator-(Vec2 val) const;
 
         Vec2 operator-=(Vec2 val);
 
-        Vec2 operator/(Vec2 val);
+        Vec2 operator/(Vec2 val) const;
 
         Vec2 operator/=(Vec2 val);
 
-        Vec2 operator*(Vec2 val);
+        Vec2 operator*(Vec2 val) const;
 
         Vec2 operator*=(Vec2 val);
 
-        Vec2 operator+(T val);
+        Vec2 operator+(T val) const;
 
-        Vec2 operator-(T val);
+        Vec2 operator-(T val) const;
 
-        Vec2 operator/(T val);
+        Vec2 operator/(T val) const;
 
-        Vec2 operator*(T val);
+        Vec2 operator*(T val) const;
 
-        bool operator==(Vec2 val);
+        bool operator==(Vec2 val) const;
 
-        bool operator!=(Vec2 val);
+        bool operator!=(Vec2 val) const;
 
         Vec2 abs();
 
@@ -105,25 +106,25 @@ namespace palka
     using Vec2i = Vec2<int>;
 
     template<class T>
-    Vec2<T> Vec2<T>::operator+(Vec2 val)
+    Vec2<T> Vec2<T>::operator+(Vec2 val) const
     {
         return Vec2(this->x + val.x, this->y + val.y);
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator-(Vec2 val)
+    Vec2<T> Vec2<T>::operator-(Vec2 val) const
     {
         return Vec2(this->x - val.x, this->y - val.y);
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator+(T val)
+    Vec2<T> Vec2<T>::operator+(T val) const
     {
         return Vec2(this->x + val, this->y + val);
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator-(T val)
+    Vec2<T> Vec2<T>::operator-(T val) const
     {
         return Vec2(this->x - val, this->y - val);
     }
@@ -154,13 +155,13 @@ namespace palka
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator*(T val)
+    Vec2<T> Vec2<T>::operator*(T val) const
     {
         return Vec2(this->x * val, this->y * val);
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator/(T val)
+    Vec2<T> Vec2<T>::operator/(T val) const
     {
         return Vec2(this->x / val, this->y / val);
     }
@@ -180,25 +181,25 @@ namespace palka
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator*(Vec2 val)
+    Vec2<T> Vec2<T>::operator*(Vec2 val) const
     {
         return Vec2(val.x * this->x, val.y * this->y);
     }
 
     template<class T>
-    Vec2<T> Vec2<T>::operator/(Vec2 val)
+    Vec2<T> Vec2<T>::operator/(Vec2 val) const
     {
         return {x / val.x, y / val.y};
     }
 
     template<class T>
-    bool Vec2<T>::operator==(Vec2 val)
+    bool Vec2<T>::operator==(Vec2 val) const
     {
         return val.x == this->x && val.y == this->y;
     }
 
     template<class T>
-    bool Vec2<T>::operator!=(Vec2 val)
+    bool Vec2<T>::operator!=(Vec2 val) const
     {
         return !(*this == val);
     }

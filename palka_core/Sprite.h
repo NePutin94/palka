@@ -10,6 +10,7 @@
 #include "Texture.h"
 #include "Rect.h"
 #include "Matrix.h"
+#include "VertexData.h"
 #include "Transform.h"
 #include "TransformObject.h"
 
@@ -31,23 +32,17 @@ namespace palka
     private:
         Raw_Ptr<Texture> texture;
         RectI src;
-        //SDL_RendererFlip flip_p = SDL_FLIP_NONE;
+        VertArray vertex;
         void draw(Window& win) const override;
     public:
 
-        Sprite() = default;
+        Sprite() : vertex(VertArray::Quads) {};
 
         explicit Sprite(Texture& tex);
 
         void setTexture(Texture& tex, RectI rect = {});
 
         void setTextureRect(RectI rect);
-
-//        void setFlip(SDL_RendererFlip flip_p)
-//        { this->flip_p = flip_p; }
-//
-//        SDL_RendererFlip getFlip()
-//        { return flip_p; }
 
         RectI getTextureRect() const;
 
