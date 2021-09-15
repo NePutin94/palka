@@ -29,10 +29,11 @@ namespace palka
     private:
         std::string file_path;
         Vec2i size;
-        GLuint textureID = 0;
-        bool valid = true;
+
+        bool valid = false;
 
     public:
+        GLuint textureID = 0;
         Texture() = default;
 
         Texture(const Texture& other) = delete;
@@ -45,11 +46,26 @@ namespace palka
 
         void LoadFromFile(std::string_view path);
 
+        void empty(Vec2i size)
+        {
+            this->size = size;
+            valid = true;
+            glGenTextures(1, &textureID);
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
         ~Texture()
         {
             if (valid)
                 glDeleteTextures(1, &textureID);
         }
+
         void bind()
         {
             glBindTexture(GL_TEXTURE_2D, textureID);

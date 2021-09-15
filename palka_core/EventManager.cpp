@@ -6,8 +6,8 @@
 
 using namespace palka;
 
-std::multimap<KBoardEvent, std::function<void(EventData)>>  EventManager::KeyboardEvents{};
-std::multimap<MouseEvent, std::function<void(EventData)>>  EventManager::MouseEvents{};
-std::multimap<EventType, std::function<void(EventData)>>  EventManager::TypeEvents{};
+std::multimap<KBoardEvent, std::function<void(EventData&)>>  EventManager::KeyboardEvents{};
+std::multimap<MouseEvent, std::function<void(EventData&)>>  EventManager::MouseEvents{};
+std::multimap<EventType, std::function<void(EventData&)>>  EventManager::TypeEvents{};
 std::set<int>  EventManager::keyPressed{};
 std::set<MouseEvent::Mouse_Button>  EventManager::mousebPress{};

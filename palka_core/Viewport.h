@@ -9,19 +9,21 @@
 #include "Vec2.h"
 #include "Rect.h"
 #include "Transform.h"
-
-#include <rttr/type>
-#include <rttr/registration_friend>
 #include <utility>
 
-using namespace rttr;
-using namespace rttr;
+#ifdef REFLECTION_CORE
+#include <rttr/type>
+#include <rttr/registration_friend>
+#endif
+
 namespace palka
 {
     class Viewport
     {
+#ifdef REFLECTION_CORE
         RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
+#endif
     private:
         Vec2f size;
         Vec2f center;

@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "Sprite.h"
 #include "Rect.h"
+#include "Renderer.h"
 
 void palka::Sprite::setTexture(Texture& tex, RectI rect)
 {
@@ -45,7 +46,7 @@ palka::RectF palka::Sprite::getGlobalRect() const
     return RectF{getPosition().x, getPosition().y, (float) src.w * getScale().x, (float) src.h * getScale().y};
 }
 
-void palka::Sprite::draw(Window& win) const
+void palka::Sprite::draw(Renderer& win) const
 {
     RenderContext context;
     context.texture = texture.get_data();

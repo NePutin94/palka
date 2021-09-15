@@ -4,8 +4,8 @@
 
 #include "Viewport.h"
 
+#ifdef REFLECTION_CORE
 #include <rttr/registration>
-
 RTTR_REGISTRATION
 {
     using namespace rttr;
@@ -18,3 +18,4 @@ RTTR_REGISTRATION
             .property("rotation", &palka::Viewport::getRotation, &palka::Viewport::setRotation)
             .property("needUpdate", &palka::Viewport::needUpdate);
 }
+#endif

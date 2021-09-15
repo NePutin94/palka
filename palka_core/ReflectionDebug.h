@@ -254,7 +254,7 @@ namespace palka
                 {
                     auto i = prop_value.to_string();
                     ImGui::Text("%s = %s", name.data(), i.c_str());
-                    enumeration enum_align = prop_value.get_type().get_enumeration();
+                    rttr::enumeration enum_align = prop_value.get_type().get_enumeration();
                     if (!is_array && ImGui::BeginPopupContextItem(prop_value.get_type().get_name().data()))
                     {
                         static auto changedValue = i;

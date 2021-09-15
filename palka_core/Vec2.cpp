@@ -4,8 +4,8 @@
 
 #include "Vec2.h"
 
+#ifdef REFLECTION_CORE
 #include <rttr/registration>
-
 RTTR_REGISTRATION
 {
     using namespace rttr;
@@ -18,5 +18,5 @@ RTTR_REGISTRATION
             .property("x", &palka::Vec2i::x)
             .property("y", &palka::Vec2i::y);
 }
-
+#endif
 

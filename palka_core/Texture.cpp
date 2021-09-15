@@ -26,6 +26,7 @@ palka::Texture::Texture(Texture&& other) noexcept
 
 void palka::Texture::LoadFromFile(std::string_view path)
 {
+    assert(!valid);
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -34,7 +35,7 @@ void palka::Texture::LoadFromFile(std::string_view path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     int x, y, n;
-    unsigned char* data = stbi_load("Data\\tex\\Hero.png", &x, &y, &n, 0);
+    unsigned char* data = stbi_load(path.data(), &x, &y, &n, 0);
     size.x = x;
     size.y = y;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);

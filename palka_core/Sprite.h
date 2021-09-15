@@ -33,7 +33,7 @@ namespace palka
         Raw_Ptr<Texture> texture;
         RectI src;
         VertArray vertex;
-        void draw(Window& win) const override;
+        void draw(Renderer& win) const override;
     public:
 
         Sprite() : vertex(VertArray::Quads) {};

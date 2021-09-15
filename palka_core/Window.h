@@ -15,21 +15,21 @@
 
 #include "Vec2.h"
 #include "Color.h"
-#include "Drawable.h"
 #include "Viewport.h"
 #include "ConsoleLog.h"
 #include "EventManager.h"
 #include "RenderContext.h"
 #include "VertexData.h"
+#include "Renderer.h"
 
 namespace palka
 {
-    class Window
+    class Window : public Renderer
     {
     private:
         Vec2i size;
         GLFWwindow* window;
-        Viewport* view;
+        //Viewport* view;
         ImGuiIO* io;
         Color bg_color{80, 180, 250};
         EventManager eManager;
@@ -40,7 +40,7 @@ namespace palka
             Console::AppLog::addLog_("Error: %s", Console::error, description);
         }
 
-        Window(const Vec2i& size) : size(size)
+        Window(const Vec2i& size) : Renderer(size), size(size)
         {}
 
         ~Window()
@@ -100,16 +100,16 @@ namespace palka
             });
         }
 
-        void setViewport(Viewport& v)
-        {
-            if (view != &v)
-                view = &v;
-        }
-
-        Viewport* getViewport()
-        {
-            return view;
-        }
+//        void setViewport(Viewport& v)
+//        {
+//            if (view != &v)
+//                view = &v;
+//        }
+//
+//        Viewport* getViewport()
+//        {
+//            return view;
+//        }
 
         GLFWwindow* getWindow()
         {
@@ -121,54 +121,54 @@ namespace palka
             return size;
         }
 
-        void draw(const Drawable& d)
-        {
-            d.draw(*this);
-        }
-
-        void draw(VertArray array, RenderContext context = {})
-        {
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-            glEnable(GL_TEXTURE_2D);
-            glEnable(GL_BLEND);
-            context.texture->bind();
-            glBlendFuncSeparate(
-                    BlendMode::enumToGlConstant(context.blend.colorSrcFactor), BlendMode::enumToGlConstant(context.blend.colorDstFactor),
-                    BlendMode::enumToGlConstant(context.blend.alphaSrcFactor), BlendMode::enumToGlConstant(context.blend.alphaDstFactor));
-            glBlendEquationSeparate(
-                    BlendMode::enumToGlConstant(context.blend.colorEquation),
-                    BlendMode::enumToGlConstant(context.blend.alphaEquation));
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glEnableClientState(GL_COLOR_ARRAY);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glLoadMatrixf(context.transform.getMatrix());
-            applyView();
-
-            Vertex* pointer = &array[0];
-
-            glVertexPointer(2,
-                            GL_FLOAT,
-                            sizeof(Vertex),
-                            &pointer->pos.x);
-
-            glColorPointer(3,
-                           GL_UNSIGNED_BYTE,
-                           sizeof(Vertex),
-                           &pointer->color.r);
-
-            glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &pointer->texCoord.x);
-
-            glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), array.getSize());
-
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_VERTEX_ARRAY);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisable(GL_BLEND);
-            glDisable(GL_TEXTURE_2D);
-        }
+//        void draw(const Drawable& d)
+//        {
+//            //d.draw(*this);
+//        }
+//
+//        void draw(VertArray array, RenderContext context = {})
+//        {
+//            glMatrixMode(GL_PROJECTION);
+//            glLoadIdentity();
+//            glMatrixMode(GL_MODELVIEW);
+//            glLoadIdentity();
+//            glEnable(GL_TEXTURE_2D);
+//            glEnable(GL_BLEND);
+//            context.texture->bind();
+//            glBlendFuncSeparate(
+//                    BlendMode::enumToGlConstant(context.blend.colorSrcFactor), BlendMode::enumToGlConstant(context.blend.colorDstFactor),
+//                    BlendMode::enumToGlConstant(context.blend.alphaSrcFactor), BlendMode::enumToGlConstant(context.blend.alphaDstFactor));
+//            glBlendEquationSeparate(
+//                    BlendMode::enumToGlConstant(context.blend.colorEquation),
+//                    BlendMode::enumToGlConstant(context.blend.alphaEquation));
+//            glEnableClientState(GL_VERTEX_ARRAY);
+//            glEnableClientState(GL_COLOR_ARRAY);
+//            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//            glLoadMatrixf(context.transform.getMatrix());
+//            applyView();
+//
+//            Vertex* pointer = &array[0];
+//
+//            glVertexPointer(2,
+//                            GL_FLOAT,
+//                            sizeof(Vertex),
+//                            &pointer->pos.x);
+//
+//            glColorPointer(3,
+//                           GL_UNSIGNED_BYTE,
+//                           sizeof(Vertex),
+//                           &pointer->color.r);
+//
+//            glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &pointer->texCoord.x);
+//
+//            glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), array.getSize());
+//
+//            glDisableClientState(GL_COLOR_ARRAY);
+//            glDisableClientState(GL_VERTEX_ARRAY);
+//            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//            glDisable(GL_BLEND);
+//            glDisable(GL_TEXTURE_2D);
+//        }
 
         void ImGUiNewFrame()
         {
@@ -183,19 +183,20 @@ namespace palka
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
 
-        void applyView()
-        {
-            glViewport(0, 0, 1280, 720);
-            glMatrixMode(GL_PROJECTION);
-            glLoadMatrixf(view->getView().getMatrix());
-            glMatrixMode(GL_MODELVIEW);
-            //glLoadIdentity();
-        }
+//        void applyView()
+//        {
+//            glViewport(0, 0, 1280, 720);
+//            glMatrixMode(GL_PROJECTION);
+//            glLoadMatrixf(view->getView().getMatrix());
+//            glMatrixMode(GL_MODELVIEW);
+//            //glLoadIdentity();
+//        }
 
         void NewFrame()
         {
             glClearColor(0, 120, 120, 255);
             glClear(GL_COLOR_BUFFER_BIT);
+            applyView();
         }
 
         void EndFrame()

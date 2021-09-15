@@ -7,10 +7,8 @@
 #include "config.h"
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/type>
 #include <rttr/registration_friend>
-
 #endif
 
 namespace palka

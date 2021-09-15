@@ -10,10 +10,8 @@
 #include "Color.h"
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/type>
 #include <rttr/registration_friend>
-
 #endif
 
 namespace palka
@@ -29,9 +27,11 @@ namespace palka
         Color color;
         Vec2f texCoord;
         Vertex() {}
-        Vertex(Vec2f pos, Color color, Vec2f texPos) : pos(pos), color(color), texCoord(texPos)
+        Vertex(Vec2f pos, Color color, Vec2f texPos = {}) : pos(pos), color(color), texCoord(texPos)
         {}
         Vertex(Vec2f pos, Vec2f texPos) : pos(pos), color(Color::White()), texCoord(texPos)
+        {}
+        Vertex(Vec2f pos) : pos(pos), color(Color::White())
         {}
     };
 
@@ -49,12 +49,13 @@ namespace palka
             Line_Strip,
             Triangles,
             Triangle_Strip,
-            Triangle_Fan
+            Triangle_Fan,
+            Points
         };
 
         static constexpr GLenum type_to_gl(Type t)
         {
-            constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN};
+            constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_POINTS};
             return enum_array[t];
         }
 

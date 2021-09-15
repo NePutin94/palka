@@ -148,20 +148,20 @@ namespace palka
     class EventManager
     {
     private:
-        static std::multimap<KBoardEvent, std::function<void(EventData)>> KeyboardEvents;
-        static std::multimap<MouseEvent, std::function<void(EventData)>> MouseEvents;
+        static std::multimap<KBoardEvent, std::function<void(EventData&)>> KeyboardEvents;
+        static std::multimap<MouseEvent, std::function<void(EventData&)>> MouseEvents;
         //std::multimap<KBoardEvent, std::function<void()>> KeyboardInputs;
-        static std::multimap<EventType, std::function<void(EventData)>> TypeEvents;
+        static std::multimap<EventType, std::function<void(EventData&)>> TypeEvents;
         static std::set<int> keyPressed;
         static std::set <MouseEvent::Mouse_Button> mousebPress;
     public:
 
-        static void addEvent(EventType t, const std::function<void(EventData)>& callback)
+        static void addEvent(EventType t, const std::function<void(EventData&)>& callback)
         {
             TypeEvents.emplace(t, callback);
         }
 
-        static void addEvent(KBoardEvent e, const std::function<void(EventData)>& callback)
+        static void addEvent(KBoardEvent e, const std::function<void(EventData&)>& callback)
         {
             KeyboardEvents.emplace(e, callback);
         }
@@ -171,7 +171,7 @@ namespace palka
 //            KeyboardInputs.emplace(KBoardEvent::KeyPressed(k), callback);
 //        }
 
-        static void addEvent(MouseEvent e, const std::function<void(EventData)>& callback)
+        static void addEvent(MouseEvent e, const std::function<void(EventData&)>& callback)
         {
             MouseEvents.emplace(e, callback);
         }

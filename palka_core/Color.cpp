@@ -4,7 +4,6 @@
 
 #include "Color.h"
 #include "config.h"
-#include <rttr/registration>
 
 #ifdef REFLECTION_CORE
 #include <rttr/registration>
