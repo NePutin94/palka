@@ -15,6 +15,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Sprite.h"
+#include "RenderTexture.h"
 
 
 namespace palka
@@ -39,15 +40,17 @@ namespace palka
                       {200, 200},
                       {250, 250},
                       {300, 300}};
-        Texture renderTex;
+        //Texture renderTex;
+        RenderTexture renderTex;
+        Sprite renderSp;
     public:
-        explicit Engine(Vec2i size) : w( size), isRuning(false), view(RectF(0, 0, size.x, size.y)), vert(VertArray::Type::Quads)
+        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y)), vert(VertArray::Type::Quads)
         {
             init();
             int x, y, n;
             tex.LoadFromFile("Data\\tex\\Debug.png");
             test.setTexture(tex);
-            view.setCenter({1280.f / 2, 720.f / 2});
+            w.getViewport().setCenter({1280.f / 2, 720.f / 2});
 
             s.load("Data\\Shaders\\test.frag");
             vert.add({Vec2f{100, 100}, Color::White(), Vec2f{0, 0}});
@@ -85,8 +88,10 @@ namespace palka
                 mousePress = false;
                 selectIndex = -1;
             });
-            renderTex.empty({500, 500});
-            texRedner();
+            renderTex.create({500, 500});
+            renderSp.setTexture(renderTex.getTexture());
+            // renderTex.empty({500, 500});
+            //texRedner();
         }
 
         void run()
@@ -104,7 +109,7 @@ namespace palka
         void init()
         {
             w.create();
-            w.setViewport(view);
+            //w.setViewport(view);
             isRuning = true;
             EventManager::addEvent(KBoardEvent::KeyPressed(GLFW_KEY_GRAVE_ACCENT), [this](EventData e) {
                 console_open = !console_open;
@@ -117,48 +122,52 @@ namespace palka
         {
             glGenFramebuffers(1, &fbo);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTex.textureID, 0);
+            //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTex.textureID, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
 
         void render()
         {
-            w.NewFrame();
-            static Vec2f pos{500/2.f, 500/2.f};
-            Viewport v{{0,0,500,500}};
-            v.setCenter(pos);
-            ImGui::DragFloat("x", &pos.x);
-            ImGui::DragFloat("y", &pos.y);
-            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glViewport(0, 0, 500, 500);
-            glClearColor(255, 0, 0, 0);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glLoadMatrixf(v.getView().getMatrix());
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-            glColor3f(255, 255, 255);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, tex.textureID);
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0); glVertex2f(0,0);
-            glTexCoord2f(1, 0); glVertex2f(100,0);
-            glTexCoord2f(1, 1); glVertex2f(100,100);
-            glTexCoord2f(0, 1); glVertex2f(0,100);
-            glEnd();
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_BLEND);
-//            glColor3f(0, 255, 0);
+            w.clear();
+            renderTex.bind();
+            renderTex.clear(Color(255, 0, 0));
+            renderTex.draw(test);
+            renderTex.unbind();
+//            static Vec2f pos{500/2.f, 500/2.f};
+//            Viewport v{{0,0,500,500}};
+//            v.setCenter(pos);
+//            ImGui::DragFloat("x", &pos.x);
+//            ImGui::DragFloat("y", &pos.y);
+//            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+//            glViewport(0, 0, 500, 500);
+//            glClearColor(255, 0, 0, 0);
+//            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//            glMatrixMode(GL_PROJECTION);
+//            glLoadIdentity();
+//            glLoadMatrixf(v.getView().getMatrix());
+//            glMatrixMode(GL_MODELVIEW);
+//            glLoadIdentity();
+//            glColor3f(255, 255, 255);
+//            glEnable(GL_BLEND);
+//            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//            glEnable(GL_TEXTURE_2D);
+//            glBindTexture(GL_TEXTURE_2D, tex.textureID);
 //            glBegin(GL_QUADS);
-//            glVertex2f(50, 50);
-//            glVertex2f(70, 50);
-//            glVertex2f(70, 70);
-//            glVertex2f(50, 70);
+//            glTexCoord2f(0, 0); glVertex2f(0,0);
+//            glTexCoord2f(1, 0); glVertex2f(100,0);
+//            glTexCoord2f(1, 1); glVertex2f(100,100);
+//            glTexCoord2f(0, 1); glVertex2f(0,100);
 //            glEnd();
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//            glDisable(GL_TEXTURE_2D);
+//            glDisable(GL_BLEND);
+////            glColor3f(0, 255, 0);
+////            glBegin(GL_QUADS);
+////            glVertex2f(50, 50);
+////            glVertex2f(70, 50);
+////            glVertex2f(70, 70);
+////            glVertex2f(50, 70);
+////            glEnd();
+//            glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 //            VertArray q(VertArray::Quads);
 //            q.add({{0, 0},
@@ -171,7 +180,7 @@ namespace palka
 //                   {0, 1}});
 
             Sprite s;
-            s.setTexture(renderTex);
+            s.setTexture(renderTex.getTexture());
             w.draw(s);
             //w.draw(test);
 //            VertArray line(VertArray::Line_Strip);
@@ -207,8 +216,8 @@ namespace palka
 
         void update()
         {
-            debug(test, "sprite");
-            debug(view, "view");
+            //debug(test, "sprite");
+            debug(w.getViewport(), "view");
             timeSinceStart = glfwGetTime();
             delta = timeSinceStart - oldTimeSinceStart;
             oldTimeSinceStart = timeSinceStart;

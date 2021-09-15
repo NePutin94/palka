@@ -30,8 +30,6 @@ namespace palka
 
         Vec2() = default;
 
-        Vec2(const Vec2&) = default;
-
         Vec2(T x, T y) noexcept: x(x), y(y)
         {}
 

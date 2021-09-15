@@ -192,13 +192,6 @@ namespace palka
 //            //glLoadIdentity();
 //        }
 
-        void NewFrame()
-        {
-            glClearColor(0, 120, 120, 255);
-            glClear(GL_COLOR_BUFFER_BIT);
-            applyView();
-        }
-
         void EndFrame()
         {
             glfwSwapBuffers(window);

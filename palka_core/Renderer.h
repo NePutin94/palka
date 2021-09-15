@@ -15,30 +15,30 @@ namespace palka
     class Renderer
     {
     private:
-        Viewport* view;
+        Viewport view;
         Vec2i size;
 
     public:
-        Renderer(Vec2i sz) : size(sz)
+        Renderer(Vec2i sz) : size(sz), view({0, 0, (float)sz.x, (float)sz.y})
         {}
 
-        void setViewport(Viewport& v)
+        void setSize(Vec2i sz)
         {
-            if (view != &v)
-                view = &v;
+            size = sz;
+            view.setSize(Vec2f(size.x, size.y));
         }
 
-        Viewport* getViewport()
+        Viewport& getViewport()
         {
             return view;
         }
 
         void setup()
         {
-            reset();
+            glReset();
         }
 
-        void reset()
+        void glReset()
         {
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
@@ -53,7 +53,14 @@ namespace palka
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         }
 
-        virtual void applyBlend(BlendMode mode) final
+        void clear(Color color = {0, 120, 120})
+        {
+            glClearColor(color.r, color.g, color.b, 255);
+            glClear(GL_COLOR_BUFFER_BIT);
+            applyView();
+        }
+
+        void applyBlend(BlendMode mode)
         {
             glBlendFuncSeparate(
                     BlendMode::enumToGlConstant(mode.colorSrcFactor), BlendMode::enumToGlConstant(mode.colorDstFactor),
@@ -63,17 +70,17 @@ namespace palka
                     BlendMode::enumToGlConstant(mode.alphaEquation));
         }
 
-        virtual void applyView() final
+        void applyView()
         {
             glViewport(0, 0, size.x, size.y);
             glMatrixMode(GL_PROJECTION);
-            glLoadMatrixf(view->getView().getMatrix());
+            glLoadMatrixf(view.getView().getMatrix());
             glMatrixMode(GL_MODELVIEW);
         }
 
-        virtual void draw(VertArray array, RenderContext context = {}) final
+        void draw(VertArray array, RenderContext context = {})
         {
-            reset();
+            glReset();
             glLoadMatrixf(context.transform.getMatrix());
             applyBlend(context.blend);
             applyView();
@@ -102,7 +109,7 @@ namespace palka
 //            glDisable(GL_TEXTURE_2D);
         }
 
-        virtual void draw(const Drawable& d) final
+        void draw(const Drawable& d)
         {
             d.draw(*this);
         }
