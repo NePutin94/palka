@@ -383,7 +383,9 @@ namespace palka
     inline void debug(const T& val, std::string name = "")
     {
         ImGui::Begin("ReflectionDebug");
+        ImGui::PushID(name.c_str());
         utility::reflect(rttr::variant(val), val, name);
+        ImGui::PopID();
         ImGui::End();
     }
 }

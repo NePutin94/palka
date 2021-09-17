@@ -12,7 +12,7 @@ namespace palka
     {
     private:
         virtual void draw(Renderer& win) const = 0;
-
+        virtual void draw(Renderer& win, BlendMode b) const = 0;
     public:
         virtual ~Drawable()
         {}

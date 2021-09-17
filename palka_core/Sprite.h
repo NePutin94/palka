@@ -34,6 +34,7 @@ namespace palka
         RectI src;
         VertArray vertex;
         void draw(Renderer& win) const override;
+        void draw(Renderer& win, BlendMode b) const override;
     public:
 
         Sprite() : vertex(VertArray::Quads) {};

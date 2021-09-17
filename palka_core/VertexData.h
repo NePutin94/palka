@@ -50,12 +50,13 @@ namespace palka
             Triangles,
             Triangle_Strip,
             Triangle_Fan,
-            Points
+            Points,
+            Polygon
         };
 
         static constexpr GLenum type_to_gl(Type t)
         {
-            constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_POINTS};
+            constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_POINTS, GL_POLYGON};
             return enum_array[t];
         }
 

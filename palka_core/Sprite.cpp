@@ -48,15 +48,27 @@ palka::RectF palka::Sprite::getGlobalRect() const
 
 void palka::Sprite::draw(Renderer& win) const
 {
-    RenderContext context;
-    context.texture = texture.get_data();
-    context.transform = getTransform();
-    win.draw(vertex, context);
+//    RenderContext context;
+//    context.blend = BlendMode{BlendMode::ONE, BlendMode::ONE, BlendMode::Add,
+//                              BlendMode::ZERO, BlendMode::ONE_MINUS_SRC_ALPHA, BlendMode::Add};
+//    context.texture = texture.get_data();
+//    context.transform = getTransform();
+//    win.draw(vertex, context);
+    draw(win, BlendMode::BlendAlpha());
 }
 
 palka::Sprite::Sprite(palka::Texture& tex) : vertex(VertArray::Type::Quads)
 {
     setTexture(tex);
+}
+
+void palka::Sprite::draw(palka::Renderer& win, palka::BlendMode b) const
+{
+    RenderContext context;
+    context.blend = b;
+    context.texture = texture.get_data();
+    context.transform = getTransform();
+    win.draw(vertex, context);
 }
 
 #ifdef REFLECTION_CORE

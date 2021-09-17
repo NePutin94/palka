@@ -9,7 +9,7 @@
 #include <string>
 #include <cassert>
 #include "Rect.h"
-#include <GLFW/glfw3.h>
+#include <glew.h>
 
 #ifdef REFLECTION_CORE
 
@@ -23,17 +23,19 @@ namespace palka
     class Texture
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
 #endif
     private:
         std::string file_path;
         Vec2i size;
-
+        bool flipped = false;
         bool valid = false;
 
     public:
         GLuint textureID = 0;
+
         Texture() = default;
 
         Texture(const Texture& other) = delete;
@@ -50,9 +52,10 @@ namespace palka
         {
             this->size = size;
             valid = true;
+            flipped = true;
             glGenTextures(1, &textureID);
             glBindTexture(GL_TEXTURE_2D, textureID);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -69,6 +72,19 @@ namespace palka
         void bind()
         {
             glBindTexture(GL_TEXTURE_2D, textureID);
+            glMatrixMode(GL_TEXTURE);
+            GLfloat matrix[16] = {1.f, 0.f, 0.f, 0.f,
+                                  0.f, 1.f, 0.f, 0.f,
+                                  0.f, 0.f, 1.f, 0.f,
+                                  0.f, 0.f, 0.f, 1.f};
+            if (flipped)
+            {
+                matrix[5] = -matrix[5];
+                matrix[13] = 1;
+            }
+            glMatrixMode(GL_TEXTURE);
+            glLoadMatrixf(matrix);
+            glMatrixMode(GL_MODELVIEW);
         }
 
         Vec2i getSize() const

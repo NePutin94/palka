@@ -18,7 +18,7 @@ namespace palka
         BlendMode blend;
         Transform transform;
     public:
-        RenderContext()
+        RenderContext() : texture(nullptr)
         {}
 
         RenderContext(Texture* tex) : texture(tex)

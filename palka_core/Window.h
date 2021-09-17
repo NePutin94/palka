@@ -12,7 +12,6 @@
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
-
 #include "Vec2.h"
 #include "Color.h"
 #include "Viewport.h"
@@ -86,7 +85,7 @@ namespace palka
             GLenum err = glewInit();
             if (GLEW_OK != err)
             {
-                std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
+                Console::AppLog::addLog_("Glew error: %s", Console::error,glewGetErrorString(err));
                 glfwTerminate();
             }
             Console::AppLog::addLog_("GL_VERSION: %s", Console::info, glGetString(GL_VERSION));
@@ -200,11 +199,6 @@ namespace palka
         EventManager& getEManager()
         {
             return eManager;
-        }
-
-        void inputHandler()
-        {
-            //eManager.updateInput();
         }
 
         void eventHandler()

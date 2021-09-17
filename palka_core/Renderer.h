@@ -19,7 +19,7 @@ namespace palka
         Vec2i size;
 
     public:
-        Renderer(Vec2i sz) : size(sz), view({0, 0, (float)sz.x, (float)sz.y})
+        Renderer(Vec2i sz) : size(sz), view({0, 0, (float) sz.x, (float) sz.y})
         {}
 
         void setSize(Vec2i sz)
@@ -41,6 +41,7 @@ namespace palka
         void glReset()
         {
             glMatrixMode(GL_PROJECTION);
+            glBindTexture(GL_TEXTURE_2D, 0);
             glLoadIdentity();
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -51,11 +52,12 @@ namespace palka
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
         }
 
         void clear(Color color = {0, 120, 120})
         {
-            glClearColor(color.r, color.g, color.b, 255);
+            glClearColor(color.r, color.g, color.b, color.a);
             glClear(GL_COLOR_BUFFER_BIT);
             applyView();
         }
@@ -84,7 +86,8 @@ namespace palka
             glLoadMatrixf(context.transform.getMatrix());
             applyBlend(context.blend);
             applyView();
-            context.texture->bind();
+            if (context.texture != nullptr)
+                context.texture->bind();
 
             Vertex* pointer = &array[0];
 
@@ -109,9 +112,9 @@ namespace palka
 //            glDisable(GL_TEXTURE_2D);
         }
 
-        void draw(const Drawable& d)
+        void draw(const Drawable& d, BlendMode b = BlendMode::BlendAlpha())
         {
-            d.draw(*this);
+            d.draw(*this, b);
         }
     };
 }
