@@ -52,7 +52,6 @@ namespace palka
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
         }
 
         void clear(Color color = {0, 120, 120})
@@ -105,16 +104,13 @@ namespace palka
 
             glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), array.getSize());
 
-//            glDisableClientState(GL_COLOR_ARRAY);
-//            glDisableClientState(GL_VERTEX_ARRAY);
-//            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//            glDisable(GL_BLEND);
-//            glDisable(GL_TEXTURE_2D);
+             glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
         }
 
-        void draw(const Drawable& d, BlendMode b = BlendMode::BlendAlpha())
+        void draw(const Drawable& d)
         {
-            d.draw(*this, b);
+            d.draw(*this);
         }
     };
 }

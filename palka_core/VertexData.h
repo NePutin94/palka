@@ -47,6 +47,7 @@ namespace palka
             Quads = 0,
             Lines,
             Line_Strip,
+            Line_Lopp,
             Triangles,
             Triangle_Strip,
             Triangle_Fan,
@@ -56,7 +57,7 @@ namespace palka
 
         static constexpr GLenum type_to_gl(Type t)
         {
-            constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_POINTS, GL_POLYGON};
+            constexpr GLenum enum_array[] = {GL_QUADS, GL_LINES, GL_LINE_STRIP, GL_LINE_LOOP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_POINTS, GL_POLYGON};
             return enum_array[t];
         }
 
