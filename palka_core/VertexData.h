@@ -47,7 +47,7 @@ namespace palka
             Quads = 0,
             Lines,
             Line_Strip,
-            Line_Lopp,
+            Line_Loop,
             Triangles,
             Triangle_Strip,
             Triangle_Fan,
@@ -85,6 +85,16 @@ namespace palka
         auto getType()
         {
             return type;
+        }
+
+        auto begin()
+        {
+            return vertecies.begin();
+        }
+
+        auto end()
+        {
+            return vertecies.end();
         }
 
         auto getSize()

@@ -16,7 +16,8 @@
 #include "Shader.h"
 #include "Sprite.h"
 #include "RenderTexture.h"
-#include "Primitive.h"
+#include "Rectangle.h"
+#include "DebugDraw.h"
 
 
 namespace palka
@@ -36,9 +37,9 @@ namespace palka
         double timeSinceStart;
         float t = 0;
         float delta;
-        Primitive p;
+        Rectangle p;
     public:
-        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y)), p({0,0,180,180})
+        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y)), p({0,0,180,180}, 5)
         {
             init();
             p.setColor(Color{250,0,50,255});
@@ -76,6 +77,7 @@ namespace palka
         {
             w.clear();
             //w.draw(test);
+            DebugDraw::DrawSpriteDebug(test, w);
             w.draw(p);
             Console::AppLog::Draw("Console", &console_open);
             w.ImGuiEndFrame();

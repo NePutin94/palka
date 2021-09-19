@@ -364,7 +364,7 @@ namespace palka
                                     _value.get_type().set_property_value(prop_name.data(), instance, _val);
                                     v_change = false;
                                 } else
-                                    _value.get_type().set_property_value("red", _value, _val);
+                                    _value.get_type().set_property_value(prop_name.data(), _value, _val);
                             }
                         }
                     }
