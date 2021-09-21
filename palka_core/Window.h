@@ -92,7 +92,6 @@ namespace palka
             initImgui();
             EventManager::bindEvents(window);
             EventManager::addEvent(WINDOWRESIZE, [this](EventData e) {
-
                 size.x = e.WindowResize.newX;
                 size.y = e.WindowResize.newY;
                 Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);

@@ -23,7 +23,8 @@ namespace palka
         MOUSESCROLL,
         MOUSEMOTION,
         WINDOWRESIZE,
-        WINDOWMOTION
+        WINDOWMOTION,
+        WINDOWCLOSE
     };
 
     struct EventData
@@ -258,6 +259,14 @@ namespace palka
                 it->second(data);
         }
 
+        static void WindowCloseEventHolder(GLFWwindow* window)
+        {
+            EventData data;
+            auto range = TypeEvents.equal_range(WINDOWCLOSE);
+            for (auto it = range.first; it != range.second; ++it)
+                it->second(data);
+        }
+
         static void WindowMotionEventHolder(GLFWwindow* window, int xpos, int ypos)
         {
             EventData data;
@@ -274,6 +283,7 @@ namespace palka
             glfwSetCursorPosCallback(w, &EventManager::MouseMotionEventHolder);
             glfwSetKeyCallback(w, &EventManager::KeyBoardEventHolder);
             glfwSetScrollCallback(w, &EventManager::MouseScrollEventHolder);
+            glfwSetWindowCloseCallback(w, &EventManager::WindowCloseEventHolder);
         }
     };
 }

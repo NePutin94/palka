@@ -9,7 +9,7 @@ void palka::Rectangle::draw(palka::Renderer& win) const
 {
     RenderContext context;
     context.transform = getTransform();
-    win.draw(vertex, context);
+    win.draw(outline, context);
 }
 
 #ifdef REFLECTION_CORE
