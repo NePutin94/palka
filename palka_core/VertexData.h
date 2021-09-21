@@ -5,7 +5,6 @@
 #ifndef PALKA_VERTEXDATA_H
 #define PALKA_VERTEXDATA_H
 
-#include <GL/gl.h>
 #include "Vec2.h"
 #include "Color.h"
 

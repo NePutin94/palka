@@ -4,11 +4,9 @@
 
 #include <fstream>
 #include <sstream>
+#include <glad/gl.h>
+
 #include "Shader.h"
-#include <glew.h>
-#include <GL/gl.h>
-#include <GLFW/glfw3.h>
-#include <vector>
 #include "ConsoleLog.h"
 
 constexpr auto ENUM_TO_GL(palka::Shader::Type t)

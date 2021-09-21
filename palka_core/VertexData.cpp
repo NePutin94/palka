@@ -1,6 +1,7 @@
 //
 // Created by NePutin on 9/8/2021.
 //
+#include <glad/gl.h>
 #include "config.h"
 #include "VertexData.h"
 

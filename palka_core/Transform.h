@@ -8,11 +8,10 @@
 #include "Vec2.h"
 #include "Rect.h"
 #include <array>
-#ifdef REFLECTION_CORE
 
+#ifdef REFLECTION_CORE
 #include <rttr/type>
 #include <rttr/registration_friend>
-
 #endif
 
 namespace palka

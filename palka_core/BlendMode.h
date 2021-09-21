@@ -5,7 +5,7 @@
 #ifndef PALKA_BLENDMODE_H
 #define PALKA_BLENDMODE_H
 
-#include <glew.h>
+#include <glad/gl.h>
 
 namespace palka
 {

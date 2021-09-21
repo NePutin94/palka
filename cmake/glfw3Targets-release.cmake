@@ -5,7 +5,7 @@
 # Commands may need to know the format version.
 set(CMAKE_IMPORT_FILE_VERSION 1)
 
-# Import target "glfw" for configuration "Release"
+# Import target "imgui_glfw" for configuration "Release"
 set_property(TARGET glfw APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(glfw PROPERTIES
   IMPORTED_IMPLIB_RELEASE "${_IMPORT_PREFIX}/lib/libglfw3dll.a"

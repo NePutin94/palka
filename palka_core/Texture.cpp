@@ -3,7 +3,10 @@
 //
 
 #include "Texture.h"
+
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include "../stb_image.h"
 
 
@@ -38,12 +41,14 @@ void palka::Texture::LoadFromFile(std::string_view path)
     unsigned char* data = stbi_load(path.data(), &x, &y, &n, 0);
     size.x = x;
     size.y = y;
-    if (n == 3) {
+    if (n == 3)
+    {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    } else if (n == 4) {
+    } else if (n == 4)
+    {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
-   // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -55,11 +60,14 @@ palka::Texture::Texture(std::string_view path, palka::Vec2i size) : size(size), 
 }
 
 #ifdef REFLECTION_CORE
+
 #include <rttr/registration>
+
 RTTR_REGISTRATION
 {
     using namespace rttr;
     registration::class_<palka::Texture>("Texture")
             .constructor<>();
 }
+
 #endif

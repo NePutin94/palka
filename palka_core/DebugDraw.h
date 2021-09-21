@@ -5,15 +5,16 @@
 #ifndef PALKA_DEBUGDRAW_H
 #define PALKA_DEBUGDRAW_H
 
-#include "Vec2.h"
-#include "Rect.h"
-#include <vector>
 #include <imgui.h>
 #include <rttr/type>
+#include <vector>
+
+#include "Vec2.h"
+#include "Rect.h"
 #include "Color.h"
 #include "Sprite.h"
-#include "Window.h"
 #include "Rectangle.h"
+#include "Window.h"
 
 namespace palka
 {

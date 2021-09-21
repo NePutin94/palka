@@ -1125,7 +1125,7 @@ ImGuiIO::ImGuiIO()
 }
 
 // Pass in translated ASCII characters for text input.
-// - with glfw you can get those from the callback set in glfwSetCharCallback()
+// - with imgui_glfw you can get those from the callback set in glfwSetCharCallback()
 // - on Windows you can get those using ToAscii+keyboard state, or via the WM_CHAR message
 void ImGuiIO::AddInputCharacter(unsigned int c)
 {

@@ -6,7 +6,6 @@
 #define PALKA_RECTANGLE_H
 
 #include "Drawable.h"
-#include "BlendMode.h"
 #include "Rect.h"
 #include "TransformObject.h"
 #include "VertexData.h"

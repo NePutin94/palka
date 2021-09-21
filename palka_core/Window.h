@@ -5,11 +5,10 @@
 #ifndef PALKA_WINDOW_H
 #define PALKA_WINDOW_H
 
-#include <glew.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui.h>
-#include <GL/gl.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
 #include "Vec2.h"
@@ -81,13 +80,19 @@ namespace palka
 
             glfwMakeContextCurrent(window);
             glfwSwapInterval(0);
-            glewExperimental = GL_TRUE;
-            GLenum err = glewInit();
-            if (GLEW_OK != err)
+            int version = gladLoadGL(glfwGetProcAddress);
+            if (version == 0)
             {
-                Console::AppLog::addLog_("Glew error: %s", Console::error,glewGetErrorString(err));
-                glfwTerminate();
+                Console::AppLog::addLog("Failed to initialize OpenGL context", Console::error);
             }
+            Console::AppLog::addLog_("Glad version: %i.%i", Console::info, GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+//            glewExperimental = GL_TRUE;
+//            GLenum err = glewInit();
+//            if (GLEW_OK != err)
+//            {
+//                Console::AppLog::addLog_("Glew error: %s", Console::error,glewGetErrorString(err));
+//                glfwTerminate();
+//            }
             Console::AppLog::addLog_("GL_VERSION: %s", Console::info, glGetString(GL_VERSION));
             initImgui();
             EventManager::bindEvents(window);

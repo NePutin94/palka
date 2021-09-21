@@ -2,6 +2,7 @@
 // Created by NePutin on 9/18/2021.
 //
 
+#include <glad/gl.h>
 #include "Rectangle.h"
 #include "Renderer.h"
 

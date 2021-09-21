@@ -8,14 +8,13 @@
 #include <string_view>
 #include <string>
 #include <cassert>
+#include <glad/gl.h>
+
 #include "Rect.h"
-#include <glew.h>
 
 #ifdef REFLECTION_CORE
-
 #include <rttr/type>
 #include <rttr/registration_friend>
-
 #endif
 
 namespace palka
