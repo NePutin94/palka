@@ -11,6 +11,7 @@ void palka::Rectangle::draw(palka::Renderer& win) const
     RenderContext context;
     context.transform = getTransform();
     win.draw(outline, context);
+    win.draw(fill, context);
 }
 
 #ifdef REFLECTION_CORE
@@ -23,7 +24,8 @@ RTTR_REGISTRATION
     registration::class_<palka::Rectangle>("Rectangle")
             .constructor<palka::RectF>()
             .property("setRect", &palka::Rectangle::getRect, &palka::Rectangle::setRect)
-            .property("color", &palka::Rectangle::getColor, &palka::Rectangle::setColor)
+            .property("outline color", &palka::Rectangle::getOutlineColor, &palka::Rectangle::setOutlineColor)
+            .property("fill color", &palka::Rectangle::getFillColor, &palka::Rectangle::setFillColor)
             .property("corner size", &palka::Rectangle::getSize, &palka::Rectangle::setSize);
 }
 #endif

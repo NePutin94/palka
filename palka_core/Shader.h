@@ -20,23 +20,27 @@ namespace palka
             GEOMETRY
         };
 
+        Shader(Type t = Type::FRAGMENT) : type(t)
+        {}
+
         void load(std::string_view file_name);
+
+        void loadVF(std::string_view file_name_fragment, std::string_view file_name_vertex);
 
         void setValue(std::string_view name, float value);
 
         void setValue(std::string_view name, int value)
+        {}
+        unsigned int getId()
         {
-
+            return shaderID;
         }
-        unsigned int shaderID;
     private:
+        unsigned int shaderID;
         std::string source;
-        Type type = Type::FRAGMENT;
+        Type type;
 
         void compile();
-
-
-
 
         void setValue(std::string_view name, Vec2f value);
     };

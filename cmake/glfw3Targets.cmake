@@ -50,7 +50,7 @@ if(_IMPORT_PREFIX STREQUAL "/")
   set(_IMPORT_PREFIX "")
 endif()
 
-# Create imported target glfw
+# Create imported target imgui_glfw
 add_library(glfw SHARED IMPORTED)
 
 set_target_properties(glfw PROPERTIES

@@ -20,23 +20,28 @@ namespace palka
 
         enum valueType
         {
-            INT, FLOAT, DOUBLE, STRING, BOOL, ARRAY, UINT, UCHAR, ENUM, POINTER, WRAPPED, NONE
+            INT, FLOAT, DOUBLE, STRING, STRING_VIEW, BOOL, ARRAY, UINT, UCHAR, ENUM, POINTER, WRAPPED, NONE
         };
 
         inline valueType checkType(const rttr::variant& value)
         {
             auto type = value.get_type();
-            if (value.is_type<std::string>() || value.is_type<std::string_view>())
+            if (value.is_type<std::string>())
                 return valueType::STRING;
+            else if(value.is_type<std::string_view>())
+            {
+                return valueType::STRING_VIEW;
+            }
             else if (type.is_array() || type.is_sequential_container())
                 return valueType::ARRAY;
+            else if (type.is_class())
+                return NONE;
             else if (type.is_wrapper())
             {
                 auto val = value.extract_wrapped_value();
                 auto wrap_value = checkType(val);
                 return wrap_value;
-            } else if (type.is_class())
-                return NONE;
+            }
             else if (value.is_type<float>())
                 return valueType::FLOAT;
             else if (value.is_type<int>())
@@ -176,6 +181,12 @@ namespace palka
                 {
                     auto i = prop_value.get_value<std::string>();
                     ImGui::Text("%s = %s", name.data(), i.c_str());
+                }
+                    break;
+                case STRING_VIEW:
+                {
+                    auto i = prop_value.get_value<std::string_view>();
+                    ImGui::Text("%s = %s", name.data(), i.data());
                 }
                     break;
                 case BOOL:

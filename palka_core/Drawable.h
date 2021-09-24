@@ -12,7 +12,11 @@ namespace palka
     {
     private:
         virtual void draw(Renderer& win) const = 0;
-        //virtual void draw(Renderer& win, BlendMode b) const = 0;
+        mutable struct{
+            bool hasBindBuffer = false;
+            //GLuint VAO = 0;
+            //GLuint VBO = 0;
+        }DrawData;
     public:
         virtual ~Drawable()
         {}

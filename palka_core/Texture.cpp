@@ -7,7 +7,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "../stb_image.h"
+#include <stb_image.h>
 
 
 palka::Texture& palka::Texture::operator=(palka::Texture&& other) noexcept
@@ -30,6 +30,7 @@ palka::Texture::Texture(Texture&& other) noexcept
 void palka::Texture::LoadFromFile(std::string_view path)
 {
     assert(!valid);
+    file_path = path;
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -67,7 +68,9 @@ RTTR_REGISTRATION
 {
     using namespace rttr;
     registration::class_<palka::Texture>("Texture")
-            .constructor<>();
+            .constructor<>()
+            .property_readonly("file path", &palka::Texture::getFilePath)
+            .property_readonly("size", &palka::Texture::getSize);
 }
 
 #endif

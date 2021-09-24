@@ -101,6 +101,10 @@ namespace palka
                 size.y = e.WindowResize.newY;
                 Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
             });
+            int i = 0;
+            glGetIntegerv(GL_MAX_DRAW_BUFFERS, &i);
+            Console::AppLog::addLog_("Draw buffer count: %i", Console::info, i);
+            init();
         }
 
 //        void setViewport(Viewport& v)
