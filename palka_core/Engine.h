@@ -5,8 +5,8 @@
 #ifndef PALKA_ENGINE_H
 #define PALKA_ENGINE_H
 
-
 #include <string>
+#include <glm/vec2.hpp>
 #include "Vec2.h"
 #include "ConsoleLog.h"
 #include "Window.h"
@@ -58,15 +58,16 @@ namespace palka
             ver.add(Vertex{{100, 100}, Color{0, 0, 255}});
             ver.add(Vertex{{0, 100}, Color{255, 0, 255}});
             vertexShader.loadVF("Data\\Shaders\\Default.frag", "Data\\Shaders\\Default.vert");
-            vertexShader.UseUbo();
             buff.create(ver.getSize());
             buff.update(&ver[0], ver.getSize(), vertexShader.getId());
+            vertexShader.UseUbo();
             //w.initVbo(ver);
         }
 
         void run()
         {
             glfwSetTime(0);
+
             while (isRuning)
             {
                 handleEvents();
@@ -94,11 +95,10 @@ namespace palka
             w.clear();
             //w.draw(p);
             // w.draw(test);
-            //w.draw(ver);
+            w.draw(ver);
             //w.VBODraw(ver);
             static TransformObject test;
             RenderContext con;
-
             con.transform = test.getTransform();
             w.VAODraw(buff, vertexShader, con);
             Console::AppLog::Draw("Console", &console_open);

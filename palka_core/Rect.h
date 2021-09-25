@@ -4,9 +4,8 @@
 
 #ifndef PALKA_RECT_H
 #define PALKA_RECT_H
-
+#include <glm/detail/qualifier.hpp.>
 #include "Vec2.h"
-#include "Matrix.h"
 #include <utility>
 
 #ifdef REFLECTION_CORE
@@ -26,19 +25,18 @@ namespace palka
     {
         Quad() = default;
 
-        Vec2<T> leftTop, rightTop, leftBottom, rightBottom;
-
-        explicit Quad(std::array<Vec2<T>, 4> arr);
+        glm::vec<2,T,glm::defaultp> leftTop, rightTop, leftBottom, rightBottom;
+        explicit Quad(std::array<glm::vec<2,T,glm::defaultp>, 4> arr);
 
         explicit Quad(Rect<T> r);
 
         Quad<int> toInt()
         {
             Quad<int> q;
-            q.leftTop = Vec2i(leftTop.x, leftTop.y);
-            q.rightTop = Vec2i(rightTop.x, rightTop.y);
-            q.leftBottom = Vec2i(leftBottom.x, leftBottom.y);
-            q.rightBottom = Vec2i(rightBottom.x, rightBottom.y);
+//            q.leftTop = Vec2i(leftTop.x, leftTop.y);
+//            q.rightTop = Vec2i(rightTop.x, rightTop.y);
+//            q.leftBottom = Vec2i(leftBottom.x, leftBottom.y);
+//            q.rightBottom = Vec2i(rightBottom.x, rightBottom.y);
             return q;
         }
     };
@@ -46,10 +44,6 @@ namespace palka
     template<class T>
     class Rect
     {
-#ifdef REFLECTION_CORE
-        RTTR_ENABLE()
-        RTTR_REGISTRATION_FRIEND
-#endif
     public:
         T left, top, w, h;
 
@@ -66,40 +60,41 @@ namespace palka
         }
 
         template<class T2>
-        bool contains(Vec2<T2>);
+        bool contains(glm::vec<2,T2,glm::defaultp>);
 
         bool intersects(Rect, Rect&);
 
-        std::array<Vec2<T>, 4> getPoints() const
+        std::array<glm::vec<2,T,glm::defaultp>, 4> getPoints() const
         {
 
-            return {Vec2<T>{this->left, this->top},
-                    Vec2<T>{this->left + this->w, this->top},
-                    Vec2<T>{this->left, this->top + this->h},
-                    Vec2<T>{this->left + this->w, this->top + this->h}};
+            return {glm::vec<2,T,glm::defaultp>{this->left, this->top},
+                    glm::vec<2,T,glm::defaultp>{this->left + this->w, this->top},
+                    glm::vec<2,T,glm::defaultp>{this->left, this->top + this->h},
+                    glm::vec<2,T,glm::defaultp>{this->left + this->w, this->top + this->h}};
         }
 
         Quad<T> rotate(float angle, Vec2i origin)
         {
-            palka::Matrix2DRotate<float> mat2(angle);
-            auto points = getPoints();
-            Vec2<T> top1 = points[0];
-            Vec2<T> top2 = points[1];
-            Vec2<T> bottom1 = points[2];
-            Vec2<T> bottom2 = points[3];
-            top1 = top1 - origin;
-            top2 = top2 - origin;
-            bottom1 = bottom1 - origin;
-            bottom2 = bottom2 - origin;
-            top1 = mat2 * top1;
-            top2 = mat2 * top2;
-            bottom1 = mat2 * bottom1;
-            bottom2 = mat2 * bottom2;
-            top1 += origin;
-            top2 += origin;
-            bottom1 += origin;
-            bottom2 += origin;
-            return Quad<T>({top1, top2, bottom1, bottom2});
+//            palka::Matrix2DRotate<float> mat2(angle);
+//            auto points = getPoints();
+//            Vec2<T> top1 = points[0];
+//            Vec2<T> top2 = points[1];
+//            Vec2<T> bottom1 = points[2];
+//            Vec2<T> bottom2 = points[3];
+//            top1 = top1 - origin;
+//            top2 = top2 - origin;
+//            bottom1 = bottom1 - origin;
+//            bottom2 = bottom2 - origin;
+//            top1 = mat2 * top1;
+//            top2 = mat2 * top2;
+//            bottom1 = mat2 * bottom1;
+//            bottom2 = mat2 * bottom2;
+//            top1 += origin;
+//            top2 += origin;
+//            bottom1 += origin;
+//            bottom2 += origin;
+           // return Quad<T>({top1, top2, bottom1, bottom2});
+           return {};
         }
 
         bool operator==(Rect other);
@@ -118,7 +113,7 @@ namespace palka
     }
 
     template<class T>
-    Quad<T>::Quad(std::array<Vec2<T>, 4> arr)
+    Quad<T>::Quad(std::array<glm::vec<2,T,glm::defaultp>, 4> arr)
     {
         leftTop = arr[0];
         rightTop = arr[1];
@@ -128,7 +123,7 @@ namespace palka
 
     template<class T>
     template<class T2>
-    bool Rect<T>::contains(Vec2<T2> vec)
+    bool Rect<T>::contains(glm::vec<2,T2,glm::defaultp> vec)
     {
         T minX = std::min(left, static_cast<T>(left + w));
         T maxX = std::max(left, static_cast<T>(left + w));

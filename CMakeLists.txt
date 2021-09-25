@@ -10,18 +10,8 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mwindows -DNDEBUG -s")
 endif()
 
-set(HEADER_SOURCE Matrix.h ReflectionDebug.h Drawable.h)
-set(RTTR_DIR "D:\\Link\\rttr_gcc\\cmake")
-set(FREETYPE_DIR E:\\freetype-master\\ft_gcc\\lib\\cmake\\freetype)
-set(CMAKE_PREFIX_PATH E:\\freetype-master\\ft_gcc D:\\Link\\glfw_gcc12 E:\\freeglut-3.2.1\\build\\lib\\cmake\\FreeGLUT)
-set(GLEW_ROOT_DIR D:\\Link\\glew)
-set(GLAD_INCLUDE "../glad/include")
-
 set(CMAKE_MODULE_PATH "E:\\ClionProject\\palka\\cmake")
 
-find_package(glfw3 REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(RTTR CONFIG REQUIRED Core)
 
 add_executable(palka "main.cpp")
 add_subdirectory(glad)

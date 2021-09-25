@@ -30,9 +30,11 @@ namespace palka
         }
 
     public:
+        TransformObject t;
+
         Renderer(Vec2i sz) : size(sz), view({0, 0, (float) sz.x, (float) sz.y}), vertexShader(Shader::FRAGMENT)
         {
-
+            t.setPosition({120, 120});
         }
 
         void init()
@@ -67,20 +69,19 @@ namespace palka
             glEnable(GL_BLEND);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-//            glEnableClientState(GL_VERTEX_ARRAY);
-//            glEnableClientState(GL_COLOR_ARRAY);
-//            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
         }
 
         void clear(Color color = {0, 120, 120})
         {
-            glClearColor(color.r, color.g, color.b, color.a);
+            glClearColor(0, 120, 120, 255);
             glClear(GL_COLOR_BUFFER_BIT);
-            applyView();
+            glViewport(0, 0, size.x, size.y);
         }
 
         void applyBlend(BlendMode mode)
         {
+            glEnable(GL_BLEND);
             glBlendFuncSeparate(
                     BlendMode::enumToGlConstant(mode.colorSrcFactor), BlendMode::enumToGlConstant(mode.colorDstFactor),
                     BlendMode::enumToGlConstant(mode.alphaSrcFactor), BlendMode::enumToGlConstant(mode.alphaDstFactor));
@@ -89,7 +90,7 @@ namespace palka
                     BlendMode::enumToGlConstant(mode.alphaEquation));
         }
 
-        void applyView_m()
+        void applyView()
         {
             glViewport(0, 0, size.x, size.y);
             glMatrixMode(GL_PROJECTION);
@@ -97,17 +98,12 @@ namespace palka
             glMatrixMode(GL_MODELVIEW);
         }
 
-        void applyView()
-        {
-            glViewport(0, 0, size.x, size.y);
-        }
-
         void draw(VertArray array, RenderContext context = {})
         {
             glReset();
             glLoadMatrixf(context.transform.getMatrix());
             applyBlend(context.blend);
-            applyView_m();
+            applyView();
             if (context.texture != nullptr)
                 context.texture->bind();
 
@@ -128,34 +124,28 @@ namespace palka
             glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &pointer->texCoord.x);
 
             glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), array.getSize());
-
-            glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
         }
 
         void VAODraw(VertexBuffer array, Shader s, RenderContext context = {})
         {
-            glReset();
             applyBlend(context.blend);
-            applyView();
-            TransformObject t;
-            t.setPosition({120, 120});
 
-            s.updateUBO(context.transform.getMatrix(), 0, sizeof(float[16]));
-            s.updateUBO(view.getView().getMatrix(), sizeof(float[16]), sizeof(float[16]));
-
-            //s.setValue("modelMat", context.transform);
-            //s.setValue("projMat", view.getView());
-            s.setValue("viewMat", t.getTransform());
             if (context.texture != nullptr)
                 context.texture->bind();
 
             glUseProgram(s.getId());
-//            glBindVertexArray(VAO);
+            s.updateUBO(context.transform.getMatrix(), 0, sizeof(float[16]));
+            s.updateUBO(view.getView().getMatrix(), sizeof(float[16]), sizeof(float[16]));
+            s.setValue("viewMat", t.getTransform());
             array.bind();
             glDrawArrays(GL_QUADS, static_cast<GLint>(0), array.getSize());
-            // glUseProgram(0);
+            array.unbind();
+            glUseProgram(0);
         };
 
         void draw(const Drawable& d)

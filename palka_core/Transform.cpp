@@ -14,7 +14,7 @@ palka::Quad<float> palka::Transform::transformRect(palka::RectF rectangle) const
                     transformPoint(rectangle.left + rectangle.w, rectangle.top + rectangle.h)
             };
 
-    return Quad < float > {points};
+    return Quad<float> {points};
 }
 
 palka::Vec2f palka::Transform::transformPoint(float x, float y) const

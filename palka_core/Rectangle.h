@@ -17,7 +17,7 @@
 #include <rttr/wrapper_mapper.h>
 #include <rttr/registration_friend>
 #include "RawPtrWrapper.h"
-
+#include <glm/geometric.hpp>
 #endif
 
 namespace palka
@@ -42,10 +42,10 @@ namespace palka
                 Vec2f b = fill[i].pos;
                 Vec2f c = (i == 3) ? fill[0].pos : fill[i + 1].pos;
 
-                Vec2f normal = (b - a).normalize();
-                Vec2f normal2 = (b - c).normalize();
+                Vec2f normal = glm::normalize(b - a);
+                Vec2f normal2 = glm::normalize(b - c);
 
-                float len = 1.f + (normal * normal2).lenght();
+                float len = 1.f + glm::length(normal * normal2);
                 Vec2f dir = (normal + normal2) / len;
                 outline[j++] = Vertex({b});
                 outline[j++] = Vertex({b + dir * cornerSize});
@@ -75,10 +75,10 @@ namespace palka
                 Vec2f b = fill[i].pos;
                 Vec2f c = (i == 3) ? fill[0].pos : fill[i + 1].pos;
 
-                Vec2f normal = (b - a).normalize();
-                Vec2f normal2 = (b - c).normalize();
+                Vec2f normal = glm::normalize(b - a);
+                Vec2f normal2 =glm::normalize(b - c);
 
-                float len = 1.f + (normal * normal2).lenght();
+                float len = 1.f +  glm::length(normal * normal2);
                 Vec2f dir = (normal + normal2) / len;
                 outline.add({b});
                 outline.add({b + dir * sz});

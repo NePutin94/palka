@@ -9,7 +9,6 @@
 #include "Drawable.h"
 #include "Texture.h"
 #include "Rect.h"
-#include "Matrix.h"
 #include "VertexData.h"
 #include "Transform.h"
 #include "TransformObject.h"

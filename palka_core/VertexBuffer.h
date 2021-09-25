@@ -21,6 +21,7 @@ namespace palka
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * size, 0, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         }
 
@@ -43,6 +44,7 @@ namespace palka
             glVertexAttribPointer(vaColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*) (16));
             glEnableVertexAttribArray(vaColor);
 
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         }
 
