@@ -7,6 +7,7 @@
 
 #include <string>
 #include "Vec2.h"
+#include "Transform.h"
 
 namespace palka
 {
@@ -31,15 +32,44 @@ namespace palka
 
         void setValue(std::string_view name, int value)
         {}
+
+        void setValue(std::string_view name, Transform t)
+        {
+            GLint loc = glGetUniformLocation((GLuint) shaderID, name.data());
+            if (loc != -1)
+            {
+                glUniformMatrix4fv(loc, 1, GL_FALSE, t.getMatrix());
+            }
+        }
+
+        void UseUbo() //need to do this using a static method or move it to a separate entity
+        {
+            unsigned int uboIndex = glGetUniformBlockIndex(shaderID, "matrixBuffer");
+            glUniformBlockBinding(shaderID, uboIndex, 0);
+            glGenBuffers(1, &UBO);
+            glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+            glBufferData(GL_UNIFORM_BUFFER, sizeof(float[16]) * 2, NULL, GL_STREAM_DRAW); //two float 4x4 matrices
+            glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        }
+
+        void updateUBO(float* data, int L, int R)
+        {
+            glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+            glBufferSubData(GL_UNIFORM_BUFFER, L, R, data);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        }
+
         unsigned int getId()
         {
             return shaderID;
         }
+
     private:
         unsigned int shaderID;
         std::string source;
         Type type;
-
+        unsigned int UBO;
         void compile();
 
         void setValue(std::string_view name, Vec2f value);

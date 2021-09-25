@@ -18,7 +18,7 @@
 #include "RenderTexture.h"
 #include "Rectangle.h"
 #include "DebugDraw.h"
-
+#include "VertexBuffer.h"
 
 namespace palka
 {
@@ -39,6 +39,8 @@ namespace palka
         float delta;
         Rectangle p;
         VertArray ver;
+        VertexBuffer buff;
+        Shader vertexShader;
     public:
         explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y)), p({0, 0, 180, 180}, 5),
                                       ver(VertArray::Quads)
@@ -55,8 +57,11 @@ namespace palka
             ver.add(Vertex{{100, 0}, Color{0, 255, 0}});
             ver.add(Vertex{{100, 100}, Color{0, 0, 255}});
             ver.add(Vertex{{0, 100}, Color{255, 0, 255}});
-
-            w.initVbo(ver);
+            vertexShader.loadVF("Data\\Shaders\\Default.frag", "Data\\Shaders\\Default.vert");
+            vertexShader.UseUbo();
+            buff.create(ver.getSize());
+            buff.update(&ver[0], ver.getSize(), vertexShader.getId());
+            //w.initVbo(ver);
         }
 
         void run()
@@ -87,10 +92,15 @@ namespace palka
         void render()
         {
             w.clear();
-           //w.draw(p);
-           // w.draw(test);
+            //w.draw(p);
+            // w.draw(test);
             //w.draw(ver);
-            w.VBODraw(ver);
+            //w.VBODraw(ver);
+            static TransformObject test;
+            RenderContext con;
+
+            con.transform = test.getTransform();
+            w.VAODraw(buff, vertexShader, con);
             Console::AppLog::Draw("Console", &console_open);
             w.ImGuiEndFrame();
             w.EndFrame();
