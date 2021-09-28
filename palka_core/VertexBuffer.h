@@ -38,10 +38,10 @@ namespace palka
             }
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * size, &v->pos.x);
 
-            glVertexAttribPointer(vaCoords, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+            glVertexAttribPointer(vaCoords, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
             glEnableVertexAttribArray(vaCoords);
 
-            glVertexAttribPointer(vaColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*) (16));
+            glVertexAttribPointer(vaColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*) (24));
             glEnableVertexAttribArray(vaColor);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);

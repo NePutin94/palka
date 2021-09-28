@@ -8,6 +8,8 @@
 #include <string>
 #include "Vec2.h"
 #include "Transform.h"
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace palka
 {
@@ -42,13 +44,22 @@ namespace palka
             }
         }
 
+        void setValue(std::string_view name, glm::mat4 t)
+        {
+            GLint loc = glGetUniformLocation((GLuint) shaderID, name.data());
+            if (loc != -1)
+            {
+                glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(t));
+            }
+        }
+
         void UseUbo() //need to do this using a static method or move it to a separate entity
         {
             unsigned int uboIndex = glGetUniformBlockIndex(shaderID, "matrixBuffer");
             glUniformBlockBinding(shaderID, uboIndex, 0);
             glGenBuffers(1, &UBO);
             glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-            glBufferData(GL_UNIFORM_BUFFER, sizeof(float[16]) * 2, NULL, GL_STREAM_DRAW); //two float 4x4 matrices
+            glBufferData(GL_UNIFORM_BUFFER, sizeof(float[16]) * 3, NULL, GL_STREAM_DRAW); //two float 4x4 matrices
             glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }

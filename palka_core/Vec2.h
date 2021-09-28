@@ -7,6 +7,7 @@
 
 #include "config.h"
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <cmath>
 #include <string>
 
@@ -19,6 +20,7 @@
 namespace palka
 {
     using Vec2f = glm::vec2;
+    using Vec3f = glm::vec3;
     using Vec2i = glm::ivec2;
 }
 #endif //PALKA_VEC2_H

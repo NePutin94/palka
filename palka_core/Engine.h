@@ -7,6 +7,7 @@
 
 #include <string>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "Vec2.h"
 #include "ConsoleLog.h"
 #include "Window.h"
@@ -28,38 +29,65 @@ namespace palka
         bool console_open = false;
         Viewport view;
         Window w;
-        GLuint textureID;
+
         bool isRuning = true;
-        Texture tex;
-        Sprite test;
+
         Shader s;
         double oldTimeSinceStart = 0;
         double timeSinceStart;
         float t = 0;
         float delta;
-        Rectangle p;
-        VertArray ver;
+        palka::VertArray cub;
         VertexBuffer buff;
         Shader vertexShader;
     public:
-        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y)), p({0, 0, 180, 180}, 5),
-                                      ver(VertArray::Quads)
+        explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y))
+
         {
             init();
-            p.setOutlineColor(Color{250, 0, 50, 255});
-            p.setPosition({10, 0});
-            tex.LoadFromFile("Data\\tex\\Debug.png");
-            test.setTexture(tex);
             w.getViewport().setCenter({1280.f / 2, 720.f / 2});
             //s.loadVF("Data\\Shaders\\Default.frag", "Data\\Shaders\\Default.vert");
             //s.load("Data\\Shaders\\test.frag");
-            ver.add(Vertex{{0, 0}, Color{255, 0, 0}});
-            ver.add(Vertex{{100, 0}, Color{0, 255, 0}});
-            ver.add(Vertex{{100, 100}, Color{0, 0, 255}});
-            ver.add(Vertex{{0, 100}, Color{255, 0, 255}});
+
+            cub.add({{-0.5f, -0.5f,  -0.5f}, palka::Color{255,0,0}});
+            cub.add({{ 0.5f, -0.5f,  -0.5f}, palka::Color{255,0,0}});
+            cub.add({{ 0.5f,  0.5f,  -0.5f}, palka::Color{255,0,0}});
+            cub.add({{ 0.5f,  0.5f,  -0.5f}, palka::Color{255,0,0}});
+            cub.add({{ -0.5f,  0.5f, -0.5f}, palka::Color{255,0,0}});
+            cub.add({{ -0.5f, -0.5f, -0.5f}, palka::Color{255,0,0}});
+            cub.add({{ -0.5f, -0.5f,  0.5f}, palka::Color{0,0,255}});
+            cub.add({{ 0.5f, -0.5f,   0.5f}, palka::Color{0,0,255}});
+            cub.add({{ 0.5f,  0.5f,   0.5f}, palka::Color{0,0,255}});
+            cub.add({{ 0.5f,  0.5f,   0.5f}, palka::Color{0,0,255}});
+            cub.add({{ -0.5f,  0.5f,  0.5f}, palka::Color{0,0,255}});
+            cub.add({{ -0.5f, -0.5f,  0.5f}, palka::Color{0,0,255}});
+            cub.add({{ -0.5f,  0.5f,  0.5f}, palka::Color{0,255,0}});
+            cub.add({{ -0.5f,  0.5f, -0.5f}, palka::Color{0,255,0}});
+            cub.add({{ -0.5f, -0.5f, -0.5f}, palka::Color{0,255,0}});
+            cub.add({{ -0.5f, -0.5f, -0.5f}, palka::Color{0,255,0}});
+            cub.add({{ -0.5f, -0.5f,  0.5f}, palka::Color{0,255,0}});
+            cub.add({{ -0.5f,  0.5f,  0.5f}, palka::Color{0,255,0}});
+            cub.add({{ 0.5f,  0.5f,   0.5f}, palka::Color{255,0,255}});
+            cub.add({{ 0.5f,  0.5f,  -0.5f}, palka::Color{255,0,255}});
+            cub.add({{ 0.5f, -0.5f,  -0.5f}, palka::Color{255,0,255}});
+            cub.add({{ 0.5f, -0.5f,  -0.5f}, palka::Color{255,0,255}});
+            cub.add({{ 0.5f, -0.5f,   0.5f}, palka::Color{255,0,255}});
+            cub.add({{ 0.5f,  0.5f,   0.5f}, palka::Color{255,0,255}});
+            cub.add({{ -0.5f, -0.5f, -0.5f}, palka::Color{255,255,0}});
+            cub.add({{ 0.5f, -0.5f,  -0.5f}, palka::Color{255,255,0}});
+            cub.add({{ 0.5f, -0.5f,   0.5f}, palka::Color{255,255,0}});
+            cub.add({{ 0.5f, -0.5f,   0.5f}, palka::Color{255,255,0}});
+            cub.add({{ -0.5f, -0.5f,  0.5f}, palka::Color{255,255,0}});
+            cub.add({{ -0.5f, -0.5f, -0.5f}, palka::Color{255,255,0}});
+            cub.add({{ -0.5f,  0.5f, -0.5f}, palka::Color{90,155,180}});
+            cub.add({{ 0.5f,  0.5f,  -0.5f}, palka::Color{90,155,180}});
+            cub.add({{ 0.5f,  0.5f,   0.5f}, palka::Color{90,155,180}});
+            cub.add({{ 0.5f,  0.5f,   0.5f}, palka::Color{90,155,180}});
+            cub.add({{ -0.5f,  0.5f,  0.5f}, palka::Color{90,155,180}});
+            cub.add({{ -0.5f,  0.5f, -0.5f}, palka::Color{90,155,180}});
             vertexShader.loadVF("Data\\Shaders\\Default.frag", "Data\\Shaders\\Default.vert");
-            buff.create(ver.getSize());
-            buff.update(&ver[0], ver.getSize(), vertexShader.getId());
+            buff.create(cub.getSize());
+            buff.update(&cub[0], cub.getSize(), vertexShader.getId());
             vertexShader.UseUbo();
             //w.initVbo(ver);
         }
@@ -67,7 +95,7 @@ namespace palka
         void run()
         {
             glfwSetTime(0);
-
+            glEnable(GL_DEPTH_TEST);
             while (isRuning)
             {
                 handleEvents();
@@ -95,9 +123,17 @@ namespace palka
             w.clear();
             //w.draw(p);
             // w.draw(test);
-            w.draw(ver);
-            //w.VBODraw(ver);
             static TransformObject test;
+            static float angle = 0;
+            angle += 0.005;
+            test.setRotation(angle);
+            RenderContext cont;
+            cont.transform = test.getTransform();
+//            w.draw(pyr);
+            //w.VBODraw(ver);
+//
+//
+            test.setRotation(angle);
             RenderContext con;
             con.transform = test.getTransform();
             w.VAODraw(buff, vertexShader, con);
@@ -108,12 +144,12 @@ namespace palka
 
         void update()
         {
+            debug(w.getCamera(), "camera");
             debug(w.getViewport(), "view");
-            debug(test, "test");
-            debug(p, "rect");
             timeSinceStart = glfwGetTime();
             delta = timeSinceStart - oldTimeSinceStart;
             oldTimeSinceStart = timeSinceStart;
+            EventManager::updateInputs();
         }
 
         void handleEvents()

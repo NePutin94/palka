@@ -5,6 +5,7 @@
 #ifndef PALKA_RENDERER_H
 #define PALKA_RENDERER_H
 
+
 #include "RenderContext.h"
 #include "VertexData.h"
 #include "Shader.h"
@@ -12,6 +13,7 @@
 #include "Viewport.h"
 #include "VertexBuffer.h"
 #include "TransformObject.h"
+#include "Camera.h"
 
 namespace palka
 {
@@ -21,6 +23,7 @@ namespace palka
         Viewport view;
         Vec2i size;
         Shader vertexShader;
+        Camera camera;
         static std::map<unsigned int, GLuint> chache;
 
         void genBufffers(const Drawable& d)
@@ -53,6 +56,11 @@ namespace palka
             return view;
         }
 
+        Camera& getCamera()
+        {
+            return camera;
+        }
+
         void setup()
         {
             glReset();
@@ -75,7 +83,7 @@ namespace palka
         void clear(Color color = {0, 120, 120})
         {
             glClearColor(0, 120, 120, 255);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glViewport(0, 0, size.x, size.y);
         }
 
@@ -131,21 +139,49 @@ namespace palka
             glLoadIdentity();
         }
 
+        glm::vec3 cubePositions[10] = {
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(2.0f, 5.0f, -15.0f),
+                glm::vec3(-1.5f, -2.2f, -2.5f),
+                glm::vec3(-3.8f, -2.0f, -12.3f),
+                glm::vec3(2.4f, -0.4f, -3.5f),
+                glm::vec3(-1.7f, 3.0f, -7.5f),
+                glm::vec3(1.3f, -2.0f, -2.5f),
+                glm::vec3(1.5f, 2.0f, -2.5f),
+                glm::vec3(1.5f, 0.2f, -1.5f),
+                glm::vec3(-1.3f, 1.0f, -1.5f)
+        };
+
         void VAODraw(VertexBuffer array, Shader s, RenderContext context = {})
         {
             applyBlend(context.blend);
 
             if (context.texture != nullptr)
                 context.texture->bind();
+            static float angle = 0;
+             angle += 0.005;
+            array.bind();
+
+            glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(glm::radians(45.0f), (float) size.x / (float) size.y, 0.1f, 100.0f);
+            auto _view = camera.getViewMatrix();
 
             glUseProgram(s.getId());
-            s.updateUBO(context.transform.getMatrix(), 0, sizeof(float[16]));
-            s.updateUBO(view.getView().getMatrix(), sizeof(float[16]), sizeof(float[16]));
-            s.setValue("viewMat", t.getTransform());
-            array.bind();
-            glDrawArrays(GL_QUADS, static_cast<GLint>(0), array.getSize());
-            array.unbind();
+            s.updateUBO(glm::value_ptr(projection), sizeof(float[16]), sizeof(float[16]));
+            s.updateUBO(glm::value_ptr(_view), sizeof(float[16]) * 2, sizeof(float[16]));
+            for(int i = 0;i<10;++i)
+            {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, cubePositions[i]);
+                model = glm::rotate(model, glm::radians(angle * (i+1)), glm::vec3(1.0f, 0 % 10, 0.5f));
+                s.updateUBO(glm::value_ptr(model), 0, sizeof(float[16]));
+                // auto mat = glm::lookAt(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//            s.setValue("model", model);
+//            s.setValue("projection", projection);
+                glDrawArrays(GL_TRIANGLES, static_cast<GLint>(0), array.getSize());
+            }
             glUseProgram(0);
+            array.unbind();
         };
 
         void draw(const Drawable& d)

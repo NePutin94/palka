@@ -150,9 +150,10 @@ namespace palka
     {
     private:
         static std::multimap<KBoardEvent, std::function<void(EventData&)>> KeyboardEvents;
+        static std::multimap<KBoardEvent, std::function<void()>> KeyboardInputs;
         static std::multimap<MouseEvent, std::function<void(EventData&)>> MouseEvents;
-        //std::multimap<KBoardEvent, std::function<void()>> KeyboardInputs;
         static std::multimap<EventType, std::function<void(EventData&)>> TypeEvents;
+
         static std::set<int> keyPressed;
         static std::set <MouseEvent::Mouse_Button> mousebPress;
     public:
@@ -167,10 +168,10 @@ namespace palka
             KeyboardEvents.emplace(e, callback);
         }
 
-//        void addInput(int k, const std::function<void()>& callback)
-//        {
-//            KeyboardInputs.emplace(KBoardEvent::KeyPressed(k), callback);
-//        }
+        static void addInput(int k, const std::function<void()>& callback)
+        {
+            KeyboardInputs.emplace(KBoardEvent::KeyPressed(k), callback);
+        }
 
         static void addEvent(MouseEvent e, const std::function<void(EventData&)>& callback)
         {
@@ -243,6 +244,7 @@ namespace palka
                     it->second(data);
             } else if (action == GLFW_RELEASE)
             {
+                keyPressed.erase(key);
                 auto range = KeyboardEvents.equal_range(KBoardEvent{EventType::KEYUP, key});
                 for (auto it = range.first; it != range.second; ++it)
                     it->second(data);
@@ -284,6 +286,13 @@ namespace palka
             glfwSetKeyCallback(w, &EventManager::KeyBoardEventHolder);
             glfwSetScrollCallback(w, &EventManager::MouseScrollEventHolder);
             glfwSetWindowCloseCallback(w, &EventManager::WindowCloseEventHolder);
+        }
+
+        static void updateInputs()
+        {
+            for(auto& i : KeyboardInputs)
+                if(keyPressed.contains(i.first.key))
+                    i.second();
         }
     };
 }
