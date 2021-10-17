@@ -12,6 +12,7 @@ namespace palka
 {
     class VertexBuffer
     {
+
     public:
         void create(int size)
         {
@@ -25,28 +26,7 @@ namespace palka
             glBindVertexArray(0);
         }
 
-        void update(Vertex* v, int size, unsigned int shaderProgram)
-        {
-            GLint vaCoords = glGetAttribLocation(shaderProgram, "aCoords");
-            GLint vaColor = glGetAttribLocation(shaderProgram, "aColor");
-            glBindVertexArray(VAO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            if (size > _size)
-            {
-                _size = size;
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * size, 0, GL_STATIC_DRAW);
-            }
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * size, &v->pos.x);
-
-            glVertexAttribPointer(vaCoords, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-            glEnableVertexAttribArray(vaCoords);
-
-            glVertexAttribPointer(vaColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*) (24));
-            glEnableVertexAttribArray(vaColor);
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-        }
+        void update(Vertex* v, int size, unsigned int shaderProgram);
 
         void bind()
         {

@@ -6,7 +6,6 @@
 #define PALKA_CONSOLELOG_H
 
 #include <imgui.h>
-#include <windows.h>
 #include <string>
 #include <iostream>
 #include <vector>

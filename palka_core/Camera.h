@@ -9,8 +9,8 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
-#include "Vec2.h"
 
+#include "Vec2.h"
 
 namespace palka
 {
@@ -18,6 +18,11 @@ namespace palka
     {
     public:
         Camera() : up(0, 1, 0), rotation(0), fov(45)
+        {
+            bind();
+        }
+
+        Camera(Vec2f sz) : up(0, 1, 0), rotation(0), fov(45),size(sz)
         {
             bind();
         }
@@ -37,6 +42,11 @@ namespace palka
         glm::mat4 getViewMatrix()
         {
             return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        }
+
+        glm::mat4 getProjectionMatrix()
+        {
+            return glm::perspective(glm::radians(fov), (float) size.x / (float) size.y, 0.1f, 100.0f);
         }
 
         void bind()
@@ -98,7 +108,7 @@ namespace palka
             });
         }
 
-    private:
+    public:
         //View
         float cameraSpeed = 0.005f;
         Vec3f up;

@@ -3,10 +3,7 @@
 //
 
 #include "Texture.h"
-
-
 #define STB_IMAGE_IMPLEMENTATION
-
 #include <stb_image.h>
 
 
@@ -53,6 +50,7 @@ void palka::Texture::LoadFromFile(std::string_view path)
     stbi_image_free(data);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
+    valid = true;
 }
 
 palka::Texture::Texture(std::string_view path, palka::Vec2i size) : size(size), file_path(path)

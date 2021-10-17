@@ -9,22 +9,7 @@
 #include "Shader.h"
 #include "ConsoleLog.h"
 
-constexpr auto ENUM_TO_GL(palka::Shader::Type t)
-{
-    switch (t)
-    {
-        case palka::Shader::FRAGMENT:
-            return GL_FRAGMENT_SHADER;
-            break;
-        case palka::Shader::VERTEX:
-            return GL_VERTEX_SHADER;
-            break;
-        case palka::Shader::GEOMETRY:
-            return GL_GEOMETRY_SHADER;
-            break;
-    }
-    return -1;
-}
+
 
 void palka::Shader::load(std::string_view file_name)
 {
@@ -188,3 +173,5 @@ void palka::Shader::loadVF(std::string_view file_name_fragment, std::string_view
     glDeleteShader(shader_f);
     glDeleteShader(shader_v);
 }
+
+

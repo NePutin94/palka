@@ -17,7 +17,9 @@ RTTR_REGISTRATION
             .property("yaw", &palka::Camera::yaw)
             .property("pitch", &palka::Camera::pitch)
             .property("lastX", &palka::Camera::lastX)
-            .property("lastY", &palka::Camera::lastY);
+            .property("lastY", &palka::Camera::lastY)
+            .property("fov", &palka::Camera::fov)
+            .property("size", &palka::Camera::size);
 }
 
 #endif

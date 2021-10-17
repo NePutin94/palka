@@ -14,6 +14,7 @@
 #include "VertexBuffer.h"
 #include "TransformObject.h"
 #include "Camera.h"
+#include "VertexArrayObject.h"
 
 namespace palka
 {
@@ -22,27 +23,18 @@ namespace palka
     private:
         Viewport view;
         Vec2i size;
-        Shader vertexShader;
         Camera camera;
-        static std::map<unsigned int, GLuint> chache;
-
-        void genBufffers(const Drawable& d)
-        {
-            //glGenVertexArrays(1, &d.DrawData.VAO);
-            //glGenBuffers(1, &d.DrawData.VBO);
-        }
-
+        Texture t;
     public:
-        TransformObject t;
 
-        Renderer(Vec2i sz) : size(sz), view({0, 0, (float) sz.x, (float) sz.y}), vertexShader(Shader::FRAGMENT)
+        Renderer(Vec2i sz) : size(sz), view({0, 0, (float) sz.x, (float) sz.y}), camera(sz)
         {
-            t.setPosition({120, 120});
+
         }
 
         void init()
         {
-
+            t.LoadFromFile("Data\\tex\\debug.png");
         }
 
         void setSize(Vec2i sz)
@@ -77,7 +69,6 @@ namespace palka
             glEnable(GL_BLEND);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-
         }
 
         void clear(Color color = {0, 120, 120})
@@ -106,38 +97,7 @@ namespace palka
             glMatrixMode(GL_MODELVIEW);
         }
 
-        void draw(VertArray array, RenderContext context = {})
-        {
-            glReset();
-            glLoadMatrixf(context.transform.getMatrix());
-            applyBlend(context.blend);
-            applyView();
-            if (context.texture != nullptr)
-                context.texture->bind();
-
-            Vertex* pointer = &array[0];
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glEnableClientState(GL_COLOR_ARRAY);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glVertexPointer(2,
-                            GL_FLOAT,
-                            sizeof(Vertex),
-                            &pointer->pos.x);
-
-            glColorPointer(3,
-                           GL_UNSIGNED_BYTE,
-                           sizeof(Vertex),
-                           &pointer->color.r);
-
-            glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &pointer->texCoord.x);
-
-            glDrawArrays(VertArray::type_to_gl(array.getType()), static_cast<GLint>(0), array.getSize());
-            glDisableClientState(GL_VERTEX_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-        }
+        void draw(VertArray array, RenderContext context = {});
 
         glm::vec3 cubePositions[10] = {
                 glm::vec3(0.0f, 0.0f, 0.0f),
@@ -152,37 +112,9 @@ namespace palka
                 glm::vec3(-1.3f, 1.0f, -1.5f)
         };
 
-        void VAODraw(VertexBuffer array, Shader s, RenderContext context = {})
-        {
-            applyBlend(context.blend);
+        void VAODraw(VertexBuffer array, Shader s, RenderContext context = {});
 
-            if (context.texture != nullptr)
-                context.texture->bind();
-            static float angle = 0;
-             angle += 0.005;
-            array.bind();
-
-            glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(glm::radians(45.0f), (float) size.x / (float) size.y, 0.1f, 100.0f);
-            auto _view = camera.getViewMatrix();
-
-            glUseProgram(s.getId());
-            s.updateUBO(glm::value_ptr(projection), sizeof(float[16]), sizeof(float[16]));
-            s.updateUBO(glm::value_ptr(_view), sizeof(float[16]) * 2, sizeof(float[16]));
-            for(int i = 0;i<10;++i)
-            {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, glm::radians(angle * (i+1)), glm::vec3(1.0f, 0 % 10, 0.5f));
-                s.updateUBO(glm::value_ptr(model), 0, sizeof(float[16]));
-                // auto mat = glm::lookAt(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-//            s.setValue("model", model);
-//            s.setValue("projection", projection);
-                glDrawArrays(GL_TRIANGLES, static_cast<GLint>(0), array.getSize());
-            }
-            glUseProgram(0);
-            array.unbind();
-        };
+        void VAODraw(VertexArrayObject array, Shader s, RenderContext context = {});
 
         void draw(const Drawable& d)
         {

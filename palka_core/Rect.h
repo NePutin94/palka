@@ -4,7 +4,8 @@
 
 #ifndef PALKA_RECT_H
 #define PALKA_RECT_H
-#include <glm/detail/qualifier.hpp.>
+
+
 #include "Vec2.h"
 #include <utility>
 

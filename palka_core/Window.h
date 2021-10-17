@@ -104,6 +104,7 @@ namespace palka
             int i = 0;
             glGetIntegerv(GL_MAX_DRAW_BUFFERS, &i);
             Console::AppLog::addLog_("Draw buffer count: %i", Console::info, i);
+            glEnable(GL_DEPTH_TEST);
             init();
         }
 

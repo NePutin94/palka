@@ -7,6 +7,7 @@
 
 #include "config.h"
 #include <glm/vec2.hpp>
+#include <glm/detail/qualifier.hpp>
 #include <glm/vec3.hpp>
 #include <cmath>
 #include <string>

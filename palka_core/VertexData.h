@@ -20,24 +20,30 @@ namespace palka
     class Vertex
     {
 #ifdef REFLECTION_CORE
-    RTTR_ENABLE()
+        RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
 #endif
     public:
         Vec3f pos;
         Color color;
-        Vec3f texCoord;
+        Vec2f texCoord;
+
+
         Vertex() {}
-        Vertex(Vec2f pos, Color color, Vec2f texPos = {}) : pos({pos.x,pos.y,1.0}), color(color), texCoord({texPos.x,texPos.y,0})
+        Vertex(Vec2f pos, Color color, Vec2f texPos = {}) : pos({pos.x,pos.y,1.0}), color(color), texCoord({texPos.x,texPos.y})
         {}
-        Vertex(Vec2f pos, Vec2f texPos) : pos({pos.x,pos.y,1.0}), color(Color::White()), texCoord({texPos.x,texPos.y,0})
+        Vertex(Vec3f pos, Color color, Vec2f texPos = {}) : pos(pos), color(color), texCoord({texPos.x,texPos.y})
+        {}
+        Vertex(Vec2f pos, Vec2f texPos) : pos({pos.x,pos.y,1.0}), color(Color::White()), texCoord({texPos.x,texPos.y})
+        {}
+        Vertex(Vec3f pos, Vec2f texPos) : pos(pos), color(Color::White()), texCoord({texPos.x,texPos.y})
         {}
         Vertex(Vec2f pos) : pos({pos.x,pos.y,1.0}), color(Color::White())
         {}
         Vertex(Vec3f pos) : pos(pos), color(Color::White())
         {}
-        Vertex(Vec3f pos,Color color) : pos(pos), color(color)
-        {}
+//        Vertex(Vec3f pos,Color color) : pos(pos), color(color)
+//        {}
     };
 //    class Vertex
 //    {
@@ -111,7 +117,7 @@ namespace palka
         {}
 
 
-        void add(const Vertex& vert)
+        void add(Vertex& vert)
         {
             vertecies.push_back(vert);
         }
