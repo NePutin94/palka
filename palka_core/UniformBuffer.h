@@ -21,6 +21,8 @@ namespace palka
             bufferType = UBO;
         }
 
+        UniformBuffer(const UniformBuffer&) = delete;
+
         void bindToPoint(int p)
         {
             bind();

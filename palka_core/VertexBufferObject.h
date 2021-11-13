@@ -18,8 +18,13 @@ namespace palka
         {
             bufferType = VBO;
         }
+        VertexBufferObject(BufferType t)
+        {
+            bufferType = t;
+        }
 
-        void setData(Vertex* data, int data_size)
+        template<class T>
+        void setData(T* data, int data_size, void* start)
         {
             glBindBuffer(BufferTypeToGl(), bufferID);
             if(this->data_size < data_size)
@@ -27,7 +32,7 @@ namespace palka
                 this->data_size = data_size;
                 glBufferData(BufferTypeToGl(), this->data_size, NULL, BufferRenderTypeToGl());
             }
-            glBufferSubData(BufferTypeToGl(), 0, data_size, &data->pos.x);
+            glBufferSubData(BufferTypeToGl(), 0, data_size, start);
             // glBindBuffer(BufferTypeToGl(), 0);
         }
     };

@@ -33,17 +33,24 @@ namespace palka
             return size;
         }
 
-        template<class T>
-        void setPointers()
+        virtual void setPointers(VertexBufferObject& vbo, size_t type_size)
         {
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(T), 0);
+            bind();
+            vbo.bind();
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, type_size, 0);
             glEnableVertexAttribArray(0);
 
-            glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(T), (void*) (24));
+            glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, type_size, (void*) (24));
             glEnableVertexAttribArray(1);
 
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(T), (void*) (32));
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, type_size, (void*) (32));
             glEnableVertexAttribArray(2);
+
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, type_size, (void*) (40));
+            glEnableVertexAttribArray(3);
+
+            vbo.unbind();
+            unbind();
         }
 
     private:

@@ -15,6 +15,7 @@
 #include "TransformObject.h"
 #include "Camera.h"
 #include "VertexArrayObject.h"
+#include "StaticMesh.h"
 
 namespace palka
 {
@@ -73,7 +74,7 @@ namespace palka
 
         void clear(Color color = {0, 120, 120})
         {
-            glClearColor(0, 120, 120, 255);
+            glClearColor(0, 0, 0, 255);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glViewport(0, 0, size.x, size.y);
         }
@@ -99,7 +100,7 @@ namespace palka
 
         void draw(VertArray array, RenderContext context = {});
 
-        glm::vec3 cubePositions[10] = {
+        glm::vec3 cubePositions[20] = {
                 glm::vec3(0.0f, 0.0f, 0.0f),
                 glm::vec3(2.0f, 5.0f, -15.0f),
                 glm::vec3(-1.5f, -2.2f, -2.5f),
@@ -109,12 +110,38 @@ namespace palka
                 glm::vec3(1.3f, -2.0f, -2.5f),
                 glm::vec3(1.5f, 2.0f, -2.5f),
                 glm::vec3(1.5f, 0.2f, -1.5f),
-                glm::vec3(-1.3f, 1.0f, -1.5f)
+                glm::vec3(-1.3f, 1.0f, -1.5f),
+
+                glm::vec3(-2.3f, 4.0f, -1.8f),
+                glm::vec3(1.9f, 1.5f, -0.5f),
+                glm::vec3(1.7f, 2.3f, -2.5f),
+                glm::vec3(2.7f, 0.3f, 2.5f),
+                glm::vec3(3.7f, 2.2f, -2.5f),
+
+                glm::vec3(1.8f, -3.2f, -2.3f),
+                glm::vec3(-4.9f, -1.3f, 0.5f),
+                glm::vec3(5.2f, 0.3f, 3.0f),
+                glm::vec3(1.7f, 2.3f, -2.7f),
+                glm::vec3(0.7f, -2.2f, 2.1f)
         };
+
+        glm::mat4 modelMat[5][5][5];
+
+        glm::vec3 poss[8][8][8];
 
         void VAODraw(VertexBuffer array, Shader s, RenderContext context = {});
 
-        void VAODraw(VertexArrayObject array, Shader s, RenderContext context = {});
+        void VAODraw(VertexArrayObject& array, Shader& s, RenderContext context = {});
+
+        void VAODtaw(StaticMesh& m, Shader& s, RenderContext context = {});
+
+        void VAODtaw2(StaticMesh& m, Shader& s, RenderContext context = {});
+
+        void VAODraw2(VertexArrayObject& array, Shader& s, RenderContext context = {});
+
+        void VAODraw3(VertexArrayObject& array, Shader& s, RenderContext context = {});
+
+        void VAODraw2(VertexArrayObject& array, Shader& s, Vec3f pos, RenderContext context = {});
 
         void draw(const Drawable& d)
         {

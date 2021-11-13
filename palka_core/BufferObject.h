@@ -13,18 +13,20 @@ namespace palka
 {
     class BufferObject
     {
+    public:
+        enum BufferType
+        {
+            NONE = -1,
+            VBO = 0,
+            UBO,
+            EAB
+        };
     protected:
         enum _BufferRenderType
         {
             STATIC,
             DYNAMIC,
             STREAM
-        };
-        enum BufferType
-        {
-            NONE = -1,
-            VBO = 0,
-            UBO
         };
 
         unsigned int bufferID;
@@ -35,7 +37,7 @@ namespace palka
 
         constexpr GLenum BufferTypeToGl()
         {
-            constexpr GLenum v[] = {GL_ARRAY_BUFFER, GL_UNIFORM_BUFFER};
+            constexpr GLenum v[] = {GL_ARRAY_BUFFER, GL_UNIFORM_BUFFER, GL_ELEMENT_ARRAY_BUFFER};
             return v[bufferType];
         }
 
@@ -49,11 +51,13 @@ namespace palka
         BufferObject() : bufferID(0), isCreated(false), renderType(STATIC), bufferType(NONE), data_size(0)
         {}
 
+        BufferObject(const BufferObject& b) = delete;
+
         void create(size_t size = 0)
         {
             glGenBuffers(1, &bufferID);
             glBindBuffer(BufferTypeToGl(), bufferID);
-            if (size)
+            if(size)
             {
                 data_size = size;
                 glBufferData(BufferTypeToGl(), data_size, NULL, BufferRenderTypeToGl());
@@ -74,7 +78,7 @@ namespace palka
 
         void deleteBuffer()
         {
-            if (!isCreated)
+            if(!isCreated)
                 return;
             glDeleteBuffers(1, &bufferID);
             isCreated = false;
@@ -83,7 +87,7 @@ namespace palka
         void setData(float* data, size_t data_size, size_t leftOffset)
         {
             glBindBuffer(BufferTypeToGl(), bufferID);
-            if (this->data_size < data_size)
+            if(this->data_size < data_size)
             {
                 this->data_size = data_size;
                 glBufferData(BufferTypeToGl(), this->data_size, NULL, BufferRenderTypeToGl());

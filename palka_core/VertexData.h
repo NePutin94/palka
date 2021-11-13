@@ -20,67 +20,40 @@ namespace palka
     class Vertex
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
 #endif
     public:
         Vec3f pos;
         Color color;
         Vec2f texCoord;
+        Vec3f normal;
 
+        Vertex()
+        {}
 
-        Vertex() {}
-        Vertex(Vec2f pos, Color color, Vec2f texPos = {}) : pos({pos.x,pos.y,1.0}), color(color), texCoord({texPos.x,texPos.y})
+        Vertex(Vec2f pos, Color color, Vec2f texPos = {}) : pos({pos.x, pos.y, 1.0}), color(color), texCoord(texPos)
         {}
-        Vertex(Vec3f pos, Color color, Vec2f texPos = {}) : pos(pos), color(color), texCoord({texPos.x,texPos.y})
+
+        Vertex(Vec3f pos, Vec2f texPos, Vec3f normal) : pos(pos), color(Color::White()), texCoord(texPos), normal(normal)
         {}
-        Vertex(Vec2f pos, Vec2f texPos) : pos({pos.x,pos.y,1.0}), color(Color::White()), texCoord({texPos.x,texPos.y})
+
+        Vertex(Vec3f pos, Color color, Vec2f texPos = {}, Vec3f normal = {}) : pos(pos), color(color), texCoord(texPos), normal(normal)
         {}
-        Vertex(Vec3f pos, Vec2f texPos) : pos(pos), color(Color::White()), texCoord({texPos.x,texPos.y})
+
+        Vertex(Vec2f pos, Vec2f texPos) : pos({pos.x, pos.y, 1.0}), color(Color::White()), texCoord({texPos.x, texPos.y})
         {}
-        Vertex(Vec2f pos) : pos({pos.x,pos.y,1.0}), color(Color::White())
+
+        Vertex(Vec3f pos, Vec2f texPos) : pos(pos), color(Color::White()), texCoord({texPos.x, texPos.y})
         {}
+
+        Vertex(Vec2f pos) : pos({pos.x, pos.y, 1.0}), color(Color::White())
+        {}
+
         Vertex(Vec3f pos) : pos(pos), color(Color::White())
         {}
-//        Vertex(Vec3f pos,Color color) : pos(pos), color(color)
-//        {}
     };
-//    class Vertex
-//    {
-//#ifdef REFLECTION_CORE
-//    RTTR_ENABLE()
-//
-//        RTTR_REGISTRATION_FRIEND
-//#endif
-//    public:
-//        Vec3f pos;
-//        Color color;
-//        Vec3f texCoord;
-//
-//        Vertex()
-//        {}
-//
-//        Vertex(float x, float y, float z) : pos({x, y, z})
-//        {}
-//
-//        Vertex(Vec2f pos, Color color, Vec2f texPos = {}) : pos({pos.x, pos.y, 0}), color(color), texCoord({texPos.x, texPos.y, 0})
-//        {}
-//
-//        Vertex(Vec3f pos, Color color, Vec3f texPos = {}) : pos(pos), color(color), texCoord(texPos)
-//        {}
-//
-//        Vertex(Vec2f pos, Vec2f texPos) : pos({pos.x, pos.y, 0}), color(Color::White()), texCoord({texPos.x, texPos.y, 0})
-//        {}
-//
-//        Vertex(Vec3f pos, Vec3f texPos) : pos(pos), color(Color::White()), texCoord(texPos)
-//        {}
-//
-//        Vertex(Vec3f pos) : pos(pos), color(Color::White())
-//        {}
-//
-//        Vertex(Vec2f pos) : pos({pos.x, pos.y, 0}), color(Color::White())
-//        {}
-//    };
 
     class VertArray
     {
@@ -116,6 +89,10 @@ namespace palka
         VertArray(Type t) : type(t)
         {}
 
+        void reserver(int sz)
+        {
+            vertecies.reserve(sz);
+        }
 
         void add(Vertex& vert)
         {

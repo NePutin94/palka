@@ -9,13 +9,13 @@
 
 palka::Texture& palka::Texture::operator=(palka::Texture&& other) noexcept
 {
+    if(this == &other)
+        return *this;
     textureID = other.textureID;
     valid = other.valid;
     size = other.size;
     file_path = std::move(other.file_path);
     other.valid = false;
-    other.textureID = 0;
-    other.size = {};
     return *this;
 }
 
@@ -31,8 +31,8 @@ void palka::Texture::LoadFromFile(std::string_view path)
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     int x, y, n;
