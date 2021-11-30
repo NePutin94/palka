@@ -16,6 +16,8 @@
 #include "Camera.h"
 #include "VertexArrayObject.h"
 #include "StaticMesh.h"
+#include "ShaderProgram.h"
+#include "Mesh.h"
 
 namespace palka
 {
@@ -133,9 +135,13 @@ namespace palka
 
         void VAODraw(VertexArrayObject& array, Shader& s, RenderContext context = {});
 
+        void VAODraw(VertexArrayObject& array, ShaderProgram& s,UniformBuffer& buff);
+
         void VAODtaw(StaticMesh& m, Shader& s, RenderContext context = {});
 
         void VAODtaw2(StaticMesh& m, Shader& s, RenderContext context = {});
+
+        void VAODraw2(Mesh& m, Shader& s, RenderContext context = {});
 
         void VAODraw2(VertexArrayObject& array, Shader& s, RenderContext context = {});
 

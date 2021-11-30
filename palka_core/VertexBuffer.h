@@ -12,7 +12,6 @@ namespace palka
 {
     class VertexBuffer
     {
-
     public:
         void create(int size)
         {

@@ -35,7 +35,7 @@ namespace palka
     public:
         static void error_callback(int error, const char* description)
         {
-            Console::AppLog::addLog_("Error: %s", Console::error, description);
+            Console::fmt_log("Error: {}", Console::error, description);
         }
 
         Window(const Vec2i& size) : Renderer(size), size(size)
@@ -71,21 +71,21 @@ namespace palka
         void create()
         {
             if (!glfwInit())
-                Console::AppLog::addLog("Failed to initialize GLFW", Console::fatal);
+                Console::addLog("Failed to initialize GLFW", Console::fatal);
             glfwSetErrorCallback(error_callback);
             glfwDefaultWindowHints();
             window = glfwCreateWindow(1280, 720, "palka", NULL, NULL);
             if (!window)
-                Console::AppLog::addLog("Failed to open GLFW window", Console::fatal);
+                Console::addLog("Failed to open GLFW window", Console::fatal);
 
             glfwMakeContextCurrent(window);
             glfwSwapInterval(0);
             int version = gladLoadGL(glfwGetProcAddress);
             if (version == 0)
             {
-                Console::AppLog::addLog("Failed to initialize OpenGL context", Console::error);
+                Console::addLog("Failed to initialize OpenGL context", Console::error);
             }
-            Console::AppLog::addLog_("Glad version: %i.%i", Console::info, GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+            Console::fmt_log("Glad version: {}.{}", Console::info, GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 //            glewExperimental = GL_TRUE;
 //            GLenum err = glewInit();
 //            if (GLEW_OK != err)
@@ -93,17 +93,17 @@ namespace palka
 //                Console::AppLog::addLog_("Glew error: %s", Console::error,glewGetErrorString(err));
 //                glfwTerminate();
 //            }
-            Console::AppLog::addLog_("GL_VERSION: %s", Console::info, glGetString(GL_VERSION));
+            Console::fmt_log("GL_VERSION: {}", Console::info, glGetString(GL_VERSION));
             initImgui();
             EventManager::bindEvents(window);
             EventManager::addEvent(WINDOWRESIZE, [this](EventData e) {
                 size.x = e.WindowResize.newX;
                 size.y = e.WindowResize.newY;
-                Console::AppLog::addLog_("Window resized new size is w: %i h: %i", Console::info, size.x, size.y);
+                Console::fmt_log("Window resized new size is w: {} h: {}", Console::info, size.x, size.y);
             });
             int i = 0;
             glGetIntegerv(GL_MAX_DRAW_BUFFERS, &i);
-            Console::AppLog::addLog_("Draw buffer count: %i", Console::info, i);
+            Console::fmt_log("Draw buffer count: {}", Console::info, i);
             glEnable(GL_DEPTH_TEST);
             init();
         }

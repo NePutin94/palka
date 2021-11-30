@@ -49,12 +49,31 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(BUILD_SHARED_LIBS ON)
 FetchContent_MakeAvailable(glfw)
 
+
+set(FMT_DOC OFF)
+set(FMT_TEST OFF)
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        # GIT_TAG 7edbd580cfad509a3253c733e70144e36f02ecd4
+)
+FetchContent_MakeAvailable(fmt)
+
 FetchContent_Declare(
         glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
         # GIT_TAG 7edbd580cfad509a3253c733e70144e36f02ecd4
 )
 FetchContent_MakeAvailable(glm)
+
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ZLIB ON)
+FetchContent_Declare(
+        assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp
+        # GIT_TAG 7edbd580cfad509a3253c733e70144e36f02ecd4
+)
+FetchContent_MakeAvailable(assimp)
 
 add_executable(palka "main.cpp")
 add_subdirectory(glad)
@@ -63,12 +82,14 @@ add_subdirectory(imgui)
 add_subdirectory(stb)
 add_subdirectory(palka_core)
 target_link_libraries(palka PalkaCore)
-if(WIN32)
+if (WIN32)
     add_custom_command(TARGET palka POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:RTTR::Core>
+            $<TARGET_FILE:fmt::fmt>
+            $<TARGET_FILE:assimp::assimp>
             $<TARGET_FILE:glfw>
             $<TARGET_FILE:PalkaCore>
             $<TARGET_FILE_DIR:palka>)
-endif()
+endif ()
 #install(TARGETS PalkaCore DESTINATION ${CMAKE_BINARY_DIR})

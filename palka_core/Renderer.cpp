@@ -269,3 +269,66 @@ void palka::Renderer::VAODtaw2(palka::StaticMesh& m, palka::Shader& s, palka::Re
     m.render();
     glUseProgram(0);
 }
+
+void palka::Renderer::VAODraw(palka::VertexArrayObject& array, palka::ShaderProgram& s, UniformBuffer& buff)
+{
+//    applyBlend(context.blend);
+//
+//    if(context.texture != nullptr)
+//        context.texture->bind();
+
+    static float angle = 0;
+    angle += 0.05;
+    array.bind();
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = camera.getProjectionMatrix();
+    auto _view = camera.getViewMatrix();
+
+    s.bind();
+    //glUseProgram(s.getId());
+
+//    s.setValue("objectColor", {0.9f, 0.1f, 0.20f});
+//    s.setValue("lightColor", {0.9f, 0.9f, 1.0f});
+//    s.setValue("lightPos", {-5.f, 0.f, -5.f});
+//    s.setValue("viewPos", camera.cameraPos);
+
+    buff.setData(glm::value_ptr(projection), 0, sizeof(float[16]));
+    buff.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, {-10, 0, -10});
+    //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0 % 10, 0.5f));
+    buff.setData(glm::value_ptr(model), sizeof(float[16]) * 2, sizeof(float[16]));
+
+    glDrawArrays(GL_TRIANGLES, static_cast<GLint>(0), array.getSize());
+}
+
+void palka::Renderer::VAODraw2(palka::Mesh& m, palka::Shader& s, palka::RenderContext context)
+{
+    applyBlend(context.blend);
+
+    if(context.texture != nullptr)
+        context.texture->bind();
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = camera.getProjectionMatrix();
+    auto _view = camera.getViewMatrix();
+
+    glUseProgram(s.getId());
+
+    s.setValue("objectColor", {0.2f, 0.1f, 0.9f});
+    s.setValue("lightColor", {1.f, 1.f, 0.1f});
+    s.setValue("lightPos", {-5.f, 0.f, -5.f});
+    s.setValue("viewPos", camera.cameraPos);
+
+    s.updateUBO(glm::value_ptr(projection), 0, sizeof(float[16]));
+    s.updateUBO(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, {0, 0, 0});
+    // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0 % 10, 0.5f));
+    s.updateUBO(glm::value_ptr(model), sizeof(float[16]) * 2, sizeof(float[16]));
+    m.render();
+    glUseProgram(0);
+}

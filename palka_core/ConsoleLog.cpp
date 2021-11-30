@@ -11,14 +11,14 @@
 
 using namespace palka;
 
-std::vector<Console::Log>       Console::AppLog::Buffer = {};
-bool                       Console::AppLog::ScrollToBottom = 0;
-std::vector<std::string>   Console::AppLog::current_input = {};
-bool Console::AppLog::newLog = false;
-size_t Console::AppLog::offset = 0;
-std::shared_mutex Console::AppLog::globalMutex;
+std::vector<Console::Log>       Console::Buffer = {};
+bool                       Console::ScrollToBottom = 0;
+std::vector<std::string>   Console::current_input = {};
+bool Console::newLog = false;
+size_t Console::offset = 0;
+std::shared_mutex Console::globalMutex;
 
-bool palka::Console::AppLog::hasNewLogByTyp(logType t)
+bool palka::Console::hasNewLogByTyp(logType t)
 {
     std::unique_lock<std::shared_mutex> lock{globalMutex};
     if (Buffer.empty())
@@ -48,7 +48,7 @@ bool palka::Console::AppLog::hasNewLogByTyp(logType t)
     return false;
 }
 
-void palka::Console::AppLog::addLog(Log log)
+void palka::Console::addLog(Log log)
 {
     std::unique_lock<std::shared_mutex> lock{globalMutex};
     newLog = true;
@@ -68,24 +68,24 @@ void palka::Console::AppLog::addLog(Log log)
 
 }
 
-void Console::AppLog::addLog_(std::string s, Console::logType t, ...)
-{
-    va_list args;
-    const char* format = s.data();
-    char buffer[1024];
-    va_start (args, format);
-    int n = vsnprintf(buffer, 1024, format, args);
-    std::string str(buffer, n);
-    addLog(str, t);
-    va_end (args);
-}
+//void Console::addLog_(std::string s, logType t, ...)
+//{
+//    va_list args;
+//    const char* format = s.data();
+//    char buffer[1024];
+//    va_start (args, format);
+//    int n = vsnprintf(buffer, 1024, format, args);
+//    std::string str(buffer, n);
+//    addLog(str, t);
+//    va_end (args);
+//}
 
-void palka::Console::AppLog::addLog(std::string s, logType t)
+void palka::Console::addLog(std::string s, logType t)
 {
     addLog(Log(s, t));
 }
 
-void Console::AppLog::saveLog(std::string_view path)
+void Console::saveLog(std::string_view path)
 {
     std::ofstream out;
     out.open(path.data());
@@ -105,7 +105,7 @@ void palka::Console::Log::count_update(int count)
     text.insert(a + 1, std::to_string(count));
 }
 
-void Console::AppLog::Draw(const char* title, bool* p_open)
+void Console::Draw(const char* title, bool* p_open)
 {
     if (*p_open)
     {
@@ -203,6 +203,29 @@ void Console::AppLog::Draw(const char* title, bool* p_open)
         ImGui::End();
     }
 
+}
+
+bool Console::hasNewLog()
+{
+    bool prev = newLog;
+    newLog = false;
+    return prev;
+}
+
+std::string Console::lastLog()
+{
+    std::shared_lock<std::shared_mutex> lock{globalMutex};
+
+    if(offset == 0)
+        return Buffer.back().pervText;
+    else
+        return (Buffer.begin() + offset)->pervText;
+}
+
+void Console::Clear()
+{
+    Buffer.clear();
+    Buffer.shrink_to_fit();
 }
 
 Console::Log::Log(std::string clearText, logType t)

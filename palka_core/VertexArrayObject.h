@@ -53,6 +53,14 @@ namespace palka
             unbind();
         }
 
+        void setPointer_u(VertexBufferObject& vbo, int bind_point, size_t size_type, int type, size_t stride, size_t offset)
+        {
+            vbo.bind();
+            glVertexAttribPointer(bind_point, size_type, type, GL_FALSE, stride, (void*)offset);
+            glEnableVertexAttribArray(bind_point);
+            vbo.unbind();
+        }
+
     private:
         unsigned int VAO;
         int size;

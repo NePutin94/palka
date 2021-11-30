@@ -8,11 +8,10 @@
 #include "Vec2.h"
 #include "Color.h"
 
-#ifdef REFLECTION_CORE
 
+#ifdef REFLECTION_CORE
 #include <rttr/type>
 #include <rttr/registration_friend>
-
 #endif
 
 namespace palka
@@ -54,6 +53,8 @@ namespace palka
         Vertex(Vec3f pos) : pos(pos), color(Color::White())
         {}
     };
+
+
 
     class VertArray
     {

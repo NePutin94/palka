@@ -10,11 +10,22 @@
 #include <iostream>
 #include <vector>
 #include <shared_mutex>
+#include <fmt/core.h>
 
 namespace palka
 {
-    namespace Console
+    namespace
     {
+        constexpr std::string_view logType_s[] =
+                {
+                        "all", "error", "info", "fatal", "system", "script", "message"
+                };
+
+
+    }
+    class Console
+    {
+    public:
         enum logType
         {
             error = 1,
@@ -24,11 +35,6 @@ namespace palka
             script,
             message
         };
-
-        constexpr std::string_view logType_s[] =
-                {
-                        "all", "error", "info", "fatal", "system", "script", "message"
-                };
 
         struct Log
         {
@@ -44,58 +50,39 @@ namespace palka
             logType type;
         };
 
-        class AppLog
+        static void Clear();
+
+        static bool hasNewLog();
+
+        static bool hasNewLogByTyp(logType t);
+
+        static void addLog(Log log);
+
+        static void addLog(std::string s, logType t);
+
+       // static void addLog_(std::string s, logType t, ...);
+
+        template<typename... Args>
+        static void fmt_log(std::string_view rt_fmt_str, logType type, Args&& ... args)
         {
-        private:
-            static bool ScrollToBottom;
-            static std::vector <std::string> current_input;
-            static std::vector<Log> Buffer;
-            static bool newLog;
-            static size_t offset;
-            static std::shared_mutex globalMutex;
-        public:
-            AppLog() = default;
+            addLog(Log(fmt::vformat(rt_fmt_str, fmt::make_format_args(args...)), type));
+        }
 
-            ~AppLog()
-            { saveLog("Data/log.txt"); }
+        static void saveLog(std::string_view path);
 
-            static void Clear()
-            {
-                Buffer.clear();
-                Buffer.shrink_to_fit();
-            }
+        static void Draw(const char* title, bool* p_open);
 
-            static bool hasNewLog()
-            {
-                bool prev = newLog;
-                newLog = false;
-                return prev;
-            }
+        static std::string lastLog();
 
-            static bool hasNewLogByTyp(logType t);
+    private:
+        static bool ScrollToBottom;
+        static std::vector<std::string> current_input;
+        static std::vector<Log> Buffer;
+        static bool newLog;
+        static size_t offset;
+        static std::shared_mutex globalMutex;
+    };
 
-            static void addLog(Log log);
-
-            static void addLog(std::string s, logType t);
-
-            static void addLog_(std::string s, logType t, ...);
-
-            static void saveLog(std::string_view path);
-
-            static void Draw(const char* title, bool* p_open);
-
-            static std::string lastLog()
-            {
-                std::shared_lock <std::shared_mutex> lock{globalMutex};
-
-                if (offset == 0)
-                    return Buffer.back().pervText;
-                else
-                    return (Buffer.begin() + offset)->pervText;
-                //return Buffer.back().pervText;
-            }
-        };
-    } // namespace Console
 }
 
 #endif //PALKA_CONSOLELOG_H
