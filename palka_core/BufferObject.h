@@ -53,6 +53,10 @@ namespace palka
 
         BufferObject(const BufferObject& b) = delete;
 
+        BufferObject(BufferObject&& b) = default;
+
+        BufferObject& operator=(BufferObject&&) = default;
+
         void create(size_t size = 0)
         {
             glGenBuffers(1, &bufferID);

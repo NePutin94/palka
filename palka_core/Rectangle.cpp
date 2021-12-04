@@ -9,7 +9,7 @@
 void palka::Rectangle::draw(palka::Renderer& win) const
 {
     RenderContext context;
-    context.transform = getTransform();
+   // context.transform = getTransform();
     win.draw(outline, context);
     win.draw(fill, context);
 }

@@ -49,8 +49,8 @@ palka::RectF palka::Sprite::getGlobalRect() const
 void palka::Sprite::draw(Renderer& win) const
 {
     RenderContext context;
-    context.texture = texture.get_data();
-    context.transform = getTransform();
+    //context.texture = texture.get_data();
+   // context.transform = getTransform();
     win.draw(vertex, context);
 }
 

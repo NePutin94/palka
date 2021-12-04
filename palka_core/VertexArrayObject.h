@@ -12,6 +12,9 @@ namespace palka
     class VertexArrayObject
     {
     public:
+        VertexArrayObject() = default;
+        VertexArrayObject(VertexArrayObject&&) = default;
+
         void create(int size)
         {
             this->size = size;
@@ -56,7 +59,7 @@ namespace palka
         void setPointer_u(VertexBufferObject& vbo, int bind_point, size_t size_type, int type, size_t stride, size_t offset)
         {
             vbo.bind();
-            glVertexAttribPointer(bind_point, size_type, type, GL_FALSE, stride, (void*)offset);
+            glVertexAttribPointer(bind_point, size_type, type, GL_FALSE, stride, (void*) offset);
             glEnableVertexAttribArray(bind_point);
             vbo.unbind();
         }

@@ -105,7 +105,7 @@ namespace palka
                     );
                     int _z = z++;
                     array[_z].normal = normal;
-                    array[_z].color = Color(normal.x * 255, normal.y* 255,normal.z* 255);
+                    array[_z].color = Color(normal.x * 255, normal.y * 255, normal.z * 255);
                     // Update current tube angle
                     currentTubeSegmentAngle += tubeSegmentAngleStep;
                 }
@@ -131,8 +131,8 @@ namespace palka
                     arr.emplace_back(primitiveRestartIndex);
                 }
             }
-            vbo.setData(&array[0], sizeof(Vertex) * array.getSize(), &array[0].pos.x);
-            indecesVbo.setData(&arr[0], sizeof(GLuint) * arr.size(), &arr[0]);
+            vbo.setData(sizeof(Vertex) * array.getSize(), &array[0].pos.x);
+            indecesVbo.setData(sizeof(GLuint) * arr.size(), &arr[0]);
             vao.setPointers(vbo, sizeof(Vertex));
 
             vbo.unbind();

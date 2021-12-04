@@ -42,7 +42,7 @@ void palka::Shader::compile()
             GLsizei written;
             glGetShaderInfoLog(shader, logLen, &written, &log[0]);
             log.insert(0, "\n");
-            Console::AppLog::addLog(log, Console::error);
+            Console::addLog(log, Console::error);
         }
         return;
     }
@@ -57,7 +57,7 @@ void palka::Shader::compile()
         glGetProgramiv(shaderID, GL_INFO_LOG_LENGTH, &maxLength);
         std::string log(maxLength, ' ');
         glGetProgramInfoLog(shaderID, maxLength, &maxLength, &log[0]);
-        Console::AppLog::addLog(log, Console::error);
+        Console::addLog(log, Console::error);
         log.insert(0, "\n");
         glDeleteProgram(shaderID);
         glDeleteShader(shader);
@@ -123,7 +123,7 @@ void palka::Shader::loadVF(std::string_view file_name_fragment, std::string_view
                 GLsizei written;
                 glGetShaderInfoLog(shader_f, logLen, &written, &log[0]);
                 log.insert(0, "\n");
-                Console::AppLog::addLog(log, Console::error);
+                Console::addLog(log, Console::error);
             }
             return;
         }
@@ -146,7 +146,7 @@ void palka::Shader::loadVF(std::string_view file_name_fragment, std::string_view
                 GLsizei written;
                 glGetShaderInfoLog(shader_v, logLen, &written, &log[0]);
                 log.insert(0, "\n");
-                Console::AppLog::addLog(log, Console::error);
+                Console::addLog(log, Console::error);
             }
             return;
         }
@@ -165,7 +165,7 @@ void palka::Shader::loadVF(std::string_view file_name_fragment, std::string_view
         glGetProgramiv(shaderID, GL_INFO_LOG_LENGTH, &maxLength);
         std::string log(maxLength, ' ');
         glGetProgramInfoLog(shaderID, maxLength, &maxLength, &log[0]);
-        Console::AppLog::addLog(log, Console::error);
+        Console::addLog(log, Console::error);
         log.insert(0, "\n");
         glDeleteProgram(shaderID);
         return;

@@ -19,6 +19,104 @@
 
 namespace palka
 {
+    class _Shader
+    {
+    public:
+        enum Type
+        {
+            FRAGMENT,
+            VERTEX,
+            GEOMETRY
+        };
+    private:
+        Type type;
+        std::string source;
+        bool isCompiled;
+        unsigned int shaderID;
+    public:
+
+        explicit _Shader(Type t) : type(t), isCompiled(false), shaderID(-1)
+        {}
+
+        explicit _Shader(std::string_view f_path, Type t, bool _compile = true) : type(t), shaderID(-1), isCompiled(false)
+        {
+            load(f_path, _compile);
+        }
+
+        constexpr auto ENUM_TO_GL(palka::_Shader::Type t)
+        {
+            switch(t)
+            {
+                case palka::_Shader::FRAGMENT:
+                    return GL_FRAGMENT_SHADER;
+                    break;
+                case palka::_Shader::VERTEX:
+                    return GL_VERTEX_SHADER;
+                    break;
+                case palka::_Shader::GEOMETRY:
+                    return GL_GEOMETRY_SHADER;
+                    break;
+            }
+            return -1;
+        }
+
+        void compile()
+        {
+            shaderID = glCreateShader(ENUM_TO_GL(type));
+            const auto* src = (const GLchar*) source.c_str();
+            glShaderSource(shaderID, 1, &src, nullptr);
+            glCompileShader(shaderID);
+            GLint isCompiled_i = 0;
+            glGetShaderiv(shaderID, GL_COMPILE_STATUS, &isCompiled_i);
+            if(isCompiled_i == GL_FALSE)
+            {
+                GLint logLen;
+                glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLen);
+                if(logLen > 0)
+                {
+                    std::string log(logLen, ' ');
+                    GLsizei written;
+                    glGetShaderInfoLog(shaderID, logLen, &written, &log[0]);
+                    log.insert(0, "\n");
+                    Console::addLog(log, Console::error);
+                }
+            } else
+                isCompiled = true;
+        }
+
+        void load(std::string_view file_path, bool _compile = true)
+        {
+            std::ifstream file(file_path.data());
+            if(file.is_open())
+            {
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                source = buffer.str();
+            }
+            file.close();
+            if(_compile)
+                compile();
+        }
+
+        void delShader()
+        {
+            if(!isCompiled)
+                return;
+            isCompiled = false;
+            glDeleteShader(shaderID);
+        }
+
+        ~_Shader()
+        {
+            delShader();
+        }
+
+        auto getId() const
+        {
+            return shaderID;
+        }
+    };
+
     class Shader
     {
     public:
@@ -110,9 +208,10 @@ namespace palka
             ubo = &b;
             unsigned int uboIndex = glGetUniformBlockIndex(shaderID, "matrixBuffer");
             glUniformBlockBinding(shaderID, uboIndex, 0);
-           // ubo.create(sizeof(float[16]) * 3);
+            // ubo.create(sizeof(float[16]) * 3);
             ubo->bindToPoint(0);
         }
+
         void updateUBO(float* data, int L, int R)
         {
             ubo->setData(data, R, L);

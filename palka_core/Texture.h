@@ -13,8 +13,10 @@
 #include "Rect.h"
 
 #ifdef REFLECTION_CORE
+
 #include <rttr/type>
 #include <rttr/registration_friend>
+
 #endif
 
 namespace palka
@@ -22,7 +24,8 @@ namespace palka
     class Texture
     {
 #ifdef REFLECTION_CORE
-        RTTR_ENABLE()
+    RTTR_ENABLE()
+
         RTTR_REGISTRATION_FRIEND
 #endif
     private:
@@ -36,11 +39,27 @@ namespace palka
 
         Texture() = default;
 
-        Texture(const Texture& other) = delete;
+        Texture& operator=(Texture&& other) noexcept
+        {
+            if(this == &other)
+                return *this;
+            textureID = other.textureID;
+            valid = other.valid;
+            size = other.size;
+            file_path = std::move(other.file_path);
+            other.valid = false;
+            return *this;
+        }
 
-        Texture(Texture&& other) noexcept;
+        Texture(Texture&& ot) noexcept
+        {
+            *this = std::move(ot);
+        }
 
-        Texture& operator=(Texture&& other) noexcept;
+
+        Texture(const Texture&) = delete;
+
+        Texture& operator=(const Texture&) = delete;
 
         explicit Texture(std::string_view path, Vec2i size);
 
@@ -63,7 +82,7 @@ namespace palka
 
         ~Texture()
         {
-            if (valid)
+            if(valid)
                 glDeleteTextures(1, &textureID);
         }
 
@@ -75,7 +94,7 @@ namespace palka
                                   0.f, 1.f, 0.f, 0.f,
                                   0.f, 0.f, 1.f, 0.f,
                                   0.f, 0.f, 0.f, 1.f};
-            if (flipped)
+            if(flipped)
             {
                 matrix[5] = -matrix[5];
                 matrix[13] = 1;

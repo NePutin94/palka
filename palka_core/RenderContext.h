@@ -8,20 +8,24 @@
 #include "BlendMode.h"
 #include "Texture.h"
 #include "Transform.h"
+#include "ShaderProgram.h"
 
 namespace palka
 {
     class RenderContext
     {
     public:
-        Texture* texture;
+        ShaderProgram* shader;
+        UniformBuffer* buffer;
         BlendMode blend;
-        Transform transform;
+        Mat4f model_mat;
+
     public:
-        RenderContext() : texture(nullptr)
+        RenderContext() : model_mat(Mat4f{1.f}), buffer(nullptr), shader(nullptr)
         {}
 
-        RenderContext(Texture* tex) : texture(tex)
+        RenderContext(ShaderProgram* shader, UniformBuffer* buffer = nullptr, Mat4f model_mat = Mat4f{1.f})
+                : model_mat(model_mat), buffer(buffer), shader(shader)
         {}
 
         friend class Window;
