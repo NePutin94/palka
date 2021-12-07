@@ -6,6 +6,7 @@
 #define PALKA_CAMERA_H
 
 #include "EventManager.h"
+#include <imgui.h>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -22,7 +23,7 @@ namespace palka
             bind();
         }
 
-        Camera(Vec2f sz) : up(0, 1, 0), rotation(0), fov(45),size(sz)
+        Camera(Vec2f sz) : up(0, 1, 0), rotation(0), fov(45), size(sz)
         {
             bind();
         }
@@ -51,35 +52,47 @@ namespace palka
 
         void bind()
         {
-            EventManager::addInput(GLFW_KEY_W, [this]() {
+            EventManager::addInput(GLFW_KEY_W, [this]()
+            {
                 cameraPos += cameraSpeed * cameraFront;
             });
-            EventManager::addInput(GLFW_KEY_SPACE, [this]() {
+            EventManager::addInput(GLFW_KEY_SPACE, [this]()
+            {
                 cameraPos.y += cameraSpeed;
             });
-            EventManager::addInput(GLFW_KEY_LEFT_CONTROL, [this]() {
+            EventManager::addInput(GLFW_KEY_LEFT_CONTROL, [this]()
+            {
                 cameraPos.y -= cameraSpeed;
             });
-            EventManager::addInput(GLFW_KEY_S, [this]() {
+            EventManager::addInput(GLFW_KEY_S, [this]()
+            {
                 cameraPos -= cameraSpeed * cameraFront;
             });
-            EventManager::addInput(GLFW_KEY_A, [this]() {
+            EventManager::addInput(GLFW_KEY_A, [this]()
+            {
                 cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
             });
-            EventManager::addInput(GLFW_KEY_D, [this]() {
+            EventManager::addInput(GLFW_KEY_D, [this]()
+            {
                 cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
             });
-            EventManager::addEvent(MouseEvent::ButtonPressed(MouseEvent::Mouse_Button::Left), [this](EventData& data) {
-                keyPress = true;
-                firstMouse = true;
+            EventManager::addEvent(MouseEvent::ButtonPressed(MouseEvent::Mouse_Button::Left), [this](EventData& data)
+            {
+                if(!ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemFocused())
+                {
+                    keyPress = true;
+                    firstMouse = true;
+                }
             });
-            EventManager::addEvent(MouseEvent::ButtonReleased(MouseEvent::Mouse_Button::Left), [this](EventData& data) {
+            EventManager::addEvent(MouseEvent::ButtonReleased(MouseEvent::Mouse_Button::Left), [this](EventData& data)
+            {
                 keyPress = false;
             });
-            EventManager::addEvent(MouseEvent::Motion(), [this](EventData& data) {
-                if (keyPress)
+            EventManager::addEvent(MouseEvent::Motion(), [this](EventData& data)
+            {
+                if(keyPress)
                 {
-                    if (firstMouse) // initially set to true
+                    if(firstMouse) // initially set to true
                     {
                         lastX = data.MouseMotion.x;
                         lastY = data.MouseMotion.y;
@@ -95,9 +108,9 @@ namespace palka
                     yoffset *= sensitivity;
                     yaw += xoffset;
                     pitch += yoffset;
-                    if (pitch > 89.0f)
+                    if(pitch > 89.0f)
                         pitch = 89.0f;
-                    if (pitch < -89.0f)
+                    if(pitch < -89.0f)
                         pitch = -89.0f;
                     glm::vec3 direction;
                     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

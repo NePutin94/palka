@@ -88,7 +88,7 @@ namespace palka
             isCreated = false;
         }
 
-        void setData(float* data, size_t data_size, size_t leftOffset)
+        void setData(const float* data, size_t data_size, size_t leftOffset)
         {
             glBindBuffer(BufferTypeToGl(), bufferID);
             if(this->data_size < data_size)

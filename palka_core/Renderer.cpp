@@ -6,7 +6,7 @@
 
 void palka::Renderer::draw(palka::VertArray array, palka::RenderContext context)
 {
-    applyBlend(context.blend);
+    applyBlend(context.getBlend());
     Vertex* pointer = &array[0];
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -33,9 +33,9 @@ void palka::Renderer::draw(palka::VertArray array, palka::RenderContext context)
 
 void palka::Renderer::draw(palka::Mesh& m, palka::RenderContext context)
 {
-    applyBlend(context.blend);
-    auto& shader = *context.shader;
-    auto& buffer = *context.buffer;
+    applyBlend(context.getBlend());
+    auto& shader = *context.getShader();
+    auto& buffer = *context.getUBO();
 
     glm::mat4 projection = glm::mat4(1.0f);
     projection = camera.getProjectionMatrix();
@@ -49,16 +49,16 @@ void palka::Renderer::draw(palka::Mesh& m, palka::RenderContext context)
 
     buffer.setData(glm::value_ptr(projection), sizeof(float[16]), 0);
     buffer.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
-    buffer.setData(glm::value_ptr(context.model_mat), sizeof(float[16]), sizeof(float[16]) * 2);
+    buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
 
     m.render();
 }
 
 void palka::Renderer::draw(palka::VertexArrayObject& array, palka::RenderContext context, glm::vec3 lightPos)
 {
-    applyBlend(context.blend);
-    auto& shader = *context.shader;
-    auto& buffer = *context.buffer;
+    applyBlend(context.getBlend());
+    auto& shader = *context.getShader();
+    auto& buffer = *context.getUBO();
 
     array.bind();
     glm::mat4 projection = glm::mat4(1.0f);
@@ -73,16 +73,16 @@ void palka::Renderer::draw(palka::VertexArrayObject& array, palka::RenderContext
 
     buffer.setData(glm::value_ptr(projection), sizeof(float[16]), 0);
     buffer.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
-    buffer.setData(glm::value_ptr(context.model_mat), sizeof(float[16]), sizeof(float[16]) * 2);
+    buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
 
     glDrawArrays(GL_TRIANGLES, static_cast<GLint>(0), array.getSize());
 }
 
 void palka::Renderer::draw(palka::StaticMesh& m, palka::RenderContext context, Vec3f lightPos)
 {
-    applyBlend(context.blend);
-    auto& shader = *context.shader;
-    auto& buffer = *context.buffer;
+    applyBlend(context.getBlend());
+    auto& shader = *context.getShader();
+    auto& buffer = *context.getUBO();
     glm::mat4 projection = glm::mat4(1.0f);
     projection = camera.getProjectionMatrix();
     auto _view = camera.getViewMatrix();
@@ -92,10 +92,11 @@ void palka::Renderer::draw(palka::StaticMesh& m, palka::RenderContext context, V
     shader.setUniform("lightColor", Vec3f{1.f, 0.1f, 0.1f});
     shader.setUniform("lightPos", lightPos);
     shader.setUniform("viewPos", camera.cameraPos);
+    context();
 
     buffer.setData(glm::value_ptr(projection), sizeof(float[16]), 0);
     buffer.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
-    buffer.setData(glm::value_ptr(context.model_mat), sizeof(float[16]), sizeof(float[16]) * 2);
+    buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
 
     m.render();
 }

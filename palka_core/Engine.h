@@ -54,6 +54,7 @@ namespace palka
         StaticMesh m;
         ShaderProgram p;
         ShaderProgram light;
+        ShaderProgram material_light;
         Mesh test;
     public:
         explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y))
@@ -98,11 +99,6 @@ namespace palka
             cub.add({{-0.5f, 0.5f, 0.5f}, Color{255, 0, 0}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}});
             cub.add({{-0.5f, 0.5f, -0.5f,}, Color{255, 0, 0}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}});
 
-//
-
-            // vertexShader.loadVF("Data\\Shaders\\Default.frag", "Data\\Shaders\\Default.vert");
-            // indexShader.loadVF("Data\\Shaders\\Index.frag", "Data\\Shaders\\Index.vert");
-            // light.loadVF("Data\\Shaders\\light.frag", "Data\\Shaders\\light.vert");
             ubo.create(sizeof(float[16]) * 3);
 
             _Shader test1("Data\\Shaders\\Index.frag", _Shader::FRAGMENT);
@@ -112,22 +108,26 @@ namespace palka
             p.addShader(test2);
             p.linkProgram();
             p.UBOBindingTo(p.getUBOIndex("matrixBuffer"), 0);
-            ubo.bindToPoint(0);
+            // ubo.bindToPoint(0);
 
             _Shader l1("Data\\Shaders\\light.frag", _Shader::FRAGMENT);
             _Shader l2("Data\\Shaders\\light.vert", _Shader::VERTEX);
-
 
             light.createProgram();
             light.addShader(l1);
             light.addShader(l2);
             light.linkProgram();
             light.UBOBindingTo(p.getUBOIndex("matrixBuffer"), 0);
-            ubo.bindToPoint(0);
+            // ubo.bindToPoint(0);
 
-            //vertexShader.UseUbo(ubo);
-            //  indexShader.UseUbo(ubo);
-            //  light.UseUbo(ubo);
+            _Shader l3("Data\\Shaders\\material.frag", _Shader::FRAGMENT);
+            _Shader l4("Data\\Shaders\\material.vert", _Shader::VERTEX);
+            material_light.createProgram();
+            material_light.addShader(l3);
+            material_light.addShader(l4);
+            material_light.linkProgram();
+            material_light.UBOBindingTo(material_light.getUBOIndex("matrixBuffer"), 0);
+            ubo.bindToPoint(0);
 
             vao.create(cub.getSize());
             vbo.create(sizeof(Vertex) * cub.getSize());
@@ -169,30 +169,78 @@ namespace palka
         {
             w.clear();
             //w.VAODraw(vao, p, ubo);
-            Mat4f model = Mat4f{1.f};
-            model = glm::translate(model, {0, 0, 0});
-            model = glm::rotate(model, glm::radians(90.f), glm::vec3(1.0f, 0, 0.f));
-            RenderContext context1(&p, &ubo, model);
-            w.draw(test, context1);
 
-            Mat4f model2 = Mat4f{1.f};
-            model2 = glm::translate(model, {0, -10, 0});
-            context1.model_mat = model2;
             static Vec3f lp = {-5.f, 0.f, -5.f};
             Mat4f lightPos = Mat4f{1.f};
             ImGui::DragFloat("x", &lp.x);
             ImGui::DragFloat("y", &lp.y);
             ImGui::DragFloat("z", &lp.z);
-            lightPos = glm::translate(model, lp);
+            lightPos = glm::translate(lightPos, lp);
+
+            Mat4f model = Mat4f{1.f};
+            model = glm::translate(model, {0, 0, 0});
+            RenderContext context1(&p, &ubo, model);
 
             w.draw(vao, context1, lp);
             Mat4f model3 = Mat4f{1.f};
-            model3 = glm::translate(model, {0, -10, -10});
-            context1.model_mat = model3;
-            w.draw(m, context1, lp);
+            model3 = glm::translate(model3, {-10, 0, 0});
 
-            RenderContext context2(&light, &ubo, lightPos);
-            w.draw(vao, context2, lp);
+            static Vec3f ambient = Vec3f{1.0f, 0.5f, 0.31f};
+            static Vec3f diffuse = Vec3f{1.0f, 0.5f, 0.31f};
+            static Vec3f specular = Vec3f{0.5f, 0.5f, 0.5f};
+            static Vec3f l_ambient = Vec3f{0.2f, 0.2f, 0.2f};
+            static Vec3f l_diffuse = Vec3f{0.5f, 0.5f, 0.5f};
+            static Vec3f l_specular = Vec3f{1.0f, 1.0f, 1.0f};
+            static float shininess = 32.f;
+            {
+                ImGui::DragFloat("l_ambient.x", &l_ambient.x);
+                ImGui::DragFloat("l_ambient.y", &l_ambient.y);
+                ImGui::DragFloat("l_ambient.z", &l_ambient.z);
+            }
+            {
+                ImGui::DragFloat("l_diffuse.x", &l_diffuse.x);
+                ImGui::DragFloat("l_diffuse.y", &l_diffuse.y);
+                ImGui::DragFloat("l_diffuse.z", &l_diffuse.z);
+            }
+            {
+                ImGui::DragFloat("l_specular.x", &l_specular.x);
+                ImGui::DragFloat("l_specular.y", &l_specular.y);
+                ImGui::DragFloat("l_specular.z", &l_specular.z);
+            }
+            {
+                ImGui::DragFloat("ambient.x", &ambient.x);
+                ImGui::DragFloat("ambient.y", &ambient.y);
+                ImGui::DragFloat("ambient.z", &ambient.z);
+            }
+            {
+                ImGui::DragFloat("diffuse.x", &diffuse.x);
+                ImGui::DragFloat("diffuse.y", &diffuse.y);
+                ImGui::DragFloat("diffuse.z", &diffuse.z);
+            }
+            {
+                ImGui::DragFloat("specular.x", &specular.x);
+                ImGui::DragFloat("specular.y", &specular.y);
+                ImGui::DragFloat("specular.z", &specular.z);
+            }
+            {
+                ImGui::DragFloat("shininess", &shininess);
+            }
+            RenderContext context2(&material_light, &ubo, model3, [](ShaderProgram& shader)
+            {
+                shader.setUniform("material.ambient", ambient);
+                shader.setUniform("material.diffuse", diffuse);
+                shader.setUniform("material.specular", specular);
+                shader.setUniform("material.shininess", shininess);
+
+                shader.setUniform("light.ambient", l_ambient);
+                shader.setUniform("light.diffuse", l_diffuse);
+                shader.setUniform("light.specular", l_specular);
+                shader.setUniform("light.position", lp);
+            });
+            w.draw(m, context2, lp);
+
+            RenderContext context3(&light, &ubo, lightPos);
+            w.draw(vao, context3, lp);
 
             Console::Draw("Console", &console_open);
             w.ImGuiEndFrame();

@@ -24,8 +24,14 @@ IF (UNIX)
     set(CMAKE_USE_PTHREADS_INIT 1)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
 ENDIF ()
+
 include(FetchContent)
 
+set(BUILD_UNIT_TESTS OFF)
+set(BUILD_STATIC OFF)
+set(BUILD_BENCHMARKS OFF)
+set(BUILD_EXAMPLES OFF)
+set(BUILD_DOCUMENTATION OFF)
 FetchContent_Declare(
         rttr
         GIT_REPOSITORY https://github.com/rttrorg/rttr.git
@@ -41,7 +47,7 @@ FetchContent_MakeAvailable(rttr)
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG 814b7929c5add4b0541ccad26fb81f28b71dc4d8
+        GIT_TAG "3.3.5"
 )
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
@@ -62,16 +68,21 @@ FetchContent_MakeAvailable(fmt)
 FetchContent_Declare(
         glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
-        # GIT_TAG 7edbd580cfad509a3253c733e70144e36f02ecd4
+        GIT_TAG "0.9.9.8"
 )
 FetchContent_MakeAvailable(glm)
 
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ZLIB ON)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON)
+set(ASSIMP_BUILD_FBX_IMPORTER ON)
 FetchContent_Declare(
         assimp
-        GIT_REPOSITORY https://github.com/assimp/assimp
-        # GIT_TAG 7edbd580cfad509a3253c733e70144e36f02ecd4
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG "v5.1.3"
 )
 FetchContent_MakeAvailable(assimp)
 

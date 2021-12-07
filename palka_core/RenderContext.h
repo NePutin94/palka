@@ -15,18 +15,49 @@ namespace palka
     class RenderContext
     {
     public:
+        typedef void(* RendererCallback)(ShaderProgram&);
+
+    private:
         ShaderProgram* shader;
-        UniformBuffer* buffer;
+        UniformBuffer* ubo;
         BlendMode blend;
         Mat4f model_mat;
-
+        std::function<void(ShaderProgram&)> callback;
     public:
-        RenderContext() : model_mat(Mat4f{1.f}), buffer(nullptr), shader(nullptr)
+
+        RenderContext() : model_mat(Mat4f{1.f}), ubo(nullptr), shader(nullptr), callback(nullptr)
         {}
 
-        RenderContext(ShaderProgram* shader, UniformBuffer* buffer = nullptr, Mat4f model_mat = Mat4f{1.f})
-                : model_mat(model_mat), buffer(buffer), shader(shader)
+        explicit RenderContext(ShaderProgram* shader, UniformBuffer* buffer = nullptr, Mat4f model_mat = Mat4f{1.f},
+                               std::function<void(ShaderProgram&)> callback = nullptr)
+                : model_mat(model_mat), ubo(buffer), shader(shader), callback(callback)
         {}
+
+        ShaderProgram* getShader()
+        {
+            return shader;
+        }
+
+        UniformBuffer* getUBO()
+        {
+            return ubo;
+        }
+
+        Mat4f getTransform() const
+        {
+            return model_mat;
+        }
+
+        BlendMode getBlend() const
+        {
+            return blend;
+        }
+
+        void operator()()
+        {
+            if(callback)
+                callback(*shader);
+        }
 
         friend class Window;
     };
