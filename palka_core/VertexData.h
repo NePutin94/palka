@@ -104,6 +104,11 @@ namespace palka
             vertecies.emplace_back(std::move(vert));
         }
 
+        const Vertex& operator[](std::size_t i) const
+        {
+            return vertecies[i];
+        }
+
         Vertex& operator[](std::size_t i)
         {
             return vertecies[i];
@@ -124,7 +129,7 @@ namespace palka
             return vertecies.end();
         }
 
-        auto getSize()
+        auto getSize() const
         {
             return vertecies.size();
         }

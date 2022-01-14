@@ -13,7 +13,10 @@ namespace palka
     {
     public:
         VertexArrayObject() = default;
+
         VertexArrayObject(VertexArrayObject&&) = default;
+
+        VertexArrayObject& operator=(VertexArrayObject&&) = default;
 
         void create(int size)
         {
@@ -43,27 +46,34 @@ namespace palka
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, type_size, 0);
             glEnableVertexAttribArray(0);
 
-            glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, type_size, (void*) (24));
-            glEnableVertexAttribArray(1);
-
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, type_size, (void*) (32));
-            glEnableVertexAttribArray(2);
-
-            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, type_size, (void*) (40));
-            glEnableVertexAttribArray(3);
+//            glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, type_size, (void*) (24));
+//            glEnableVertexAttribArray(1);
+//
+//            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, type_size, (void*) (32));
+//            glEnableVertexAttribArray(2);
+//
+//            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, type_size, (void*) (40));
+//            glEnableVertexAttribArray(3);
 
             vbo.unbind();
             unbind();
         }
 
-        void setPointer_u(VertexBufferObject& vbo, int bind_point, size_t size_type, int type, size_t stride, size_t offset)
+        void setPointer_u(VertexBufferObject& vbo, int bind_point, size_t size_type, int type, size_t stride, size_t offset, bool normalized = false)
         {
             vbo.bind();
-            glVertexAttribPointer(bind_point, size_type, type, GL_FALSE, stride, (void*) offset);
+            glVertexAttribPointer(bind_point, size_type, type, normalized ? GL_TRUE : GL_FALSE, stride, (void*) offset);
             glEnableVertexAttribArray(bind_point);
             vbo.unbind();
         }
 
+        void setPointer_u(VertexBufferObject& vbo, int bind_point, size_t size_type, int type, size_t stride, void* offset, bool normalized)
+        {
+            vbo.bind();
+            glVertexAttribPointer(bind_point, size_type, type, normalized ? GL_TRUE : GL_FALSE, stride, offset);
+            glEnableVertexAttribArray(bind_point);
+            vbo.unbind();
+        }
     private:
         unsigned int VAO;
         int size;

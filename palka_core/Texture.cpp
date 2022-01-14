@@ -7,7 +7,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <stb_image.h>
-
+#include "ConsoleLog.h"
 
 void palka::Texture::LoadFromFile(std::string_view path)
 {
@@ -19,11 +19,13 @@ void palka::Texture::LoadFromFile(std::string_view path)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int x, y, n;
     unsigned char* data = stbi_load(path.data(), &x, &y, &n, 0);
+    if(data == NULL)
+        Console::fmt_log("Unable to open file {}", Console::error, path);
     size.x = x;
     size.y = y;
     GLenum format;
@@ -43,7 +45,7 @@ void palka::Texture::LoadFromFile(std::string_view path)
     valid = true;
 }
 
-palka::Texture::Texture(std::string_view path, palka::Vec2i size) : size(size), file_path(path)
+palka::Texture::Texture(std::string_view path) : file_path(path)
 {
     LoadFromFile(path);
 }

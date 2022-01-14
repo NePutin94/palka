@@ -35,7 +35,7 @@ namespace palka
     public:
         static void error_callback(int error, const char* description)
         {
-            Console::fmt_log("Error: {}", Console::error, description);
+            //Console::fmt_log("Error: {}", Console::error, description);
         }
 
         Window(const Vec2i& size) : Renderer(size), size(size)
@@ -93,17 +93,18 @@ namespace palka
 //                Console::AppLog::addLog_("Glew error: %s", Console::error,glewGetErrorString(err));
 //                glfwTerminate();
 //            }
-            Console::fmt_log("GL_VERSION: {}", Console::info, glGetString(GL_VERSION));
+            Console::fmt_log("GL_VERSION: {}", Console::info, std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
+
             initImgui();
             EventManager::bindEvents(window);
             EventManager::addEvent(WINDOWRESIZE, [this](EventData e) {
                 size.x = e.WindowResize.newX;
                 size.y = e.WindowResize.newY;
-                Console::fmt_log("Window resized new size is w: {} h: {}", Console::info, size.x, size.y);
+                //Console::fmt_log("Window resized new size is w: {} h: {}", Console::info, size.x, size.y);
             });
             int i = 0;
             glGetIntegerv(GL_MAX_DRAW_BUFFERS, &i);
-            Console::fmt_log("Draw buffer count: {}", Console::info, i);
+            //Console::fmt_log("Draw buffer count: {}", Console::info, i);
             glEnable(GL_DEPTH_TEST);
             init();
         }

@@ -16,9 +16,6 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Sprite.h"
-#include "RenderTexture.h"
-#include "Rectangle.h"
-#include "DebugDraw.h"
 #include "VertexBuffer.h"
 #include "VertexBufferObject.h"
 #include "VertexArrayObject.h"
@@ -55,7 +52,12 @@ namespace palka
         ShaderProgram p;
         ShaderProgram light;
         ShaderProgram material_light;
-        Mesh test;
+        ShaderProgram material_pbr;
+        assimp_loader test;
+        gltf_loader loader;
+        tinygltf::Model mm;
+        Model gltf_model;
+        //VertexArrayObject vvao;
     public:
         explicit Engine(Vec2i size) : w(size), isRuning(false), view(RectF(0, 0, size.x, size.y))
         {
@@ -101,8 +103,8 @@ namespace palka
 
             ubo.create(sizeof(float[16]) * 3);
 
-            _Shader test1("Data\\Shaders\\Index.frag", _Shader::FRAGMENT);
-            _Shader test2("Data\\Shaders\\Index.vert", _Shader::VERTEX);
+            _Shader test1("Data\\Shaders\\PBR.frag", _Shader::FRAGMENT);
+            _Shader test2("Data\\Shaders\\PBR.vert", _Shader::VERTEX);
             p.createProgram();
             p.addShader(test1);
             p.addShader(test2);
@@ -127,6 +129,15 @@ namespace palka
             material_light.addShader(l4);
             material_light.linkProgram();
             material_light.UBOBindingTo(material_light.getUBOIndex("matrixBuffer"), 0);
+
+            _Shader l5("Data\\Shaders\\PBR.frag", _Shader::FRAGMENT);
+            _Shader l6("Data\\Shaders\\PBR.vert", _Shader::VERTEX);
+            material_pbr.createProgram();
+            material_pbr.addShader(l6);
+            material_pbr.addShader(l5);
+            material_pbr.linkProgram();
+            material_pbr.UBOBindingTo(material_pbr.getUBOIndex("matrixBuffer"), 0);
+
             ubo.bindToPoint(0);
 
             vao.create(cub.getSize());
@@ -134,7 +145,12 @@ namespace palka
             vbo.setData(sizeof(Vertex) * cub.getSize(), &cub[0].pos.x);
             vao.setPointers(vbo, sizeof(Vertex));
 
-            test.load("Data\\model\\untitled.obj");
+            test.load("Data\\model\\sphere.obj");
+
+            mm = loader.load("Data\\model\\glTF\\SciFiHelmet.gltf");
+            gltf_model = loader.bindModel(mm);
+            gltf_model.init();
+            // vvao = std::move(loader.setVAO());
         }
 
         void run()
@@ -168,7 +184,8 @@ namespace palka
         void render()
         {
             w.clear();
-            //w.VAODraw(vao, p, ubo);
+
+
 
             static Vec3f lp = {-5.f, 0.f, -5.f};
             Mat4f lightPos = Mat4f{1.f};
@@ -177,11 +194,22 @@ namespace palka
             ImGui::DragFloat("z", &lp.z);
             lightPos = glm::translate(lightPos, lp);
 
-            Mat4f model = Mat4f{1.f};
-            model = glm::translate(model, {0, 0, 0});
-            RenderContext context1(&p, &ubo, model);
+            Mat4f model22 = Mat4f{1.f};
+            model22 = glm::translate(model22, {10, -10, 10});
+            RenderContext context12(&p, &ubo, model22, [](ShaderProgram& shader)
+            {
+                shader.setUniform("objectColor", Vec3f{0.2f, 0.1f, 0.9f});
+                shader.setUniform("lightColor", Vec3f{1.f, 1.0f, 1.0f});
+                shader.setUniform("lightPos", lp);
 
+            });
+            w.draw(gltf_model, context12);
+
+            Mat4f model = Mat4f{1.f};
+            model = glm::translate(model, {15, 0, 0});
+            RenderContext context1(&p, &ubo, model);
             w.draw(vao, context1, lp);
+
             Mat4f model3 = Mat4f{1.f};
             model3 = glm::translate(model3, {-10, 0, 0});
 
@@ -241,6 +269,18 @@ namespace palka
 
             RenderContext context3(&light, &ubo, lightPos);
             w.draw(vao, context3, lp);
+
+            Mat4f model2 = Mat4f{1.f};
+            model2 = glm::translate(model2, {0, 0, 0});
+            RenderContext context4(&p, &ubo, model2, [](ShaderProgram& shader)
+            {
+                shader.setUniform("objectColor", Vec3f{0.2f, 0.1f, 0.9f});
+                shader.setUniform("lightColor", Vec3f{1.f, 1.0f, 1.0f});
+                shader.setUniform("lightPos", lp);
+
+            });
+            w.draw(test, context4);
+
 
             Console::Draw("Console", &console_open);
             w.ImGuiEndFrame();

@@ -23,9 +23,14 @@ namespace palka
 
 
     }
+
     class Console
     {
     public:
+        struct skip_unique_check
+        {
+            bool skip;
+        };
         enum logType
         {
             error = 1,
@@ -56,16 +61,22 @@ namespace palka
 
         static bool hasNewLogByTyp(logType t);
 
-        static void addLog(Log log);
+        static void addLog(Log log, skip_unique_check skip = {false});
 
         static void addLog(std::string s, logType t);
 
-       // static void addLog_(std::string s, logType t, ...);
+        // static void addLog_(std::string s, logType t, ...);
 
         template<typename... Args>
-        static void fmt_log(std::string_view rt_fmt_str, logType type, Args&& ... args)
+        static void fmt_log(const std::string& rt_fmt_str, logType type = info, Args&& ... args)
         {
-            addLog(Log(fmt::vformat(rt_fmt_str, fmt::make_format_args(args...)), type));
+            addLog(Log(vformat(rt_fmt_str, fmt::make_format_args(args...)), type));
+        }
+
+        template<typename... Args>
+        static void fmt_log_skip_uniq(const std::string& rt_fmt_str, logType type = info, Args&& ... args)
+        {
+            addLog(Log(vformat(rt_fmt_str, fmt::make_format_args(args...)), type), skip_unique_check{true});
         }
 
         static void saveLog(std::string_view path);

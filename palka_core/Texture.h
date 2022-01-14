@@ -24,8 +24,7 @@ namespace palka
     class Texture
     {
 #ifdef REFLECTION_CORE
-    RTTR_ENABLE()
-
+        RTTR_ENABLE()
         RTTR_REGISTRATION_FRIEND
 #endif
     private:
@@ -61,7 +60,7 @@ namespace palka
 
         Texture& operator=(const Texture&) = delete;
 
-        explicit Texture(std::string_view path, Vec2i size);
+        explicit Texture(std::string_view path);
 
         void LoadFromFile(std::string_view path);
 

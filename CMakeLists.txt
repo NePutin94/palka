@@ -65,6 +65,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+
 FetchContent_Declare(
         glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
@@ -72,6 +73,25 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+FetchContent_Declare(
+        entt
+        GIT_REPOSITORY https://github.com/skypjack/entt.git
+        GIT_TAG "v3.8.1"
+)
+FetchContent_MakeAvailable(entt)
+
+set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF)
+FetchContent_Declare(
+        tinygltf
+        GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
+)
+FetchContent_MakeAvailable(tinygltf)
+
+FetchContent_Declare(
+        assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG "v5.1.3"
+)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ZLIB ON)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
@@ -79,11 +99,6 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(ASSIMP_BUILD_FBX_IMPORTER ON)
-FetchContent_Declare(
-        assimp
-        GIT_REPOSITORY https://github.com/assimp/assimp.git
-        GIT_TAG "v5.1.3"
-)
 FetchContent_MakeAvailable(assimp)
 
 add_executable(palka "main.cpp")
@@ -99,6 +114,7 @@ if (WIN32)
             $<TARGET_FILE:RTTR::Core>
             $<TARGET_FILE:fmt::fmt>
             $<TARGET_FILE:assimp::assimp>
+            $<TARGET_FILE:tinygltf>
             $<TARGET_FILE:glfw>
             $<TARGET_FILE:PalkaCore>
             $<TARGET_FILE_DIR:palka>)

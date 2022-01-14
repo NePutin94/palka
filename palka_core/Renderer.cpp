@@ -31,7 +31,7 @@ void palka::Renderer::draw(palka::VertArray array, palka::RenderContext context)
     glLoadIdentity();
 }
 
-void palka::Renderer::draw(palka::Mesh& m, palka::RenderContext context)
+void palka::Renderer::draw(palka::assimp_loader& m, palka::RenderContext context)
 {
     applyBlend(context.getBlend());
     auto& shader = *context.getShader();
@@ -42,16 +42,13 @@ void palka::Renderer::draw(palka::Mesh& m, palka::RenderContext context)
     auto _view = camera.getViewMatrix();
 
     shader.bind();
-    shader.setUniform("objectColor", Vec3f{0.2f, 0.1f, 0.9f});
-    shader.setUniform("lightColor", Vec3f{1.f, 0.1f, 0.1f});
-    shader.setUniform("lightPos", Vec3f{-5.f, 0.f, -5.f});
     shader.setUniform("viewPos", camera.cameraPos);
 
     buffer.setData(glm::value_ptr(projection), sizeof(float[16]), 0);
     buffer.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
     buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
 
-    m.render();
+    m.render(*context.getShader());
 }
 
 void palka::Renderer::draw(palka::VertexArrayObject& array, palka::RenderContext context, glm::vec3 lightPos)
@@ -99,6 +96,50 @@ void palka::Renderer::draw(palka::StaticMesh& m, palka::RenderContext context, V
     buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
 
     m.render();
+}
+
+void palka::Renderer::draw(palka::gltf_loader& m, palka::RenderContext context, tinygltf::Model& mod, VertexArrayObject& vao)
+{
+    applyBlend(context.getBlend());
+    auto& shader = *context.getShader();
+    auto& buffer = *context.getUBO();
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = camera.getProjectionMatrix();
+    auto _view = camera.getViewMatrix();
+
+    shader.bind();
+    shader.setUniform("objectColor", Vec3f{0.2f, 0.1f, 0.9f});
+    shader.setUniform("lightColor", Vec3f{1.f, 0.1f, 0.1f});
+    shader.setUniform("viewPos", camera.cameraPos);
+    context();
+
+    buffer.setData(glm::value_ptr(projection), sizeof(float[16]), 0);
+    buffer.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
+    buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
+
+    m.drawModel(mod, vao);
+}
+
+void palka::Renderer::draw(palka::Model& m, palka::RenderContext context)
+{
+    applyBlend(context.getBlend());
+    auto& shader = *context.getShader();
+    auto& buffer = *context.getUBO();
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = camera.getProjectionMatrix();
+    auto _view = camera.getViewMatrix();
+
+    shader.bind();
+    shader.setUniform("objectColor", Vec3f{0.2f, 0.1f, 0.9f});
+    shader.setUniform("lightColor", Vec3f{1.f, 0.1f, 0.1f});
+    shader.setUniform("viewPos", camera.cameraPos);
+    context();
+
+    buffer.setData(glm::value_ptr(projection), sizeof(float[16]), 0);
+    buffer.setData(glm::value_ptr(_view), sizeof(float[16]), sizeof(float[16]));
+    buffer.setData(glm::value_ptr(context.getTransform()), sizeof(float[16]), sizeof(float[16]) * 2);
+
+    m.render(shader);
 }
 
 

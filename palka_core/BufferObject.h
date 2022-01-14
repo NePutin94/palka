@@ -48,26 +48,51 @@ namespace palka
         }
 
     public:
+        using RenderType = _BufferRenderType;
+
         BufferObject() : bufferID(0), isCreated(false), renderType(STATIC), bufferType(NONE), data_size(0)
         {}
 
+        BufferObject(BufferType type) : bufferID(0), isCreated(false), renderType(STATIC), bufferType(type), data_size(0)
+        {}
+
+        ~BufferObject()
+        {
+            deleteBuffer();
+        }
+
         BufferObject(const BufferObject& b) = delete;
 
-        BufferObject(BufferObject&& b) = default;
+        BufferObject& operator=(BufferObject&& other) noexcept
+        {
+            if(this == &other)
+                return *this;
+            this->bufferID = other.bufferID;
+            this->data_size = other.data_size;
+            this->bufferType = other.bufferType;
+            this->renderType = other.renderType;
+            this->isCreated = other.isCreated;
+            other.isCreated = false;
+            other.bufferID = 0;
+            return *this;
+        }
 
-        BufferObject& operator=(BufferObject&&) = default;
+        BufferObject(BufferObject&& other) noexcept
+        {
+            *this = std::move(other);
+        }
 
         void create(size_t size = 0)
         {
             glGenBuffers(1, &bufferID);
-            glBindBuffer(BufferTypeToGl(), bufferID);
+            bind();
             if(size)
             {
                 data_size = size;
                 glBufferData(BufferTypeToGl(), data_size, NULL, BufferRenderTypeToGl());
             }
             isCreated = true;
-            glBindBuffer(BufferTypeToGl(), 0);
+            unbind();
         }
 
         void bind()
@@ -88,7 +113,7 @@ namespace palka
             isCreated = false;
         }
 
-        void setData(const float* data, size_t data_size, size_t leftOffset)
+        void setData(const void* data, size_t data_size, size_t leftOffset)
         {
             glBindBuffer(BufferTypeToGl(), bufferID);
             if(this->data_size < data_size)
@@ -127,13 +152,6 @@ namespace palka
 //            glBufferSubData(BufferTypeToGl(), leftOffset, _data_size, &data[0]);
 //            glBindBuffer(BufferTypeToGl(), 0);
         }
-
-        ~BufferObject()
-        {
-            deleteBuffer();
-        }
-
-        using RenderType = _BufferRenderType;
     };
 }
 #endif //PALKA_BUFFEROBJECT_H

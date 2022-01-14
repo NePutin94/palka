@@ -104,7 +104,11 @@ namespace palka
 
         void draw(StaticMesh& m, RenderContext context, Vec3f lightPos);
 
-        void draw(Mesh& m, RenderContext context);
+        void draw(Model& m, RenderContext context);
+
+        void draw(gltf_loader& m, RenderContext context, tinygltf::Model&, VertexArrayObject& vao);
+
+        void draw(assimp_loader& m, RenderContext context);
 
         void draw(VertexArrayObject& array,  RenderContext context, Vec3f lightPos);
 
